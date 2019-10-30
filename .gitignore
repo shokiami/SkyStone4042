@@ -24,5 +24,7 @@ Thumbs.db
 .gradle
 build/
 
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/VuforiaKey.java
+
 *ASUS_PC_01*
 
