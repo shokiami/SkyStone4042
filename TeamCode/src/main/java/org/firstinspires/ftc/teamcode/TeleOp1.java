@@ -60,6 +60,7 @@ public class TeleOp1 extends OpMode
     private double speed;
     private float rightTriggerCheck;
     private boolean xCheck;
+    private boolean aCheck;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -74,6 +75,8 @@ public class TeleOp1 extends OpMode
         speed = 1;
         rightTriggerCheck = 0;
         xCheck = false;
+        aCheck = false;
+
 
         leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
@@ -125,20 +128,7 @@ public class TeleOp1 extends OpMode
                 speed = 0.5;
             }
         }
-        /*
-        if (0.01 < gamepad1.left_trigger) {
-            if (gamepad1.left_trigger == 1 && leftTriggerCheck != 1) {
-                if (speed == 0.5) {
-                    speed = 1;
-                } else {
-                    speed = 0.5;
-                }
-            } else {
-                speed = 1 - gamepad1.left_trigger;
-            }
-        } */
         xCheck = gamepad1.x;
-
 
         //Lift
         if (gamepad1.dpad_up) {
@@ -150,19 +140,27 @@ public class TeleOp1 extends OpMode
         }
 
         //Hook Servos
-        if (gamepad1.y) {
+        if (gamepad1.a && !aCheck) {
             if (hookAngle == 0) {
                 hookAngle = 90;
             } else {
                 hookAngle = 0;
             }
         }
+        aCheck = gamepad1.a;
 
         //Intake
         if (gamepad1.right_trigger != 0 && rightTriggerCheck == 0) {
             intake = !intake;
         }
         rightTriggerCheck = gamepad1.right_trigger;
+
+        if (gamepad1.y) {
+            intakeAngle += 0.01;
+        }
+        if (gamepad1.b) {
+            intakeAngle -= 0.01;
+        }
 
         leftPower *= speed;
         rightPower *= speed;
@@ -184,7 +182,8 @@ public class TeleOp1 extends OpMode
         intakeServo.setPosition(intakeAngle);
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower, strafePower);
+        telemetry.addData("Status", "Intake Angle: " + intakeAngle);
+        telemetry.addData("Status", "Hook Angle: " + hookAngle);
     }
 
     //Code to run ONCE after the driver hits STOP
