@@ -72,14 +72,14 @@ public class Auto1 extends LinearOpMode {
             double leftPower = 0;
             double rightPower = 0;
             if (getRuntime() < 1500) {
-                leftPower = 0.5;
-                rightPower = 0.5;
-            } else if (getRuntime() < 2000) {
+                leftPower = 1;
+                rightPower = 1;
+            } else if (getRuntime() < 2500) {
                 leftPower = 0;
-                rightPower = 0.5;
+                rightPower = 1;
             } else if (getRuntime() < 5500) {
-                leftPower = 0.5;
-                rightPower = 0.5;
+                leftPower = 1;
+                rightPower = 1;
             }
 
             // Choose to drive using either Tank Mode, or POV Mode
