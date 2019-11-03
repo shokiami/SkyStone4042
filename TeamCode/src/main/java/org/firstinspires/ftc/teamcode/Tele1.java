@@ -35,8 +35,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="TeleOp1", group="Iterative Opmode")
-public class TeleOp1 extends OpMode
+@TeleOp(name="Tele1", group="Iterative Opmode")
+public class Tele1 extends OpMode
 {
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();

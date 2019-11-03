@@ -55,7 +55,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Basic: Linear OpMode", group="Linear Opmode")
 @Disabled
-public class AutoLinear1 extends LinearOpMode {
+public class Auto1 extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
