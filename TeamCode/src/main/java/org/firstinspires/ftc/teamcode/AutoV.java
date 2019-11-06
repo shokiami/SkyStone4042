@@ -29,17 +29,27 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Tele1", group="Iterative Opmode")
-public class Tele1 extends OpMode
-{
-    // Declare OpMode members
-    private ElapsedTime runtime = new ElapsedTime();
+@Autonomous(name="AutoV", group="Linear Opmode")
+public class AutoV extends LinearOpMode {
+    private Vuforia vuforia;
+
+    private double leftPower;
+    private double rightPower;
+    private double strafePower;
+    private double liftPower;
+    private double hookAngle;
+    private double intakeAngle;
+    private boolean intake;
+
     private DcMotor leftDrive;
     private DcMotor rightDrive;
     private DcMotor strafeDrive;
@@ -50,21 +60,12 @@ public class Tele1 extends OpMode
     private Servo hookServo2;
     private Servo intakeServo;
 
-    private double leftPower;
-    private double rightPower;
-    private double strafePower;
-    private double liftPower;
-    private double hookAngle;
-    private double intakeAngle;
-    private boolean intake;
-    private double speed;
-    private float rightTriggerCheck;
-    private boolean xCheck;
-    private boolean aCheck;
+    private ElapsedTime runtime = new ElapsedTime();
 
-    //Code to run ONCE when the driver hits INIT
     @Override
-    public void init() {
+    public void runOpMode() {
+        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+
         leftPower = 0;
         rightPower = 0;
         strafePower = 0;
@@ -72,10 +73,6 @@ public class Tele1 extends OpMode
         hookAngle = 0;
         intakeAngle = 0;
         intake = false;
-        speed = 1;
-        rightTriggerCheck = 0;
-        xCheck = false;
-        aCheck = false;
 
         leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
@@ -98,95 +95,31 @@ public class Tele1 extends OpMode
         intakeServo.setDirection(Servo.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
-    }
 
-    //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-    @Override
-    public void init_loop() {
-    }
-
-    //Code to run ONCE when the driver hits PLAY
-    @Override
-    public void start() {
+        waitForStart();
         runtime.reset();
-    }
+        vuforia.flashlight(true);
 
-    //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-    @Override
-    public void loop() {
-        //Ball Drive
-        leftPower = gamepad1.left_stick_y;
-        rightPower = gamepad1.right_stick_y;
-        strafePower = gamepad1.right_stick_x;
+        while (opModeIsActive()) {
+            vuforia.update();
 
-        //Speed Adjustments
-        if (gamepad1.x && !xCheck) {
-            if (speed == 0.5) {
-                speed = 1;
+            leftDrive.setPower(leftPower);
+            rightDrive.setPower(rightPower);
+            strafeDrive.setPower(strafePower);
+            liftMotor1.setPower(liftPower);
+            liftMotor2.setPower(liftPower);
+            if (intake) {
+                intakeMotor.setPower(1);
             } else {
-                speed = 0.5;
+                intakeMotor.setPower(0);
             }
+            hookServo1.setPosition(hookAngle);
+            hookServo2.setPosition(hookAngle);
+            intakeServo.setPosition(intakeAngle);
+
+            telemetry.addData("Run Time:", "" + runtime.toString());
+            telemetry.update();
         }
-        xCheck = gamepad1.x;
-
-        //Lift
-        if (gamepad1.dpad_up) {
-            liftPower = 1;
-        } else if (gamepad1.dpad_down) {
-            liftPower = -1;
-        } else {
-            liftPower = 0;
-        }
-
-        //Hook Servos
-        if (gamepad1.a && !aCheck) {
-            if (hookAngle == 0) {
-                hookAngle = 90;
-            } else {
-                hookAngle = 0;
-            }
-        }
-        aCheck = gamepad1.a;
-
-        //Intake
-        if (gamepad1.right_trigger != 0 && rightTriggerCheck == 0) {
-            intake = !intake;
-        }
-        rightTriggerCheck = gamepad1.right_trigger;
-
-        if (gamepad1.y) {
-            intakeAngle += 0.01;
-        }
-        if (gamepad1.b) {
-            intakeAngle -= 0.01;
-        }
-
-        leftPower *= speed;
-        rightPower *= speed;
-        strafePower *= speed;
-        liftPower *= speed;
-
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
-        strafeDrive.setPower(strafePower);
-        liftMotor1.setPower(liftPower);
-        liftMotor2.setPower(liftPower);
-        if (intake) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
-        }
-        hookServo1.setPosition(hookAngle);
-        hookServo2.setPosition(hookAngle);
-        intakeServo.setPosition(intakeAngle);
-
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", "Intake Angle: " + intakeAngle);
-        telemetry.addData("Status", "Hook Angle: " + hookAngle);
-    }
-
-    //Code to run ONCE after the driver hits STOP
-    @Override
-    public void stop() {
+        vuforia.close();
     }
 }

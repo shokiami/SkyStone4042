@@ -51,9 +51,9 @@ public class Vuforia {
     private double xvel, yvel, zvel;
     private VuforiaLocalizer vuforia;
     private boolean targetVisible = false;
-    private float phoneXRotate    = 0;
-    private float phoneYRotate    = 0;
-    private float phoneZRotate    = 0;
+    private float phoneXRotate = 0;
+    private float phoneYRotate;
+    private float phoneZRotate = 0;
 
     private List<VuforiaTrackable> allTrackables;
     private VuforiaTrackables targetsSkyStone;
@@ -125,7 +125,6 @@ public class Vuforia {
         rear1.setName("Rear Perimeter 1");
         VuforiaTrackable rear2 = targetsSkyStone.get(12);
         rear2.setName("Rear Perimeter 2");
-
 
         allTrackables = new ArrayList<>();
         allTrackables.addAll(targetsSkyStone);
@@ -203,10 +202,6 @@ public class Vuforia {
 
         if (PHONE_IS_PORTRAIT)
             phoneXRotate = 90 ;
-
-
-
-
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -321,13 +316,13 @@ public class Vuforia {
     }
 
     /*
-    if (vuforiaWrangler.isTargetVisible()) {
-            if (vuforiaWrangler.isTargetStone()) {
+    if (vuforia.isTargetVisible()) {
+            if (vuforia.isTargetStone()) {
                 telemetry.addData("Stone Visible", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        vuforiaWrangler.getX(), vuforiaWrangler.getY(), vuforiaWrangler.getZ());
+                        vuforia.getX(), vuforia.getY(), vuforia.getZ());
             } else {
                 telemetry.addData("Robot Pose", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        vuforiaWrangler.getX(), vuforiaWrangler.getY(), vuforiaWrangler.getZ());
+                        vuforia.getX(), vuforia.getY(), vuforia.getZ());
             }
         }
     */
