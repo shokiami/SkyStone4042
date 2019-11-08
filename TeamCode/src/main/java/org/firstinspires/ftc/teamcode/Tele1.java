@@ -117,7 +117,7 @@ public class Tele1 extends OpMode
         //Ball Drive
         leftPower = gamepad1.left_stick_y;
         rightPower = gamepad1.right_stick_y;
-        strafePower = gamepad1.right_stick_x;
+        strafePower = 0.5 * gamepad1.right_stick_x + 0.5 * gamepad1.left_stick_x;
 
         //Speed Adjustments
         if (gamepad1.x && !xCheck) {
@@ -141,9 +141,9 @@ public class Tele1 extends OpMode
         //Hook Servos
         if (gamepad1.a && !aCheck) {
             if (hookAngle == 0) {
-                hookAngle = 90;
+                hookAngle = 0.6;
             } else {
-                hookAngle = 0;
+                hookAngle = 0.6;
             }
         }
         aCheck = gamepad1.a;
