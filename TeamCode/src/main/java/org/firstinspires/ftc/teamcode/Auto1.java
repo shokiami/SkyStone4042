@@ -38,64 +38,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="AutoV", group="Linear Opmode")
-public class AutoV extends LinearOpMode {
-    private Vuforia vuforia;
-
-    private double leftPower;
-    private double rightPower;
-    private double strafePower;
-    private double liftPower;
-    private double hookAngle;
-    private double intakeAngle;
-    private boolean intake;
-
-    private DcMotor leftDrive;
-    private DcMotor rightDrive;
-    private DcMotor strafeDrive;
-    private DcMotor liftMotor1;
-    private DcMotor liftMotor2;
-    private DcMotor intakeMotor;
-    private Servo hookServo1;
-    private Servo hookServo2;
-    private Servo intakeServo;
-
+@Autonomous(name="Auto1", group="Linear Opmode")
+public class Auto1 extends LinearOpMode {
+    private double leftPower = 0;
+    private double rightPower = 0;
+    private double strafePower = 0;
+    private double liftPower = 0;
+    private double intakeAngle = 0;
+    private boolean intake = false;
+    private double hookAngle = 0;
+    private Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+    private Config config = new Config(hardwareMap);
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
-        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
-
-        leftPower = 0;
-        rightPower = 0;
-        strafePower = 0;
-        liftPower = 0;
-        hookAngle = 0;
-        intakeAngle = 0;
-        intake = false;
-
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
-        strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
-        hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
-        hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
-        intakeServo = hardwareMap.get(Servo.class, "intake_servo");
-
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        strafeDrive.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor2.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
-        hookServo1.setDirection(Servo.Direction.REVERSE);
-        hookServo2.setDirection(Servo.Direction.FORWARD);
-        intakeServo.setDirection(Servo.Direction.FORWARD);
-
         telemetry.addData("Status", "Initialized");
-
         waitForStart();
         runtime.reset();
         vuforia.flashlight(true);
@@ -103,19 +61,7 @@ public class AutoV extends LinearOpMode {
         while (opModeIsActive()) {
             vuforia.update();
 
-            leftDrive.setPower(leftPower);
-            rightDrive.setPower(rightPower);
-            strafeDrive.setPower(strafePower);
-            liftMotor1.setPower(liftPower);
-            liftMotor2.setPower(liftPower);
-            if (intake) {
-                intakeMotor.setPower(1);
-            } else {
-                intakeMotor.setPower(0);
-            }
-            hookServo1.setPosition(hookAngle);
-            hookServo2.setPosition(hookAngle);
-            intakeServo.setPosition(intakeAngle);
+            config.update(leftPower, rightPower, strafePower, liftPower, intake, intakeAngle, hookAngle);
 
             telemetry.addData("Run Time:", "" + runtime.toString());
             telemetry.update();

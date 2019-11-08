@@ -217,9 +217,6 @@ public class Vuforia {
         // check all the trackable targets to see which one (if any) is visible.
         targetVisible = false;
 
-        telemetry.addData("vuforia last time", elapsedTime.seconds());
-        telemetry.addData("whoops count", whoopsCount);
-
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 //telemetry.addData("Visible Target", trackable.getName());
