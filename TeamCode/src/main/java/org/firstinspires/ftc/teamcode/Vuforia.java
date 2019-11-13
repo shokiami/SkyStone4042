@@ -251,12 +251,11 @@ public class Vuforia {
     }
 
     private void telemetrizeTranslation(VectorF translation) {
-        telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+        telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f", this.getX(), this.getY(), this.getZ());
     }
 
     private void telemetrizeOrientation(Orientation rotation) {
-        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", this.getRoll(), this.getPitch(), this.getHeading());
     }
 
     private VectorF getTranslation() {
@@ -311,16 +310,4 @@ public class Vuforia {
         CameraDevice.getInstance().setFlashTorchMode(false);
         targetsSkyStone.deactivate();
     }
-
-    /*
-    if (vuforia.isTargetVisible()) {
-            if (vuforia.isTargetStone()) {
-                telemetry.addData("Stone Visible", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        vuforia.getX(), vuforia.getY(), vuforia.getZ());
-            } else {
-                telemetry.addData("Robot Pose", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        vuforia.getX(), vuforia.getY(), vuforia.getZ());
-            }
-        }
-    */
 }

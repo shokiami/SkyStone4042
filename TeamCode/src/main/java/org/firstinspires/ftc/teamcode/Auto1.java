@@ -40,29 +40,44 @@ import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Auto1", group="Linear Opmode")
 public class Auto1 extends LinearOpMode {
-    private double leftPower = 0;
-    private double rightPower = 0;
-    private double strafePower = 0;
-    private double liftPower = 0;
-    private double intakeAngle = 0;
-    private boolean intake = false;
-    private double hookAngle = 0;
-    private Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
-    private Config config = new Config(hardwareMap);
-    private ElapsedTime runtime = new ElapsedTime();
-
     @Override
     public void runOpMode() {
+        double leftPower = 0;
+        double rightPower = 0;
+        double strafePower = 0;
+        double liftPower = 0;
+        double intakeAngle = 0;
+        boolean intake = false;
+        double hookAngle = 0;
+        Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+        Config config = new Config(hardwareMap);
+        ElapsedTime runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
+
         waitForStart();
         runtime.reset();
         vuforia.flashlight(true);
 
         while (opModeIsActive()) {
+            if (!vuforia.isTargetStone()) {
+                leftPower = 1;
+                rightPower = -1;
+            } else {
+                leftPower = 1;
+                rightPower = 1;
+                if (vuforia.getY() < 0) {
+                    rightPower -= 0.5;
+                }
+                if (vuforia.getY() > 0) {
+                    leftPower -= 0.5;
+                }
+                if (vuforia.getX() > -10) {
+                    leftPower = 0;
+                    rightPower = 0;
+                }
+            }
             vuforia.update();
-
             config.update(leftPower, rightPower, strafePower, liftPower, intake, intakeAngle, hookAngle);
-
             telemetry.addData("Run Time:", "" + runtime.toString());
             telemetry.update();
         }

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class Config {
+class Config {
     private DcMotor leftDrive;
     private DcMotor rightDrive;
     private DcMotor strafeDrive;
@@ -15,7 +15,7 @@ public class Config {
     private Servo hookServo2;
     private Servo intakeServo;
 
-    Config(HardwareMap hardwareMap){
+     Config(HardwareMap hardwareMap){
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
@@ -26,8 +26,8 @@ public class Config {
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
 
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
         strafeDrive.setDirection(DcMotor.Direction.FORWARD);
         liftMotor1.setDirection(DcMotor.Direction.REVERSE);
         liftMotor2.setDirection(DcMotor.Direction.FORWARD);
