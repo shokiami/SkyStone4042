@@ -9,10 +9,12 @@ class Robot {
     double rightPower = 0;
     double strafePower = 0;
     double liftPower = 0;
+    double intakePower = 0;
     double intakeAngle = 0;
-    boolean intake = false;
     double hookAngle = 0;
-    double valve = 0;
+    double valveAngle = 0;
+
+    double speed = 1;
 
     private DcMotor leftDrive;
     private DcMotor rightDrive;
@@ -20,9 +22,9 @@ class Robot {
     private DcMotor liftMotor1;
     private DcMotor liftMotor2;
     private DcMotor intakeMotor;
+    private Servo intakeServo;
     private Servo hookServo1;
     private Servo hookServo2;
-    private Servo intakeServo;
     private Servo valveServo;
 
      Robot(HardwareMap hardwareMap){
@@ -49,20 +51,53 @@ class Robot {
         valveServo.setDirection(Servo.Direction.FORWARD);
     }
 
+    void toggleSpeed() {
+        if (speed == 1) {
+            speed = 0.5;
+        } else {
+            speed = 1;
+        }
+    }
+
+    void toggleIntake() {
+        if (intakePower == 0) {
+            intakePower = 1;
+        } else {
+            intakePower = 0;
+        }
+    }
+
+    void toggleValve() {
+        if (valveAngle == 0) {
+            valveAngle = 1;
+        } else {
+            valveAngle = 0;
+        }
+    }
+
+    void toggleHook() {
+        if (hookAngle == 0) {
+            hookAngle = 0.6;
+        } else {
+            hookAngle = 0;
+        }
+    }
+
     void update() {
+        leftPower *= speed;
+        rightPower *= speed;
+        strafePower *= speed;
+        liftPower *= speed;
+
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
         strafeDrive.setPower(strafePower);
         liftMotor1.setPower(liftPower);
         liftMotor2.setPower(liftPower);
-        if (intake) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
-        }
+        intakeMotor.setPower(intakePower);
         intakeServo.setPosition(intakeAngle);
         hookServo1.setPosition(hookAngle);
         hookServo2.setPosition(hookAngle);
-        valveServo.setPosition(valve);
+        valveServo.setPosition(valveAngle);
     }
 }

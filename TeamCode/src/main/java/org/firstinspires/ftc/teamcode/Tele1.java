@@ -41,7 +41,6 @@ public class Tele1 extends OpMode
     // Declare OpMode members
     private Robot robot = new Robot(hardwareMap);
     private ElapsedTime runtime = new ElapsedTime();
-    private double speed;
     private float rightTriggerCheck;
     private boolean leftBumperCheck;
     private boolean xCheck;
@@ -50,7 +49,6 @@ public class Tele1 extends OpMode
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        speed = 1;
         rightTriggerCheck = 0;
         xCheck = false;
         aCheck = false;
@@ -77,13 +75,9 @@ public class Tele1 extends OpMode
         robot.rightPower = gamepad1.right_stick_y;
         robot.strafePower = 0.5 * gamepad1.right_stick_x + 0.5 * gamepad1.left_stick_x;
 
-        //Speed Adjustments
+        //Speed
         if (gamepad1.x && !xCheck) {
-            if (speed == 0.5) {
-                speed = 1;
-            } else {
-                speed = 0.5;
-            }
+            robot.toggleSpeed();
         }
         xCheck = gamepad1.x;
 
@@ -96,19 +90,9 @@ public class Tele1 extends OpMode
             robot.liftPower = 0;
         }
 
-        //Hook Servos
-        if (gamepad1.a && !aCheck) {
-            if (robot.hookAngle == 0) {
-                robot.hookAngle = 0.6;
-            } else {
-                robot.hookAngle = 0;
-            }
-        }
-        aCheck = gamepad1.a;
-
         //Intake
         if (gamepad1.right_trigger != 0 && rightTriggerCheck == 0) {
-            robot.intake = !robot.intake;
+            robot.toggleIntake();
         }
         rightTriggerCheck = gamepad1.right_trigger;
 
@@ -119,25 +103,21 @@ public class Tele1 extends OpMode
             robot.intakeAngle -= 0.01;
         }
 
+        //Hook Servos
+        if (gamepad1.a && !aCheck) {
+            robot.toggleHook();
+        }
+        aCheck = gamepad1.a;
+
         //Valve Servos
         if (gamepad1.left_bumper && !leftBumperCheck) {
-            if (robot.valve == 0) {
-                robot.valve = 0.25;
-            } else {
-                robot.valve = 0;
-            }
+            robot.toggleValve();
         }
         leftBumperCheck = gamepad1.left_bumper;
 
-        robot.leftPower *= speed;
-        robot.rightPower *= speed;
-        robot.strafePower *= speed;
-        robot.liftPower *= speed;
-
         robot.update();
+
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", "Intake Angle: " + robot.intakeAngle);
-        telemetry.addData("Status", "Hook Angle: " + robot.hookAngle);
     }
 
     //Code to run ONCE after the driver hits STOP
