@@ -150,7 +150,7 @@ public class Tele1 extends OpMode
             if (hookAngle == 0) {
                 hookAngle = 0.6;
             } else {
-                hookAngle = 0.6;
+                hookAngle = 0;
             }
         }
         aCheck = gamepad1.a;
