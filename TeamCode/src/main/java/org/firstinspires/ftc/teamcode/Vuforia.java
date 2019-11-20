@@ -52,7 +52,7 @@ public class Vuforia {
     private VuforiaLocalizer vuforia;
     private boolean targetVisible = false;
     private float phoneXRotate = 0;
-    private float phoneYRotate;
+    private float phoneYRotate = 0;
     private float phoneZRotate = 0;
 
     private List<VuforiaTrackable> allTrackables;
@@ -73,7 +73,6 @@ public class Vuforia {
 
     // if the target is a stone:
     // robot is -X away from target, -Y to the right of target, +Z above target
-
     Vuforia(HardwareMap hardwareMap, Telemetry telemetry, PhoneInfoPackage infoPackage) {
         CAMERA_CHOICE = infoPackage.CAMERA_CHOICE;
         PHONE_IS_PORTRAIT = infoPackage.PHONE_IS_PORTRAIT;

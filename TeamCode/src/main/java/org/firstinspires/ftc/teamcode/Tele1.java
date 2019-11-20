@@ -36,21 +36,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name="Tele1", group="Iterative Opmode")
 public class Tele1 extends OpMode
 {
-    // Declare OpMode members
+    //Declare OpMode members
     private Robot robot = new Robot(hardwareMap);
+    private Controller controller1 = new Controller();
     private ElapsedTime runtime = new ElapsedTime();
-    private float rightTriggerCheck;
-    private boolean leftBumperCheck;
-    private boolean xCheck;
-    private boolean aCheck;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        rightTriggerCheck = 0;
-        xCheck = false;
-        aCheck = false;
-        leftBumperCheck = false;
         telemetry.addData("Status", "Initialized");
     }
 
@@ -68,32 +61,31 @@ public class Tele1 extends OpMode
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        //Ball Drive
-        robot.leftPower = gamepad1.left_stick_y;
-        robot.rightPower = gamepad1.right_stick_y;
-        robot.strafePower = 0.5 * gamepad1.right_stick_x + 0.5 * gamepad1.left_stick_x;
+        controller1.update(gamepad1);
 
         //Speed
-        if (gamepad1.x && !xCheck) {
+        if (controller1.x.equals("pressing")) {
             robot.toggleSpeed();
         }
-        xCheck = gamepad1.x;
+
+        //Ball Drive
+        robot.leftPower = controller1.left_stick_y;
+        robot.rightPower = controller1.right_stick_y;
+        robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
 
         //Lift
-        if (gamepad1.dpad_up) {
+        if (controller1.dpad_up.equals("pressed")) {
             robot.liftPower = 1;
-        } else if (gamepad1.dpad_down) {
+        } else if (controller1.dpad_down.equals("pressed")) {
             robot.liftPower = -1;
         } else {
             robot.liftPower = 0;
         }
 
         //Intake
-        if (gamepad1.right_trigger != 0 && rightTriggerCheck == 0) {
+        if (controller1.right_bumper.equals("pressing")) {
             robot.toggleIntake();
         }
-        rightTriggerCheck = gamepad1.right_trigger;
-
         if (gamepad1.y) {
             robot.intakeAngle += 0.01;
         }
@@ -101,17 +93,15 @@ public class Tele1 extends OpMode
             robot.intakeAngle -= 0.01;
         }
 
-        //Hook Servos
-        if (gamepad1.a && !aCheck) {
+        //Hook
+        if (controller1.a.equals("pressing")) {
             robot.toggleHook();
         }
-        aCheck = gamepad1.a;
 
-        //Valve Servos
-        if (gamepad1.left_bumper && !leftBumperCheck) {
+        //Valve
+        if (controller1.left_bumper.equals("pressing")) {
             robot.toggleValve();
         }
-        leftBumperCheck = gamepad1.left_bumper;
 
         robot.update();
 

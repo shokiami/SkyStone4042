@@ -35,16 +35,23 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Auto1", group="Linear Opmode")
 public class Auto1 extends LinearOpMode {
+    //Declare OpMode members
+    private Robot robot = new Robot(hardwareMap);
+    private Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+    private ElapsedTime runtime = new ElapsedTime();
+
     @Override
     public void runOpMode() {
-        Robot robot = new Robot(hardwareMap);
-        Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
-        ElapsedTime runtime = new ElapsedTime();
+        //Code to run ONCE when the driver hits INIT
         telemetry.addData("Status", "Initialized");
+
         waitForStart();
+
+        //Code to run ONCE when the driver hits PLAY
         runtime.reset();
         vuforia.flashlight(true);
 
+        //Code to run REPEATEDLY until time runs out
         while (opModeIsActive()) {
             if (!vuforia.isTargetStone()) {
                 robot.leftPower = 1;
