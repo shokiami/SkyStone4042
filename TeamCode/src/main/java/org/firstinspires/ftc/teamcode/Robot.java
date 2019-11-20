@@ -4,7 +4,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-class Config {
+class Robot {
+    double leftPower = 0;
+    double rightPower = 0;
+    double strafePower = 0;
+    double liftPower = 0;
+    double intakeAngle = 0;
+    boolean intake = false;
+    double hookAngle = 0;
+    double valve = 0;
+
     private DcMotor leftDrive;
     private DcMotor rightDrive;
     private DcMotor strafeDrive;
@@ -14,8 +23,9 @@ class Config {
     private Servo hookServo1;
     private Servo hookServo2;
     private Servo intakeServo;
+    private Servo valveServo;
 
-     Config(HardwareMap hardwareMap){
+     Robot(HardwareMap hardwareMap){
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
@@ -25,6 +35,7 @@ class Config {
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
+        valveServo = hardwareMap.get(Servo.class, "valve_servo");
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -35,9 +46,10 @@ class Config {
         intakeServo.setDirection(Servo.Direction.FORWARD);
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
+        valveServo.setDirection(Servo.Direction.FORWARD);
     }
 
-    void update(double leftPower, double rightPower, double strafePower, double liftPower, boolean intake, double intakeAngle, double hookAngle) {
+    void update() {
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
         strafeDrive.setPower(strafePower);
@@ -51,5 +63,6 @@ class Config {
         intakeServo.setPosition(intakeAngle);
         hookServo1.setPosition(hookAngle);
         hookServo2.setPosition(hookAngle);
+        valveServo.setPosition(valve);
     }
 }

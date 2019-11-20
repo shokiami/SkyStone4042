@@ -39,26 +39,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Tele1 extends OpMode
 {
     // Declare OpMode members
+    private Robot robot = new Robot(hardwareMap);
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftDrive;
-    private DcMotor rightDrive;
-    private DcMotor strafeDrive;
-    private DcMotor liftMotor1;
-    private DcMotor liftMotor2;
-    private DcMotor intakeMotor;
-    private Servo hookServo1;
-    private Servo hookServo2;
-    private Servo intakeServo;
-    private Servo valveServo;
-
-    private double leftPower;
-    private double rightPower;
-    private double strafePower;
-    private double liftPower;
-    private double hookAngle;
-    private double intakeAngle;
-    private double valve;
-    private boolean intake;
     private double speed;
     private float rightTriggerCheck;
     private boolean leftBumperCheck;
@@ -68,42 +50,11 @@ public class Tele1 extends OpMode
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        leftPower = 0;
-        rightPower = 0;
-        strafePower = 0;
-        liftPower = 0;
-        hookAngle = 0;
-        intakeAngle = 0;
-        intake = false;
         speed = 1;
         rightTriggerCheck = 0;
-        valve = 0;
         xCheck = false;
         aCheck = false;
         leftBumperCheck = false;
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
-        strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
-        hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
-        hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
-        intakeServo = hardwareMap.get(Servo.class, "intake_servo");
-        valveServo = hardwareMap.get(Servo.class, "valve_servo");
-
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        strafeDrive.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor2.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
-        hookServo1.setDirection(Servo.Direction.REVERSE);
-        hookServo2.setDirection(Servo.Direction.FORWARD);
-        intakeServo.setDirection(Servo.Direction.FORWARD);
-        valveServo.setDirection(Servo.Direction.FORWARD);
-
-
         telemetry.addData("Status", "Initialized");
     }
 
@@ -122,9 +73,9 @@ public class Tele1 extends OpMode
     @Override
     public void loop() {
         //Ball Drive
-        leftPower = gamepad1.left_stick_y;
-        rightPower = gamepad1.right_stick_y;
-        strafePower = 0.5 * gamepad1.right_stick_x + 0.5 * gamepad1.left_stick_x;
+        robot.leftPower = gamepad1.left_stick_y;
+        robot.rightPower = gamepad1.right_stick_y;
+        robot.strafePower = 0.5 * gamepad1.right_stick_x + 0.5 * gamepad1.left_stick_x;
 
         //Speed Adjustments
         if (gamepad1.x && !xCheck) {
@@ -138,68 +89,55 @@ public class Tele1 extends OpMode
 
         //Lift
         if (gamepad1.dpad_up) {
-            liftPower = 1;
+            robot.liftPower = 1;
         } else if (gamepad1.dpad_down) {
-            liftPower = -1;
+            robot.liftPower = -1;
         } else {
-            liftPower = 0;
+            robot.liftPower = 0;
         }
 
         //Hook Servos
         if (gamepad1.a && !aCheck) {
-            if (hookAngle == 0) {
-                hookAngle = 0.6;
+            if (robot.hookAngle == 0) {
+                robot.hookAngle = 0.6;
             } else {
-                hookAngle = 0;
+                robot.hookAngle = 0;
             }
         }
         aCheck = gamepad1.a;
 
         //Intake
         if (gamepad1.right_trigger != 0 && rightTriggerCheck == 0) {
-            intake = !intake;
+            robot.intake = !robot.intake;
         }
         rightTriggerCheck = gamepad1.right_trigger;
 
         if (gamepad1.y) {
-            intakeAngle += 0.01;
+            robot.intakeAngle += 0.01;
         }
         if (gamepad1.b) {
-            intakeAngle -= 0.01;
+            robot.intakeAngle -= 0.01;
         }
+
         //Valve Servos
         if (gamepad1.left_bumper && !leftBumperCheck) {
-            if (valve == 0) {
-                valve = 0.25;
+            if (robot.valve == 0) {
+                robot.valve = 0.25;
             } else {
-                valve = 0;
+                robot.valve = 0;
             }
         }
         leftBumperCheck = gamepad1.left_bumper;
 
-        leftPower *= speed;
-        rightPower *= speed;
-        strafePower *= speed;
-        liftPower *= speed;
+        robot.leftPower *= speed;
+        robot.rightPower *= speed;
+        robot.strafePower *= speed;
+        robot.liftPower *= speed;
 
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
-        strafeDrive.setPower(strafePower);
-        liftMotor1.setPower(liftPower);
-        liftMotor2.setPower(liftPower);
-        if (intake) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
-        }
-
-        hookServo1.setPosition(hookAngle);
-        hookServo2.setPosition(hookAngle);
-        intakeServo.setPosition(intakeAngle);
-        valveServo.setPosition(valve);
+        robot.update();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", "Intake Angle: " + intakeAngle);
-        telemetry.addData("Status", "Hook Angle: " + hookAngle);
+        telemetry.addData("Status", "Intake Angle: " + robot.intakeAngle);
+        telemetry.addData("Status", "Hook Angle: " + robot.hookAngle);
     }
 
     //Code to run ONCE after the driver hits STOP

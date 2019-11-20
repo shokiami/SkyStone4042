@@ -30,54 +30,41 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Auto1", group="Linear Opmode")
 public class Auto1 extends LinearOpMode {
     @Override
     public void runOpMode() {
-        double leftPower = 0;
-        double rightPower = 0;
-        double strafePower = 0;
-        double liftPower = 0;
-        double intakeAngle = 0;
-        boolean intake = false;
-        double hookAngle = 0;
+        Robot robot = new Robot(hardwareMap);
         Vuforia vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
-        Config config = new Config(hardwareMap);
         ElapsedTime runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
-
         waitForStart();
         runtime.reset();
         vuforia.flashlight(true);
 
         while (opModeIsActive()) {
             if (!vuforia.isTargetStone()) {
-                leftPower = 1;
-                rightPower = -1;
+                robot.leftPower = 1;
+                robot.rightPower = -1;
             } else {
-                leftPower = 1;
-                rightPower = 1;
+                robot.leftPower = 1;
+                robot.rightPower = 1;
                 if (vuforia.getY() < 0) {
-                    rightPower -= 0.5;
+                    robot.rightPower -= 0.5;
                 }
                 if (vuforia.getY() > 0) {
-                    leftPower -= 0.5;
+                    robot.leftPower -= 0.5;
                 }
                 if (vuforia.getX() > -10) {
-                    leftPower = 0;
-                    rightPower = 0;
+                    robot.leftPower = 0;
+                    robot.rightPower = 0;
                 }
             }
             vuforia.update();
-            config.update(leftPower, rightPower, strafePower, liftPower, intake, intakeAngle, hookAngle);
+            robot.update();
             telemetry.addData("Run Time:", "" + runtime.toString());
             telemetry.update();
         }
