@@ -49,6 +49,7 @@ public class Tele1 extends OpMode
     private Servo hookServo1;
     private Servo hookServo2;
     private Servo intakeServo;
+    private Servo valveServo;
 
     private double leftPower;
     private double rightPower;
@@ -56,9 +57,11 @@ public class Tele1 extends OpMode
     private double liftPower;
     private double hookAngle;
     private double intakeAngle;
+    private double valve;
     private boolean intake;
     private double speed;
     private float rightTriggerCheck;
+    private boolean leftBumperCheck;
     private boolean xCheck;
     private boolean aCheck;
 
@@ -74,9 +77,10 @@ public class Tele1 extends OpMode
         intake = false;
         speed = 1;
         rightTriggerCheck = 0;
+        valve = 0;
         xCheck = false;
         aCheck = false;
-
+        leftBumperCheck = false;
         leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
@@ -86,6 +90,7 @@ public class Tele1 extends OpMode
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
+        valveServo = hardwareMap.get(Servo.class, "valve_servo");
 
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -96,6 +101,8 @@ public class Tele1 extends OpMode
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.FORWARD);
+        valveServo.setDirection(Servo.Direction.FORWARD);
+
 
         telemetry.addData("Status", "Initialized");
     }
@@ -160,6 +167,15 @@ public class Tele1 extends OpMode
         if (gamepad1.b) {
             intakeAngle -= 0.01;
         }
+        //Valve Servos
+        if (gamepad1.left_bumper && !leftBumperCheck) {
+            if (valve == 0) {
+                valve = 0.25;
+            } else {
+                valve = 0;
+            }
+        }
+        leftBumperCheck = gamepad1.left_bumper;
 
         leftPower *= speed;
         rightPower *= speed;
@@ -176,10 +192,11 @@ public class Tele1 extends OpMode
         } else {
             intakeMotor.setPower(0);
         }
+
         hookServo1.setPosition(hookAngle);
         hookServo2.setPosition(hookAngle);
         intakeServo.setPosition(intakeAngle);
-
+        valveServo.setPosition(valve);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status", "Intake Angle: " + intakeAngle);
         telemetry.addData("Status", "Hook Angle: " + hookAngle);
