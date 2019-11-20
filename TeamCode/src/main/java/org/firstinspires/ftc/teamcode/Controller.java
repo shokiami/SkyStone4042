@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 class Controller {
+    Gamepad gamepad;
+
     String a, b, x, y;
     String dpad_right, dpad_up, dpad_left, dpad_down;
     String back, guide, start;
@@ -13,7 +15,11 @@ class Controller {
     double right_stick_x, right_stick_y;
     double left_trigger, right_trigger;
 
-    void update(Gamepad gamepad) {
+    public Controller(Gamepad gamepad) {
+        this.gamepad = gamepad;
+    }
+
+    void update() {
         a = check(a, gamepad.a);
         b = check(b, gamepad.b);
         x = check(x, gamepad.x);

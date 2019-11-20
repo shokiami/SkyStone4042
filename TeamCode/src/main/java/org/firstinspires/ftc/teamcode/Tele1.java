@@ -38,7 +38,7 @@ public class Tele1 extends OpMode
 {
     //Declare OpMode members
     private Robot robot = new Robot(hardwareMap);
-    private Controller controller1 = new Controller();
+    private Controller controller1 = new Controller(gamepad1);
     private ElapsedTime runtime = new ElapsedTime();
 
     //Code to run ONCE when the driver hits INIT
@@ -61,7 +61,7 @@ public class Tele1 extends OpMode
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        controller1.update(gamepad1);
+        controller1.update();
 
         //Speed
         if (controller1.x.equals("pressing")) {
