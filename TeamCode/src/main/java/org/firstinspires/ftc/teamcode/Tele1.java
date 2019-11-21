@@ -37,9 +37,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Tele1 extends OpMode
 {
     //Declare OpMode members
-    private Robot robot = new Robot(hardwareMap);
-    private Controller controller1 = new Controller(gamepad1);
-    private ElapsedTime runtime = new ElapsedTime();
+    Robot robot = new Robot(hardwareMap);
+    Controller controller1 = new Controller(gamepad1);
+    ElapsedTime runtime = new ElapsedTime();
 
     //Code to run ONCE when the driver hits INIT
     @Override

@@ -16,18 +16,18 @@ class Robot {
 
     double speed = 1;
 
-    private DcMotor leftDrive;
-    private DcMotor rightDrive;
-    private DcMotor strafeDrive;
-    private DcMotor liftMotor1;
-    private DcMotor liftMotor2;
-    private DcMotor intakeMotor;
-    private Servo intakeServo;
-    private Servo hookServo1;
-    private Servo hookServo2;
-    private Servo valveServo;
+    DcMotor leftDrive;
+    DcMotor rightDrive;
+    DcMotor strafeDrive;
+    DcMotor liftMotor1;
+    DcMotor liftMotor2;
+    DcMotor intakeMotor;
+    Servo intakeServo;
+    Servo hookServo1;
+    Servo hookServo2;
+    Servo valveServo;
 
-     Robot(HardwareMap hardwareMap){
+    Robot(HardwareMap hardwareMap){
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");

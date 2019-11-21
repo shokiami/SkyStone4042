@@ -5,17 +5,30 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 class Controller {
     Gamepad gamepad;
 
-    String a, b, x, y;
-    String dpad_right, dpad_up, dpad_left, dpad_down;
-    String back, guide, start;
-    String left_stick_button, right_stick_button;
-    String left_bumper, right_bumper;
+    String a;
+    String b;
+    String x;
+    String y;
+    String dpad_right;
+    String dpad_up;
+    String dpad_left;
+    String dpad_down;
+    String back;
+    String guide;
+    String start;
+    String left_stick_button;
+    String right_stick_button;
+    String left_bumper;
+    String right_bumper;
 
-    double left_stick_x, left_stick_y;
-    double right_stick_x, right_stick_y;
-    double left_trigger, right_trigger;
+    double left_stick_x;
+    double left_stick_y;
+    double right_stick_x;
+    double right_stick_y;
+    double left_trigger;
+    double right_trigger;
 
-    public Controller(Gamepad gamepad) {
+    Controller(Gamepad gamepad) {
         this.gamepad = gamepad;
     }
 
