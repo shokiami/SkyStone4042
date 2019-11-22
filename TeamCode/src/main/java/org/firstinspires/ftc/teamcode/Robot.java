@@ -89,6 +89,16 @@ class Robot {
         strafePower *= speed;
         liftPower *= speed;
 
+        if (Math.abs(leftPower) < 0.02) {
+            leftPower = 0;
+        }
+        if (Math.abs(rightPower) < 0.02) {
+            rightPower = 0;
+        }
+        if (Math.abs(strafePower) < 0.02) {
+            strafePower = 0;
+        }
+
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
         strafeDrive.setPower(strafePower);

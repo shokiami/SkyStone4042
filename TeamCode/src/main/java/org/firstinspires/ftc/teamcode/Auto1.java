@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Auto1", group="Linear Opmode")
 public class Auto1 extends LinearOpMode {
@@ -56,23 +57,17 @@ public class Auto1 extends LinearOpMode {
 
         //Code to run REPEATEDLY until time runs out
         while (opModeIsActive()) {
-            if (!vuforia.isTargetStone()) {
-                robot.leftPower = 1;
-                robot.rightPower = -1;
+
+            if (vuforia.isTargetVisible()) {
+                robot.leftPower = Range.clip(0.1*(-vuforia.getX()-10)+0.02*(vuforia.getHeading()), -1.0, 1.0);
+                robot.rightPower = Range.clip(0.1*(-vuforia.getX()-10)-0.02*(vuforia.getHeading()), -1.0, 1.0);
+                robot.strafePower = Range.clip(0.1*(vuforia.getY()-2), -1.0, 1.0);
             } else {
-                robot.leftPower = 1;
-                robot.rightPower = 1;
-                if (vuforia.getY() < 0) {
-                    robot.rightPower -= 0.5;
-                }
-                if (vuforia.getY() > 0) {
-                    robot.leftPower -= 0.5;
-                }
-                if (vuforia.getX() > -10) {
-                    robot.leftPower = 0;
-                    robot.rightPower = 0;
-                }
+                robot.leftPower = 0;
+                robot.rightPower = 0;
+                robot.strafePower = 0;
             }
+
             vuforia.update();
             robot.update();
             telemetry.addData("Run Time:", "" + runtime.toString());
@@ -80,4 +75,12 @@ public class Auto1 extends LinearOpMode {
         }
         vuforia.close();
     }
+/*
+X: depth displacement (further = more negative)
+Y: horizontal displacement (right = positive)
+heading: horizontal rotation (right = positive)
+
+goal x=10 y=2 heading = 0
+ */
 }
+
