@@ -37,13 +37,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Tele1 extends OpMode
 {
     //Declare OpMode members
-    Robot robot = new Robot(hardwareMap);
-    Controller controller1 = new Controller(gamepad1);
-    ElapsedTime runtime = new ElapsedTime();
-
+    Robot robot;
+    Controller controller1;
+    ElapsedTime runtime;
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
+        robot = new Robot(hardwareMap);
+        controller1 = new Controller(gamepad1);
+        runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
     }
 
@@ -106,6 +108,10 @@ public class Tele1 extends OpMode
         robot.update();
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("left_stick_x", "" + controller1.left_stick_x);
+        telemetry.addData("left_stick_y", "" + controller1.left_stick_y);
+        telemetry.addData("right_stick_x", "" + controller1.right_stick_x);
+        telemetry.addData("right_stick_y", "" + controller1.right_stick_y);
     }
 
     //Code to run ONCE after the driver hits STOP

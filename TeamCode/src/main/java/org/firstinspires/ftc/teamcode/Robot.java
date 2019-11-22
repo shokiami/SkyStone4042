@@ -41,9 +41,9 @@ class Robot {
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
-        strafeDrive.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor2.setDirection(DcMotor.Direction.FORWARD);
+        strafeDrive.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor1.setDirection(DcMotor.Direction.FORWARD);
+        liftMotor2.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.FORWARD);
         hookServo1.setDirection(Servo.Direction.REVERSE);

@@ -30,6 +30,29 @@ class Controller {
 
     Controller(Gamepad gamepad) {
         this.gamepad = gamepad;
+
+        a = "released";
+        b = "released";
+        x = "released";
+        y = "released";
+        dpad_right = "released";
+        dpad_up = "released";
+        dpad_left = "released";
+        dpad_down = "released";
+        back = "released";
+        guide = "released";
+        start = "released";
+        left_stick_button = "released";
+        right_stick_button = "released";
+        left_bumper = "released";
+        right_bumper = "released";
+
+        left_stick_x = 0;
+        left_stick_y = 0;
+        right_stick_x = 0;
+        right_stick_y = 0;
+        left_trigger = 0;
+        right_trigger = 0;
     }
 
     void update() {
