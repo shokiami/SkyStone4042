@@ -47,6 +47,7 @@ public class Tele1 extends OpMode
         robot = new Robot(hardwareMap);
         controller1 = new Controller(gamepad1);
         runtime = new ElapsedTime();
+
         telemetry.addData("Status", "Initialized");
     }
 
