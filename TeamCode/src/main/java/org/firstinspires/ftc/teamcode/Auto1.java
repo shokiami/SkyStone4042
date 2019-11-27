@@ -26,7 +26,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+/*
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -93,7 +93,6 @@ X: depth displacement (further = more negative)
 Y: horizontal displacement (right = positive)
 Heading: horizontal rotation (right = positive)
 
-goal x=10 y=2 heading = 0
+goal x=-10 y=2 heading = 0
  */
-}
 
