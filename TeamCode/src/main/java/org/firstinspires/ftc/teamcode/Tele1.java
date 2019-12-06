@@ -63,7 +63,6 @@ public class Tele1 extends OpMode
     @Override
     public void start() {
         runtime.reset();
-        robot.intakeAngle = 0.6;
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP

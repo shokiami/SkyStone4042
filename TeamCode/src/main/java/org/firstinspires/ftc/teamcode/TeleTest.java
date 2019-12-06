@@ -43,7 +43,8 @@ public class TeleTest extends OpMode
     Vuforia vuforia;
     ElapsedTime runtime;
     double Kp;
-    double deadzone;
+    double Ki;
+    double Kd;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -53,7 +54,8 @@ public class TeleTest extends OpMode
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
         Kp = 0;
-        deadzone = 0;
+        Ki = 0;
+        Kd = 0;
         telemetry.addData("Status", "Initialized");
     }
 
@@ -80,19 +82,27 @@ public class TeleTest extends OpMode
             Kp -= 0.01;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            deadzone += 0.01;
+            Ki += 0.01;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            deadzone -= 0.01;
+            Ki -= 0.01;
         }
+        if (controller1.a.equals("pressed") && controller1.dpad_up.equals("pressing")) {
+            Kd += 0.01;
+        }
+        if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing")) {
+            Kd -= 0.01;
+        }
+
+
 
         if (vuforia.isTargetVisible()) {
             double x = vuforia.getY() - 3;
             double z = -vuforia.getX() - 10;
             double heading = vuforia.getHeading();
-            robot.leftPower = Kp * z + deadzone * Math.signum(z) + Kp * heading + deadzone * Math.signum(heading);
-            robot.rightPower = Kp * z + deadzone * Math.signum(z) - Kp * heading - deadzone * Math.signum(heading);
-            robot.strafePower = Kp * x + deadzone * Math.signum(x);
+            robot.leftPower =
+            robot.rightPower =
+            robot.strafePower =
             robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
             robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
             robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
@@ -105,7 +115,8 @@ public class TeleTest extends OpMode
         vuforia.update();
         robot.update();
         telemetry.addData("Kp:", "" + Kp);
-        telemetry.addData("Deadzone:", "" + deadzone);
+        telemetry.addData("Ki:", "" + Ki);
+        telemetry.addData("Kd:", "" + Kd);
     }
 
     //Code to run ONCE after the driver hits STOP
