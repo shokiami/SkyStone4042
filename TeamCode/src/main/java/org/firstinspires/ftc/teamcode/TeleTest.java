@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Tele1", group="Iterative Opmode")
+@TeleOp(name="TeleTest", group="Iterative Opmode")
 public class TeleTest extends OpMode
 {
     //Declare OpMode members
