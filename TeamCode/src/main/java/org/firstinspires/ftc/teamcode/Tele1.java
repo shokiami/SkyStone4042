@@ -117,11 +117,15 @@ public class Tele1 extends OpMode
         }
 
         if (spin) {
-            if (gyro.getAngle() < 180) {
-                robot.leftPower = -0.3;
-                robot.rightPower = 0.3;
+            if (gyro.getAngle() < 5) {
+                //Static speed
+               // robot.leftPower = -0.3;
+               // robot.rightPower = 0.3;
+                //proportional speed
+                robot.leftPower = -0.00324*gyro.getAngle() - 0.684;
+                robot.leftPower = 0.00324*gyro.getAngle() + 0.684;
             }
-            else if (gyro.getAngle() > 180) {
+            else if (gyro.getAngle() > 5) {
                 spin = false;
             }
         }
