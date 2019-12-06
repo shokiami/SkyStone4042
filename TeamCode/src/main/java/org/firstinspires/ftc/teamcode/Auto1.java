@@ -40,6 +40,8 @@ public class Auto1 extends LinearOpMode {
     Robot robot;
     Vuforia vuforia;
     ElapsedTime runtime;
+    double Kp;
+    double deadzone;
 
     @Override
     public void runOpMode() {
@@ -47,6 +49,8 @@ public class Auto1 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
+        Kp = 0.5;
+        deadzone = 0.05;
 
         telemetry.addData("Status", "Initialized");
 
@@ -63,10 +67,9 @@ public class Auto1 extends LinearOpMode {
                 double x = vuforia.getY() - 3;
                 double z = -vuforia.getX() - 10;
                 double heading = vuforia.getHeading();
-                double dead = 0.2;
-                robot.leftPower = 0.5 * z + 0.1 * java.lang.Math.signum(z) + 0.5 * heading + 0.1 * java.lang.Math.signum(heading);
-                robot.rightPower = 0.5 * z + 0.1 * java.lang.Math.signum(z) - 0.5 * heading - 0.1 * java.lang.Math.signum(heading);
-                robot.strafePower = 0.5 * x + 0.1 * java.lang.Math.signum(x);
+                robot.leftPower = Kp * z + deadzone * Math.signum(z) + Kp * heading + deadzone * Math.signum(heading);
+                robot.rightPower = Kp * z + deadzone * Math.signum(z) - Kp * heading - deadzone * Math.signum(heading);
+                robot.strafePower = Kp * x + deadzone * Math.signum(x);
                 robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
                 robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
                 robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
