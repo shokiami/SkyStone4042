@@ -34,7 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="TeleTest", group="Iterative Opmode")
+@TeleOp(name="Tele1", group="Iterative Opmode")
 public class TeleTest extends OpMode
 {
     //Declare OpMode members
@@ -42,12 +42,8 @@ public class TeleTest extends OpMode
     Controller controller1;
     Vuforia vuforia;
     ElapsedTime runtime;
-    Pid pidX;
-    Pid pidY;
-    Pid pidHeading;
     double Kp;
-    double Ki;
-    double Kd;
+    double deadzone;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -56,14 +52,8 @@ public class TeleTest extends OpMode
         controller1 = new Controller(gamepad1);
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
-        pidX = new Pid();
-        pidY = new Pid();
-        pidHeading = new Pid();
         Kp = 0;
-        Ki = 0;
-        Kd = 0;
-        runtime = new ElapsedTime();
-
+        deadzone = 0;
         telemetry.addData("Status", "Initialized");
     }
 
@@ -90,28 +80,22 @@ public class TeleTest extends OpMode
             Kp -= 0.01;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Ki += 0.01;
+            deadzone += 0.01;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            Ki -= 0.01;
-        }
-        if (controller1.a.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Kd += 0.01;
-        }
-        if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            Kd -= 0.01;
+            deadzone -= 0.01;
         }
 
         if (vuforia.isTargetVisible()) {
-            double leftPower = pidX.getPower(-10 - vuforia.getX(), Kp,Ki,Kd);
-                    //+ 0.5 * pidHeading.getPower(vuforia.getHeading(), Kp,Ki,Kd);
-            double rightPower = pidX.getPower(-10 - vuforia.getX(), Kp,Ki,Kd);
-                    //- 0.5 * pidHeading.getPower(vuforia.getHeading(), Kp,Ki,Kd);
-            double strafePower = pidY.getPower(vuforia.getY() - 2, Kp,Ki,Kd);
-
-            robot.leftPower = Range.clip(leftPower,-1.0, 1.0);
-            robot.rightPower = Range.clip(rightPower,-1.0, 1.0);
-            robot.strafePower = Range.clip(strafePower,-1.0, 1.0);
+            double x = vuforia.getY() - 3;
+            double z = -vuforia.getX() - 10;
+            double heading = vuforia.getHeading();
+            robot.leftPower = Kp * z + deadzone * Math.signum(z) + Kp * heading + deadzone * Math.signum(heading);
+            robot.rightPower = Kp * z + deadzone * Math.signum(z) - Kp * heading - deadzone * Math.signum(heading);
+            robot.strafePower = Kp * x + deadzone * Math.signum(x);
+            robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
+            robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
+            robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
         } else {
             robot.leftPower = 0;
             robot.rightPower = 0;
@@ -121,8 +105,7 @@ public class TeleTest extends OpMode
         vuforia.update();
         robot.update();
         telemetry.addData("Kp:", "" + Kp);
-        telemetry.addData("Ki:", "" + Ki);
-        telemetry.addData("Kf:", "" + Kd);
+        telemetry.addData("Deadzone:", "" + deadzone);
     }
 
     //Code to run ONCE after the driver hits STOP
