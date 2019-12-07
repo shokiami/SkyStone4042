@@ -30,12 +30,12 @@ class Robot {
     Servo valveServo;
 
     Robot(HardwareMap hardwareMap) {
-        leftDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "right_drive");
-        strafeDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
+        leftDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "left_drive");
+        rightDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "right_drive");
+        strafeDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "strafe_drive");
+        liftMotor1 = (DcMotorEx)hardwareMap.get(DcMotor.class, "lift_motor_1");
+        liftMotor2 = (DcMotorEx)hardwareMap.get(DcMotor.class, "lift_motor_2");
+        intakeMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "intake_motor");
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
@@ -58,10 +58,12 @@ class Robot {
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftDrive.setVelocityPIDFCoefficients(10, 0, 4, 0);
-        rightDrive.setVelocityPIDFCoefficients(10, 0, 4, 0);
-        strafeDrive.setVelocityPIDFCoefficients(10, 0, 4, 0);
+        liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     void toggleSpeed() {
@@ -101,16 +103,6 @@ class Robot {
         rightPower *= speed;
         strafePower *= speed;
         liftPower *= speed;
-
-        if (Math.abs(leftPower) < 0.02) {
-            leftPower = 0;
-        }
-        if (Math.abs(rightPower) < 0.02) {
-            rightPower = 0;
-        }
-        if (Math.abs(strafePower) < 0.02) {
-            strafePower = 0;
-        }
 
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
