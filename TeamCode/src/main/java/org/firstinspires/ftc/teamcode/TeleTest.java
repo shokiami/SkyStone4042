@@ -46,7 +46,9 @@ public class TeleTest extends OpMode
     double Kp;
     double Ki;
     double Kd;
-    final double TICKS_PER_REVOLUTION = 3892;
+    final double LEFT_TICKS_PER_REV = 103.6;
+    final double RIGHT_TICKS_PER_REV = 103.6;
+    final double STRAFE_TICKS_PER_REV = 537.6;
     final double WHEEL_DIAMETER = 4;
     final double ROBOT_DIAMETER = 15;
 
@@ -109,12 +111,12 @@ public class TeleTest extends OpMode
             int right_ticks = robot.rightDrive.getCurrentPosition();
             int strafe_ticks = robot.strafeDrive.getCurrentPosition();
             if (vuforia.getHeading() != 0) {
-                left_ticks += Math.PI * ROBOT_DIAMETER * vuforia.getHeading();
-                right_ticks -= Math.PI * ROBOT_DIAMETER * vuforia.getHeading();
+                left_ticks += Math.PI * ROBOT_DIAMETER * vuforia.getHeading() * LEFT_TICKS_PER_REV;
+                right_ticks -= Math.PI * ROBOT_DIAMETER * vuforia.getHeading() * RIGHT_TICKS_PER_REV;
             } else {
-                left_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * TICKS_PER_REVOLUTION;
-                right_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * TICKS_PER_REVOLUTION;
-                strafe_ticks += vuforia.getY() / (Math.PI * WHEEL_DIAMETER) * TICKS_PER_REVOLUTION;
+                left_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * LEFT_TICKS_PER_REV;
+                right_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * RIGHT_TICKS_PER_REV;
+                strafe_ticks += vuforia.getY() / (Math.PI * WHEEL_DIAMETER) * STRAFE_TICKS_PER_REV;
             }
             robot.leftDrive.setTargetPosition(left_ticks);
             robot.rightDrive.setTargetPosition(right_ticks);
@@ -122,6 +124,9 @@ public class TeleTest extends OpMode
             robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            while (robot.leftDrive.isBusy() || robot.rightDrive.isBusy() || robot.strafeDrive.isBusy()) {
+                //Wait
+            }
         } else {
             robot.leftDrive.setPower(0);
             robot.rightDrive.setPower(0);
