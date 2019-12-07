@@ -26,7 +26,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -40,9 +40,8 @@ public class Auto1 extends LinearOpMode {
     Robot robot;
     Vuforia vuforia;
     ElapsedTime runtime;
-    Pid pidX;
-    Pid pidY;
-    Pid pidHeading;
+    double Kp;
+    double deadzone;
 
     @Override
     public void runOpMode() {
@@ -50,9 +49,8 @@ public class Auto1 extends LinearOpMode {
         robot = new Robot(hardwareMap);
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
-        pidX = new Pid(0.1,0,0);
-        pidY = new Pid(0.1,0,0);
-        pidHeading = new Pid(0.1,0,0);
+        Kp = 0.5;
+        deadzone = 0.05;
 
         telemetry.addData("Status", "Initialized");
 
@@ -66,15 +64,15 @@ public class Auto1 extends LinearOpMode {
         while (opModeIsActive()) {
 
             if (vuforia.isTargetVisible()) {
-                double leftPower = pidX.getPower(10 + vuforia.getX())
-                        + 0.5 * pidHeading.getPower(vuforia.getHeading());
-                double rightPower = pidX.getPower(10 + vuforia.getX())
-                        - 0.5 * pidHeading.getPower(vuforia.getHeading());
-                double strafePower = pidY.getPower(2 - vuforia.getY());
-
-                robot.leftPower = Range.clip(leftPower,-1.0, 1.0);
-                robot.rightPower = Range.clip(rightPower,-1.0, 1.0);
-                robot.strafePower = Range.clip(strafePower,-1.0, 1.0);
+                double x = vuforia.getY() - 3;
+                double z = -vuforia.getX() - 10;
+                double heading = vuforia.getHeading();
+                robot.leftPower = Kp * z + deadzone * Math.signum(z) + Kp * heading + deadzone * Math.signum(heading);
+                robot.rightPower = Kp * z + deadzone * Math.signum(z) - Kp * heading - deadzone * Math.signum(heading);
+                robot.strafePower = Kp * x + deadzone * Math.signum(x);
+                robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
+                robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
+                robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
             } else {
                 robot.leftPower = 0;
                 robot.rightPower = 0;
@@ -88,6 +86,7 @@ public class Auto1 extends LinearOpMode {
         }
         vuforia.close();
     }
+}
 /*
 X: depth displacement (further = more negative)
 Y: horizontal displacement (right = positive)

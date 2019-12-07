@@ -42,9 +42,6 @@ public class TeleTest extends OpMode
     Controller controller1;
     Vuforia vuforia;
     ElapsedTime runtime;
-    Pid pidX;
-    Pid pidY;
-    Pid pidHeading;
     double Kp;
     double Ki;
     double Kd;
@@ -56,14 +53,9 @@ public class TeleTest extends OpMode
         controller1 = new Controller(gamepad1);
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
-        pidX = new Pid();
-        pidY = new Pid();
-        pidHeading = new Pid();
         Kp = 0;
         Ki = 0;
         Kd = 0;
-        runtime = new ElapsedTime();
-
         telemetry.addData("Status", "Initialized");
     }
 
@@ -102,16 +94,18 @@ public class TeleTest extends OpMode
             Kd -= 0.01;
         }
 
-        if (vuforia.isTargetVisible()) {
-            double leftPower = pidX.getPower(-10 - vuforia.getX(), Kp,Ki,Kd);
-                    //+ 0.5 * pidHeading.getPower(vuforia.getHeading(), Kp,Ki,Kd);
-            double rightPower = pidX.getPower(-10 - vuforia.getX(), Kp,Ki,Kd);
-                    //- 0.5 * pidHeading.getPower(vuforia.getHeading(), Kp,Ki,Kd);
-            double strafePower = pidY.getPower(vuforia.getY() - 2, Kp,Ki,Kd);
 
-            robot.leftPower = Range.clip(leftPower,-1.0, 1.0);
-            robot.rightPower = Range.clip(rightPower,-1.0, 1.0);
-            robot.strafePower = Range.clip(strafePower,-1.0, 1.0);
+
+        if (vuforia.isTargetVisible()) {
+            double x = vuforia.getY() - 3;
+            double z = -vuforia.getX() - 10;
+            double heading = vuforia.getHeading();
+            robot.leftPower =
+            robot.rightPower =
+            robot.strafePower =
+            robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
+            robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
+            robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
         } else {
             robot.leftPower = 0;
             robot.rightPower = 0;
@@ -122,7 +116,7 @@ public class TeleTest extends OpMode
         robot.update();
         telemetry.addData("Kp:", "" + Kp);
         telemetry.addData("Ki:", "" + Ki);
-        telemetry.addData("Kf:", "" + Kd);
+        telemetry.addData("Kd:", "" + Kd);
     }
 
     //Code to run ONCE after the driver hits STOP
