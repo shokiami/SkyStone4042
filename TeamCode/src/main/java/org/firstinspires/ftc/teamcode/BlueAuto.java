@@ -71,49 +71,51 @@ public class BlueAuto extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (run) {
-                wait(1.);
+                wait(0.5);
                 move(20, 0);
-                wait(1.);
+                wait(0.5);
                 int disp = 0;
                 if (!vuforia.isTargetVisible()) {
                     disp += 8;
                     move(0, 8);
-                    wait(1.);
+                    wait(0.5);
                     if (!vuforia.isTargetVisible()) {
                         disp += 8;
                         move(0, 8);
-                        wait(1.);
+                        wait(0.5);
                     }
                 }
                 robotAuto.toggleIntake();
                 robotAuto.update();
-                wait(1.0);
+                wait(0.5);
                 move(8, 0);
-                wait(1.);
+                wait(0.5);
                 robotAuto.liftPower = 1;
                 robotAuto.update();
                 wait(0.5);
                 robotAuto.liftPower = 0;
                 robotAuto.update();
-                wait(1.0);
+                wait(0.5);
                 move(-12, 0);
-                wait(1.0);
+                wait(0.5);
                 move(0, -77 - disp);
-                wait(1.);
+                wait(0.5);
                 robotAuto.toggleSpeed();
+                robotAuto.update();
+                wait(0.5);
                 move(10, 0);
-                wait(1.);
+                wait(0.5);
                 robotAuto.toggleIntake();
                 robotAuto.toggleHook();
                 robotAuto.toggleSpeed();
                 robotAuto.update();
                 wait(5.0);
                 move(-30, 0);
-                wait(1.);
+                wait(0.5);
                 robotAuto.toggleHook();
                 robotAuto.update();
-                wait(1.);
-                move(0, -60);
+                wait(0.5);
+                move(0, 60);
                 wait(1.);
                 robotAuto.liftPower = -1;
                 robotAuto.update();
