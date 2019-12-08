@@ -75,15 +75,14 @@ public class RedAuto extends LinearOpMode {
                 move(20, 0);
                 wait(0.5);
                 int disp = 0;
-                if (!vuforia.isTargetVisible()) {
+                while (disp > -16) {
+                    vuforia.update();
+                    if (vuforia.isTargetVisible()) {
+                        break;
+                    }
                     disp -= 8;
                     move(0, -8);
                     wait(0.5);
-                    if (!vuforia.isTargetVisible()) {
-                        disp -= 8;
-                        move(0, -8);
-                        wait(1.);
-                    }
                 }
                 robotAuto.toggleIntake();
                 robotAuto.update();
@@ -103,8 +102,8 @@ public class RedAuto extends LinearOpMode {
                 robotAuto.toggleSpeed();
                 robotAuto.update();
                 wait(0.5);
-                move(10, 0);
-                wait(0.5);
+                move(20, 0);
+                wait(0.4);
                 robotAuto.toggleIntake();
                 robotAuto.toggleHook();
                 robotAuto.toggleSpeed();
@@ -119,7 +118,7 @@ public class RedAuto extends LinearOpMode {
                 wait(0.5);
                 robotAuto.liftPower = -1;
                 robotAuto.update();
-                wait(0.5);
+                wait(0.3);
                 robotAuto.liftPower = 0;
                 run = false;
             }

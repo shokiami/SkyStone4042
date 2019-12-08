@@ -75,15 +75,14 @@ public class BlueAuto extends LinearOpMode {
                 move(20, 0);
                 wait(0.5);
                 int disp = 0;
-                if (!vuforia.isTargetVisible()) {
+                while (disp < 16) {
+                    vuforia.update();
+                    if (vuforia.isTargetVisible()) {
+                        break;
+                    }
                     disp += 8;
                     move(0, 8);
                     wait(0.5);
-                    if (!vuforia.isTargetVisible()) {
-                        disp += 8;
-                        move(0, 8);
-                        wait(0.5);
-                    }
                 }
                 robotAuto.toggleIntake();
                 robotAuto.update();
@@ -92,7 +91,7 @@ public class BlueAuto extends LinearOpMode {
                 wait(0.5);
                 robotAuto.liftPower = 1;
                 robotAuto.update();
-                wait(0.5);
+                wait(0.4);
                 robotAuto.liftPower = 0;
                 robotAuto.update();
                 wait(0.5);
@@ -103,23 +102,23 @@ public class BlueAuto extends LinearOpMode {
                 robotAuto.toggleSpeed();
                 robotAuto.update();
                 wait(0.5);
-                move(10, 0);
+                move(30, 0);
                 wait(0.5);
                 robotAuto.toggleIntake();
                 robotAuto.toggleHook();
                 robotAuto.toggleSpeed();
                 robotAuto.update();
-                wait(5.0);
+                wait(4.0);
                 move(-30, 0);
                 wait(0.5);
                 robotAuto.toggleHook();
                 robotAuto.update();
                 wait(0.5);
-                move(0, 60);
+                move(0, 57);
                 wait(1.);
                 robotAuto.liftPower = -1;
                 robotAuto.update();
-                wait(0.5);
+                wait(0.3);
                 robotAuto.liftPower = 0;
                 run = false;
             }
