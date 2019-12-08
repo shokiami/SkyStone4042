@@ -33,9 +33,9 @@ class Robot {
         leftDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = (DcMotorEx)hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = (DcMotorEx)hardwareMap.get(DcMotor.class, "lift_motor_2");
-        intakeMotor = (DcMotorEx)hardwareMap.get(DcMotor.class, "intake_motor");
+        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
+        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
@@ -54,16 +54,16 @@ class Robot {
 
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setTargetPosition(0);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setTargetPosition(0);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        strafeDrive.setTargetPosition(0);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     void toggleSpeed() {
@@ -115,6 +115,36 @@ class Robot {
         hookServo2.setPosition(hookAngle);
         valveServo.setPosition(valveAngle);
     }
+
+    void updatePIDCoefficients(double Kp, double Ki, double Kd) {
+        leftDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
+        rightDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
+        strafeDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
+    }
+
+    int leftPosition() {
+        return leftDrive.getCurrentPosition();
+    }
+    int rightPosition() {
+        return rightDrive.getCurrentPosition();
+    }
+    int strafePosition() {
+        return strafeDrive.getCurrentPosition();
+    }
+
+    void move(int left_ticks, int right_ticks, int strafe_ticks) {
+        leftDrive.setTargetPosition(left_ticks);
+        rightDrive.setTargetPosition(right_ticks);
+        strafeDrive.setTargetPosition(strafe_ticks);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (leftDrive.isBusy() || rightDrive.isBusy() || strafeDrive.isBusy()) {
+            //Wait
+        }
+    }
+
+
 }
 
 //https://github.com/ghs-robotics/SkyStone12788/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/ArmControllerIK.java

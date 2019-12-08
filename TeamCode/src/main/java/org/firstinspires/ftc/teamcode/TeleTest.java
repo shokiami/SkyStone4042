@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,8 +51,8 @@ public class TeleTest extends OpMode
     final double LEFT_TICKS_PER_REV = 103.6;
     final double RIGHT_TICKS_PER_REV = 103.6;
     final double STRAFE_TICKS_PER_REV = 537.6;
-    final double WHEEL_DIAMETER = 4;
-    final double ROBOT_DIAMETER = 15;
+    final double BALL_RADIUS = 2;
+    final double TURN_RADIUS = 8.4925;
 
 
     //Code to run ONCE when the driver hits INIT
@@ -102,31 +104,21 @@ public class TeleTest extends OpMode
             Kd -= 1;
         }
 
-        robot.leftDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
-        robot.rightDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
-        robot.strafeDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
+        robot.updatePIDCoefficients(Kp, Ki, Kd);
 
         if (vuforia.isTargetVisible() && ((vuforia.getX() != 5 || vuforia.getY() != 0) || vuforia.getHeading() != 0)) {
-            int left_ticks = robot.leftDrive.getCurrentPosition();
-            int right_ticks = robot.rightDrive.getCurrentPosition();
-            int strafe_ticks = robot.strafeDrive.getCurrentPosition();
+            int left_ticks = robot.leftPosition();
+            int right_ticks = robot.rightPosition();
+            int strafe_ticks = robot.strafePosition();
             if (vuforia.getHeading() != 0) {
-                left_ticks += Math.PI * ROBOT_DIAMETER * vuforia.getHeading() * LEFT_TICKS_PER_REV;
-                right_ticks -= Math.PI * ROBOT_DIAMETER * vuforia.getHeading() * RIGHT_TICKS_PER_REV;
+                left_ticks += (int)(0.5 * TURN_RADIUS * vuforia.getHeading() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
+                right_ticks -= (int)(0.5 * TURN_RADIUS * vuforia.getHeading() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
             } else {
-                left_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * LEFT_TICKS_PER_REV;
-                right_ticks += vuforia.getX() / (Math.PI * WHEEL_DIAMETER) * RIGHT_TICKS_PER_REV;
-                strafe_ticks += vuforia.getY() / (Math.PI * WHEEL_DIAMETER) * STRAFE_TICKS_PER_REV;
+                left_ticks += (int)(vuforia.getX() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
+                right_ticks += (int)(vuforia.getX() / (2 * Math.PI * BALL_RADIUS) * RIGHT_TICKS_PER_REV);
+                strafe_ticks += (int)(vuforia.getY() / (2 * Math.PI * BALL_RADIUS) * STRAFE_TICKS_PER_REV);
             }
-            robot.leftDrive.setTargetPosition(left_ticks);
-            robot.rightDrive.setTargetPosition(right_ticks);
-            robot.rightDrive.setTargetPosition(strafe_ticks);
-            robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (robot.leftDrive.isBusy() || robot.rightDrive.isBusy() || robot.strafeDrive.isBusy()) {
-                //Wait
-            }
+            robot.move(left_ticks, right_ticks, strafe_ticks);
         } else {
             robot.leftDrive.setPower(0);
             robot.rightDrive.setPower(0);
