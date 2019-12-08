@@ -33,39 +33,31 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Auto1", group="Linear Opmode")
-public class Auto1 extends LinearOpMode {
+@Autonomous(name="RedAuto", group="Linear Opmode")
+public class RedAuto extends LinearOpMode {
     //Declare OpMode members
     RobotAuto robotAuto;
     ElapsedTime runtime;
-    boolean finished = false;
-    double goal_z;
-    double goal_x;
-/*
-    */
-
-
-
+    Vuforia vuforia;
+    boolean run;
 
     void move(int z_inches, int x_inches) {
-        double goal_z = 55 * z_inches + robotAuto.leftDrive.getCurrentPosition();
-        double goal_x = 55 * x_inches + robotAuto.strafeDrive.getCurrentPosition();
-        while (Math.abs(goal_z - robotAuto.leftDrive.getCurrentPosition()) > 10 || Math.abs(goal_x - robotAuto.strafeDrive.getCurrentPosition()) > 10) {
-            robotAuto.leftPower = 0.1 * (55 * z_inches - robotAuto.leftDrive.getCurrentPosition());
-            robotAuto.rightPower = 0.1 * (55 * z_inches - robotAuto.rightDrive.getCurrentPosition());
-            robotAuto.strafePower = 0.1 * (55 * x_inches - robotAuto.rightDrive.getCurrentPosition());
-            robotAuto.update();
-            telemetry.addData("leftDrive:", "" + robotAuto.leftDrive.getCurrentPosition());
-            telemetry.addData("rightDrive:", "" + robotAuto.rightDrive.getCurrentPosition());
-            telemetry.update();
-        }
+        robotAuto.move(z_inches, x_inches, true);
+    }
+
+    void wait(double waitTime) {
+        double start = runtime.seconds();
+        while (runtime.seconds() - start < waitTime) {}
     }
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robotAuto = new RobotAuto(hardwareMap);
+        robotAuto.update();
         runtime = new ElapsedTime();
+        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+        run = true;
 
         telemetry.addData("Status", "Initialized");
 
@@ -73,30 +65,63 @@ public class Auto1 extends LinearOpMode {
 
         //Code to run ONCE when the driver hits PLAY
         runtime.reset();
+        vuforia.flashlight(true);
+        robotAuto.toggleIntakeAngle();
+        robotAuto.update();
 
-        /*
-        robotAuto.move(0, 0);
-        while (runtime.time() < 3) {}
-        robotAuto.move(20, 0);
-        while (runtime.time() < 6) {}
-        robotAuto.move(20, 0);
-        while (runtime.time() < 9) {}
-        robotAuto.move(0, 20);
-        while (runtime.time() < 12) {}
-        robotAuto.move(0, 0);
-        */
-
-        robotAuto.move(0, 10);
-        while (runtime.time() < 20) {}
-        //robotAuto.move(0,0);
-
+        while (opModeIsActive()) {
+            if (run) {
+                wait(1.);
+                move(20, 0);
+                wait(1.);
+                int disp = 0;
+                if (!vuforia.isTargetVisible()) {
+                    disp -= 8;
+                    move(0, -8);
+                    wait(1.);
+                    if (!vuforia.isTargetVisible()) {
+                        disp -= 8;
+                        move(0, -8);
+                        wait(1.);
+                    }
+                }
+                robotAuto.toggleIntake();
+                robotAuto.update();
+                wait(1.0);
+                move(8, 0);
+                wait(1.);
+                robotAuto.liftPower = 1;
+                robotAuto.update();
+                wait(0.5);
+                robotAuto.liftPower = 0;
+                robotAuto.update();
+                wait(1.0);
+                move(-12, 0);
+                wait(1.0);
+                move(0, 77 - disp);
+                wait(1.);
+                robotAuto.toggleSpeed();
+                move(10, 0);
+                wait(1.);
+                robotAuto.toggleIntake();
+                robotAuto.toggleHook();
+                robotAuto.toggleSpeed();
+                robotAuto.update();
+                wait(5.0);
+                move(-30, 0);
+                wait(1.);
+                robotAuto.toggleHook();
+                robotAuto.update();
+                wait(1.);
+                move(0, -60);
+                wait(1.);
+                robotAuto.liftPower = -1;
+                robotAuto.update();
+                wait(0.5);
+                robotAuto.liftPower = 0;
+                run = false;
+            }
+        }
     }
 }
-/*
-X: depth displacement (further = more negative)
-Y: horizontal displacement (right = positive)
-Heading: horizontal rotation (right = positive)
-
-goal x=-10 y=2 heading = 0
- */
 

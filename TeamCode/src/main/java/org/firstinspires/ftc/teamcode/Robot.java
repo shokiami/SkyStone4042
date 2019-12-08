@@ -14,10 +14,11 @@ class Robot {
     double strafePower = 0;
     double liftPower = 0;
     double intakePower = 0;
-    double intakeAngle = 0;
+    double intakeAngle = 0.6;
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
+    double multiplyer = 1;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -84,9 +85,17 @@ class Robot {
 
     void toggleHook() {
         if (hookAngle == 0) {
-            hookAngle = 0.6;
+            hookAngle = 0.5;
         } else {
             hookAngle = 0;
+        }
+    }
+
+    void toggleIntakeAngle() {
+        if (intakeAngle == 0) {
+            intakeAngle = 0.6;
+        } else {
+            intakeAngle = 0;
         }
     }
 
@@ -99,7 +108,7 @@ class Robot {
         leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(strafePower,-1.0, 1.0));
-        liftMotor1.setPower(0.95 * liftPower);
+        liftMotor1.setPower(0.65 * liftPower);
         liftMotor2.setPower(liftPower);
         intakeMotor.setPower(intakePower);
         intakeServo.setPosition(intakeAngle);

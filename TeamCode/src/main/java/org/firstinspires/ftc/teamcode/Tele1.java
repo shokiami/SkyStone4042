@@ -34,20 +34,21 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Tele1", group="Iterative Opmode")
-public class Tele1 extends OpMode
-{
+public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
     ElapsedTime runtime;
-    Gyro gyro;
-    boolean spin;
+    //Gyro gyro;
+    //boolean spin;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
+        robot.update();
         controller1 = new Controller(gamepad1);
+        //gyro = new Gyro(hardwareMap);
         runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
     }
@@ -61,6 +62,8 @@ public class Tele1 extends OpMode
     @Override
     public void start() {
         runtime.reset();
+        robot.toggleIntakeAngle();
+        robot.update();
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -79,8 +82,8 @@ public class Tele1 extends OpMode
         }
 
         //Ball Drive
-        robot.leftPower = 0.5 * controller1.right_stick_y + 0.5 * controller1.left_stick_y;
-        robot.rightPower = 0.5 * controller1.right_stick_y + 0.5 * controller1.left_stick_y;
+        robot.leftPower = controller1.left_stick_y;
+        robot.rightPower = controller1.right_stick_y;
         robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
 
         //Lift
@@ -108,40 +111,43 @@ public class Tele1 extends OpMode
             robot.toggleHook();
         }
 
-        //Valve (not in use)
-        /*if (controller1.left_bumper.equals("pressing")) {
-            robot.toggleValve();
-        }*/
+        if (controller1.dpad_right.equals("pressing")) {
+            robot.multiplyer += 0.01;
+        }
+        if (controller1.dpad_left.equals("pressing")) {
+            robot.multiplyer += -0.01;
+        }
 
-        //Set spin
+        robot.update();
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("multiplyer", "" + robot.multiplyer);
+    }
+
+    //Code to run ONCE after the driver hits STOP
+    @Override
+    public void stop () {
+    }
+}
+
+//Valve (not in use)
         /*
+        if (controller1.left_bumper.equals("pressing")) {
+            robot.toggleValve();
+        }
+
+        //Spin
         if (controller1.left_bumper.equals("pressing")) {
             spin = true;
             gyro.resetAngle();
         }
         if (spin) {
             if (gyro.getAngle() < 5) {
-                //Static speed
-               // robot.leftPower = -0.3;
-               // robot.rightPower = 0.3;
-                //proportional speed
-                robot.leftPower = -0.00324*gyro.getAngle() - 0.684;
+                robot.rightPower = -0.00324*gyro.getAngle() - 0.684;
                 robot.leftPower = 0.00324*gyro.getAngle() + 0.684;
             }
             else if (gyro.getAngle() > 5) {
                 spin = false;
             }
         }
-         */
 
-        robot.update();
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("left_power", "" + robot.leftPower);
-        telemetry.addData("speed", "" + robot.speed);
-    }
-
-    //Code to run ONCE after the driver hits STOP
-    @Override
-    public void stop() {
-    }
-}
+        */

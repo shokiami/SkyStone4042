@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 class RobotAuto {
     double leftPower = 0;
     double rightPower = 0;
     double strafePower = 0;
     double liftPower = 0;
     double intakePower = 0;
-    double intakeAngle = 0;
+    double intakeAngle = 0.6;
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
@@ -110,27 +112,42 @@ class RobotAuto {
         strafeDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
     }
 */
-    int leftPosition() {
-        return leftDrive.getCurrentPosition();
+void toggleIntakeAngle() {
+    if (intakeAngle == 0) {
+        intakeAngle = 0.6;
+    } else {
+        intakeAngle = 0;
     }
-    int rightPosition() {
-        return rightDrive.getCurrentPosition();
-    }
-    int strafePosition() {
-        return strafeDrive.getCurrentPosition();
+}
+
+    void toggleSpeed() {
+        if (speed == 1) {
+            speed = 0.1;
+        } else {
+            speed = 1;
+        }
     }
 
-    void move(int z_inches, int x_inches) {
-        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + 55 * z_inches);
-        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + 55 * z_inches);
-        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + 500);
+    void move(int z_inches, int x_inches, boolean waitUntilDone) {
+        int left_target_z = leftDrive.getCurrentPosition() + 55 * z_inches;
+        int right_target_z = rightDrive.getCurrentPosition() + 55 * z_inches;
+        int strafe_target_x = strafeDrive.getCurrentPosition() + (int) (61.73 * x_inches);
+        leftDrive.setTargetPosition(left_target_z);
+        rightDrive.setTargetPosition(right_target_z);
+        strafeDrive.setTargetPosition(strafe_target_x);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        strafeDrive.setPower(1);
+        leftDrive.setPower(speed);
+        rightDrive.setPower(speed);
+        strafeDrive.setPower(speed);
+
+        if (waitUntilDone) {
+            while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) { }
+            move(0, 0, false);
+        }
     }
+
 }
 
 //https://ftctechnh.github.io/ftc_app/doc/javadoc/index.html
