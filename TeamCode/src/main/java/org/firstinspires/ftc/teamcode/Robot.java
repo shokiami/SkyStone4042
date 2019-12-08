@@ -52,6 +52,7 @@ class Robot {
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
 
+        /*
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftDrive.setTargetPosition(0);
@@ -64,6 +65,7 @@ class Robot {
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setTargetPosition(0);
         strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         */
     }
 
     void toggleSpeed() {
@@ -131,7 +133,7 @@ class Robot {
     int strafePosition() {
         return strafeDrive.getCurrentPosition();
     }
-
+/*
     void move(int left_ticks, int right_ticks, int strafe_ticks) {
         leftDrive.setTargetPosition(left_ticks);
         rightDrive.setTargetPosition(right_ticks);
@@ -143,7 +145,7 @@ class Robot {
             //Wait
         }
     }
-
+*/
 
 }
 

@@ -118,7 +118,7 @@ public class TeleTest extends OpMode
                 right_ticks += (int)(vuforia.getX() / (2 * Math.PI * BALL_RADIUS) * RIGHT_TICKS_PER_REV);
                 strafe_ticks += (int)(vuforia.getY() / (2 * Math.PI * BALL_RADIUS) * STRAFE_TICKS_PER_REV);
             }
-            robot.move(left_ticks, right_ticks, strafe_ticks);
+            //robot.move(left_ticks, right_ticks, strafe_ticks);
         } else {
             robot.leftDrive.setPower(0);
             robot.rightDrive.setPower(0);
