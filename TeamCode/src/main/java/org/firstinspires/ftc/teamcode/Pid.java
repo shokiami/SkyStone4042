@@ -34,4 +34,10 @@ class Pid {
         previous_error = error;
         return output;
     }
+
+    void update(double Kp, double Ki, double Kd) {
+        this.Kp = Kp;
+        this.Ki = Ki;
+        this.Kd = Kd;
+    }
 }

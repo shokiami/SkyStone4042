@@ -50,8 +50,6 @@ public class Tele1 extends OpMode
         controller1 = new Controller(gamepad1);
         runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
-        gyro = new Gyro(hardwareMap);
-        spin = false;
     }
 
     //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -75,9 +73,14 @@ public class Tele1 extends OpMode
             robot.toggleSpeed();
         }
 
+        // Adjusted Speed (pretty lit)
+        if (controller1.left_trigger >= 0.1) {
+            robot.adjustSpeed(0.15 + 0.85 * (1 - controller1.left_trigger));
+        }
+
         //Ball Drive
-        robot.leftPower = controller1.left_stick_y;
-        robot.rightPower = controller1.right_stick_y;
+        robot.leftPower = 0.5 * controller1.right_stick_y + 0.5 * controller1.left_stick_y;
+        robot.rightPower = 0.5 * controller1.right_stick_y + 0.5 * controller1.left_stick_y;
         robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
 
         //Lift
@@ -111,11 +114,11 @@ public class Tele1 extends OpMode
         }*/
 
         //Set spin
+        /*
         if (controller1.left_bumper.equals("pressing")) {
             spin = true;
             gyro.resetAngle();
         }
-
         if (spin) {
             if (gyro.getAngle() < 5) {
                 //Static speed
@@ -129,8 +132,12 @@ public class Tele1 extends OpMode
                 spin = false;
             }
         }
+         */
+
         robot.update();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("left_power", "" + robot.leftPower);
+        telemetry.addData("speed", "" + robot.speed);
     }
 
     //Code to run ONCE after the driver hits STOP

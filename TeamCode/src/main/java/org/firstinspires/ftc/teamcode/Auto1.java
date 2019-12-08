@@ -32,25 +32,40 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Auto1", group="Linear Opmode")
 public class Auto1 extends LinearOpMode {
     //Declare OpMode members
-    Robot robot;
-    Vuforia vuforia;
+    RobotAuto robotAuto;
     ElapsedTime runtime;
-    double Kp;
-    double deadzone;
+    boolean finished = false;
+    double goal_z;
+    double goal_x;
+/*
+    */
+
+
+
+
+    void move(int z_inches, int x_inches) {
+        double goal_z = 55 * z_inches + robotAuto.leftDrive.getCurrentPosition();
+        double goal_x = 55 * x_inches + robotAuto.strafeDrive.getCurrentPosition();
+        while (Math.abs(goal_z - robotAuto.leftDrive.getCurrentPosition()) > 10 || Math.abs(goal_x - robotAuto.strafeDrive.getCurrentPosition()) > 10) {
+            robotAuto.leftPower = 0.1 * (55 * z_inches - robotAuto.leftDrive.getCurrentPosition());
+            robotAuto.rightPower = 0.1 * (55 * z_inches - robotAuto.rightDrive.getCurrentPosition());
+            robotAuto.strafePower = 0.1 * (55 * x_inches - robotAuto.rightDrive.getCurrentPosition());
+            robotAuto.update();
+            telemetry.addData("leftDrive:", "" + robotAuto.leftDrive.getCurrentPosition());
+            telemetry.addData("rightDrive:", "" + robotAuto.rightDrive.getCurrentPosition());
+            telemetry.update();
+        }
+    }
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap);
-        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
+        robotAuto = new RobotAuto(hardwareMap);
         runtime = new ElapsedTime();
-        Kp = 0.5;
-        deadzone = 0.05;
 
         telemetry.addData("Status", "Initialized");
 
@@ -58,33 +73,23 @@ public class Auto1 extends LinearOpMode {
 
         //Code to run ONCE when the driver hits PLAY
         runtime.reset();
-        vuforia.flashlight(true);
 
-        //Code to run REPEATEDLY until time runs out
-        while (opModeIsActive()) {
+        /*
+        robotAuto.move(0, 0);
+        while (runtime.time() < 3) {}
+        robotAuto.move(20, 0);
+        while (runtime.time() < 6) {}
+        robotAuto.move(20, 0);
+        while (runtime.time() < 9) {}
+        robotAuto.move(0, 20);
+        while (runtime.time() < 12) {}
+        robotAuto.move(0, 0);
+        */
 
-            if (vuforia.isTargetVisible()) {
-                double x = vuforia.getY() - 3;
-                double z = -vuforia.getX() - 10;
-                double heading = vuforia.getHeading();
-                robot.leftPower = Kp * z + deadzone * Math.signum(z) + Kp * heading + deadzone * Math.signum(heading);
-                robot.rightPower = Kp * z + deadzone * Math.signum(z) - Kp * heading - deadzone * Math.signum(heading);
-                robot.strafePower = Kp * x + deadzone * Math.signum(x);
-                robot.leftPower = Range.clip(robot.leftPower, -1.0, 1.0);
-                robot.rightPower = Range.clip(robot.rightPower, -1.0, 1.0);
-                robot.strafePower = Range.clip(robot.strafePower, -1.0, 1.0);
-            } else {
-                robot.leftPower = 0;
-                robot.rightPower = 0;
-                robot.strafePower = 0;
-            }
+        robotAuto.move(0, 10);
+        while (runtime.time() < 20) {}
+        //robotAuto.move(0,0);
 
-            vuforia.update();
-            robot.update();
-            telemetry.addData("Run Time:", "" + runtime.toString());
-            telemetry.update();
-        }
-        vuforia.close();
     }
 }
 /*

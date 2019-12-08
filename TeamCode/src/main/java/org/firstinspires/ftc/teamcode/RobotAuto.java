@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
-class Robot {
+class RobotAuto {
     double leftPower = 0;
     double rightPower = 0;
     double strafePower = 0;
@@ -30,7 +27,7 @@ class Robot {
     Servo hookServo2;
     Servo valveServo;
 
-    Robot(HardwareMap hardwareMap) {
+    RobotAuto(HardwareMap hardwareMap) {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
@@ -52,14 +49,13 @@ class Robot {
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
-    }
 
-    void toggleSpeed() {
-        if (speed > 0.95) {
-            speed = 0.3;
-        } else {
-            speed = 1;
-        }
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     void adjustSpeed(double value) {
@@ -91,10 +87,10 @@ class Robot {
     }
 
     void update() {
-        //leftPower *= speed;
-        //rightPower *= speed;
-        //strafePower *= speed;
-        //liftPower *= speed;
+        leftPower *= speed;
+        rightPower *= speed;
+        strafePower *= speed;
+        liftPower *= speed;
 
         leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
@@ -127,7 +123,7 @@ class Robot {
     void move(int z_inches, int x_inches) {
         leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + 55 * z_inches);
         rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + 55 * z_inches);
-        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + 55 * x_inches);
+        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + 500);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);

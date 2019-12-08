@@ -29,11 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.provider.ContactsContract;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -45,15 +42,12 @@ public class TeleTest extends OpMode
     Controller controller1;
     Vuforia vuforia;
     ElapsedTime runtime;
+    Pid pidX;
+    Pid pidY;
+    Pid pidHeading;
     double Kp;
     double Ki;
     double Kd;
-    final double LEFT_TICKS_PER_REV = 103.6;
-    final double RIGHT_TICKS_PER_REV = 103.6;
-    final double STRAFE_TICKS_PER_REV = 537.6;
-    final double BALL_RADIUS = 2;
-    final double TURN_RADIUS = 8.4925;
-
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -62,9 +56,14 @@ public class TeleTest extends OpMode
         controller1 = new Controller(gamepad1);
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         runtime = new ElapsedTime();
-        Kp = 10;
+        pidX = new Pid(0.1, 0, 0);
+        pidY = new Pid(0.1, 0, 0);
+        pidHeading = new Pid(0.1, 0, 0);
+        Kp = 0;
         Ki = 0;
         Kd = 0;
+        runtime = new ElapsedTime();
+
         telemetry.addData("Status", "Initialized");
     }
 
@@ -77,57 +76,57 @@ public class TeleTest extends OpMode
     @Override
     public void start() {
         runtime.reset();
+        vuforia.flashlight(true);
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
         controller1.update();
-        vuforia.update();
 
         if (controller1.y.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Kp += 1;
+            Kp += 0.01;
         }
-        if (controller1.y.equals("pressed") && controller1.dpad_down.equals("pressing") && (Kp > 0)) {
-            Kp -= 1;
+        if (controller1.y.equals("pressed") && controller1.dpad_down.equals("pressing")) {
+            Kp -= 0.01;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Ki += 1;
+            Ki += 0.01;
         }
-        if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing") && (Ki > 0)) {
-            Ki -= 1;
+        if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing")) {
+            Ki -= 0.01;
         }
         if (controller1.a.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Kd += 1;
+            Kd += 0.01;
         }
-        if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing") && (Kd > 0)) {
-            Kd -= 1;
+        if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing")) {
+            Kd -= 0.01;
         }
 
-        robot.updatePIDCoefficients(Kp, Ki, Kd);
+        pidX.update(Kp, Ki, Kd);
+        pidY.update(Kp, Ki, Kd);
+        pidHeading.update(Kp, Ki, Kd);
 
-        if (vuforia.isTargetVisible() && ((vuforia.getX() != 5 || vuforia.getY() != 0) || vuforia.getHeading() != 0)) {
-            int left_ticks = robot.leftPosition();
-            int right_ticks = robot.rightPosition();
-            int strafe_ticks = robot.strafePosition();
-            if (vuforia.getHeading() != 0) {
-                left_ticks += (int)(0.5 * TURN_RADIUS * vuforia.getHeading() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
-                right_ticks -= (int)(0.5 * TURN_RADIUS * vuforia.getHeading() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
-            } else {
-                left_ticks += (int)(vuforia.getX() / (2 * Math.PI * BALL_RADIUS) * LEFT_TICKS_PER_REV);
-                right_ticks += (int)(vuforia.getX() / (2 * Math.PI * BALL_RADIUS) * RIGHT_TICKS_PER_REV);
-                strafe_ticks += (int)(vuforia.getY() / (2 * Math.PI * BALL_RADIUS) * STRAFE_TICKS_PER_REV);
-            }
-            //robot.move(left_ticks, right_ticks, strafe_ticks);
+        if (vuforia.isTargetVisible()) {
+            double leftPower = pidX.getPower(-5 - vuforia.getX()) + 0.5 * pidHeading.getPower(vuforia.getHeading());
+            double rightPower = pidX.getPower(-5 - vuforia.getX()) - 0.5 * pidHeading.getPower(vuforia.getHeading());
+            double strafePower = pidY.getPower(vuforia.getY() - 2);
+
+            robot.leftPower = Range.clip(leftPower,-1.0, 1.0);
+            robot.rightPower = Range.clip(rightPower,-1.0, 1.0);
+            robot.strafePower = Range.clip(strafePower,-1.0, 1.0);
         } else {
-            robot.leftDrive.setPower(0);
-            robot.rightDrive.setPower(0);
-            robot.strafeDrive.setPower(0);
+            robot.leftPower = 0;
+            robot.rightPower = 0;
+            robot.strafePower = 0;
         }
 
+        vuforia.update();
+        robot.update();
         telemetry.addData("Kp:", "" + Kp);
         telemetry.addData("Ki:", "" + Ki);
-        telemetry.addData("Kd:", "" + Kd);
+        telemetry.addData("Kf:", "" + Kd);
+        telemetry.addData("left_power", "" + robot.leftPower);
     }
 
     //Code to run ONCE after the driver hits STOP
