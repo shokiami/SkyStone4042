@@ -136,7 +136,9 @@ class Robot {
         strafeDrive.setPower(speed);
 
         if (waitUntilDone) {
-            while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) { }
+            while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) {
+                //Wait
+            }
             move(0, 0, false);
         }
     }
