@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -18,6 +17,9 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
+
+    static final double Z_TICKS_PER_INCH = 49.606;
+    static final double X_TICKS_PER_INCH = 58.504;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -120,9 +122,9 @@ class Robot {
     }
 
     void move(int z_inches, int x_inches, boolean waitUntilDone) {
-        int left_target_z = leftDrive.getCurrentPosition() + 55 * z_inches;
-        int right_target_z = rightDrive.getCurrentPosition() + 55 * z_inches;
-        int strafe_target_x = strafeDrive.getCurrentPosition() + (int) (61.73 * x_inches);
+        int left_target_z = leftDrive.getCurrentPosition() + (int)(Z_TICKS_PER_INCH * z_inches);
+        int right_target_z = rightDrive.getCurrentPosition() + (int)(Z_TICKS_PER_INCH * z_inches);
+        int strafe_target_x = strafeDrive.getCurrentPosition() + (int)(X_TICKS_PER_INCH * x_inches);
         leftDrive.setTargetPosition(left_target_z);
         rightDrive.setTargetPosition(right_target_z);
         strafeDrive.setTargetPosition(strafe_target_x);
