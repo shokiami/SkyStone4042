@@ -39,8 +39,8 @@ public class Tele1 extends OpMode {
     Robot robot;
     Controller controller1;
     ElapsedTime runtime;
-    //Gyro gyro;
-    //boolean spin;
+    Gyro gyro;
+    boolean spin;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -48,7 +48,7 @@ public class Tele1 extends OpMode {
         robot = new Robot(hardwareMap);
         robot.update();
         controller1 = new Controller(gamepad1);
-        //gyro = new Gyro(hardwareMap);
+        gyro = new Gyro(hardwareMap);
         runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
     }
@@ -106,6 +106,25 @@ public class Tele1 extends OpMode {
             robot.toggleHook();
         }
 
+        //Valve (not in use)
+        if (controller1.left_bumper.equals("pressing")) {
+            robot.toggleValve();
+        }
+
+        //Gyroscope
+        if (controller1.left_bumper.equals("pressing")) {
+            spin = true;
+            gyro.resetAngle();
+        }
+        if (spin) {
+            if (gyro.getAngle() < 5) {
+                robot.rightPower = -0.00324*gyro.getAngle() - 0.684;
+                robot.leftPower = 0.00324*gyro.getAngle() + 0.684;
+            }
+            else if (gyro.getAngle() > 5) {
+                spin = false;
+            }
+        }
 
         robot.update();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
