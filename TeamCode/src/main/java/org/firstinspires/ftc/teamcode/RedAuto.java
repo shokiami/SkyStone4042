@@ -36,13 +36,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name="RedAuto", group="Linear Opmode")
 public class RedAuto extends LinearOpMode {
     //Declare OpMode members
-    RobotAuto robotAuto;
+    Robot robot;
     ElapsedTime runtime;
     Vuforia vuforia;
     boolean run;
 
     void move(int z_inches, int x_inches) {
-        robotAuto.move(z_inches, x_inches, true);
+        robot.move(z_inches, x_inches, true);
     }
 
     void wait(double waitTime) {
@@ -53,8 +53,8 @@ public class RedAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robotAuto = new RobotAuto(hardwareMap);
-        robotAuto.update();
+        robot = new Robot(hardwareMap);
+        robot.update();
         runtime = new ElapsedTime();
         vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         run = true;
@@ -66,8 +66,8 @@ public class RedAuto extends LinearOpMode {
         //Code to run ONCE when the driver hits PLAY
         runtime.reset();
         vuforia.flashlight(true);
-        robotAuto.toggleIntakeAngle();
-        robotAuto.update();
+        robot.toggleIntakeAngle();
+        robot.update();
 
         while (opModeIsActive()) {
             if (run) {
@@ -84,42 +84,42 @@ public class RedAuto extends LinearOpMode {
                     move(0, -8);
                     wait(0.5);
                 }
-                robotAuto.toggleIntake();
-                robotAuto.update();
+                robot.toggleIntake();
+                robot.update();
                 wait(0.5);
                 move(8, 0);
                 wait(0.5);
-                robotAuto.liftPower = 1;
-                robotAuto.update();
+                robot.liftPower = 1;
+                robot.update();
                 wait(0.5);
-                robotAuto.liftPower = 0;
-                robotAuto.update();
+                robot.liftPower = 0;
+                robot.update();
                 wait(0.5);
                 move(-12, 0);
                 wait(0.5);
                 move(0, 77 - disp);
                 wait(0.5);
-                robotAuto.toggleSpeed();
-                robotAuto.update();
+                robot.toggleSpeed();
+                robot.update();
                 wait(0.5);
                 move(20, 0);
                 wait(0.4);
-                robotAuto.toggleIntake();
-                robotAuto.toggleHook();
-                robotAuto.toggleSpeed();
-                robotAuto.update();
+                robot.toggleIntake();
+                robot.toggleHook();
+                robot.toggleSpeed();
+                robot.update();
                 wait(5.0);
                 move(-30, 0);
                 wait(0.5);
-                robotAuto.toggleHook();
-                robotAuto.update();
+                robot.toggleHook();
+                robot.update();
                 wait(0.5);
                 move(0, -60);
                 wait(0.5);
-                robotAuto.liftPower = -1;
-                robotAuto.update();
+                robot.liftPower = -1;
+                robot.update();
                 wait(0.3);
-                robotAuto.liftPower = 0;
+                robot.liftPower = 0;
                 run = false;
             }
         }

@@ -76,11 +76,6 @@ public class Tele1 extends OpMode {
             robot.toggleSpeed();
         }
 
-        // Adjusted Speed (pretty lit)
-        if (controller1.left_trigger >= 0.1) {
-            robot.adjustSpeed(0.15 + 0.85 * (1 - controller1.left_trigger));
-        }
-
         //Ball Drive
         robot.leftPower = controller1.left_stick_y;
         robot.rightPower = controller1.right_stick_y;
@@ -111,16 +106,9 @@ public class Tele1 extends OpMode {
             robot.toggleHook();
         }
 
-        if (controller1.dpad_right.equals("pressing")) {
-            robot.multiplyer += 0.01;
-        }
-        if (controller1.dpad_left.equals("pressing")) {
-            robot.multiplyer += -0.01;
-        }
 
         robot.update();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("multiplyer", "" + robot.multiplyer);
     }
 
     //Code to run ONCE after the driver hits STOP

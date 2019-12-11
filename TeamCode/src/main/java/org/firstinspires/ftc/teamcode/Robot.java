@@ -18,7 +18,6 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    double multiplyer = 1;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -53,18 +52,21 @@ class Robot {
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
+
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void toggleSpeed() {
-        if (speed > 0.95) {
+        if (speed == 1) {
             speed = 0.3;
         } else {
             speed = 1;
         }
-    }
-
-    void adjustSpeed(double value) {
-        speed = value;
     }
 
     void toggleIntake() {
@@ -116,33 +118,25 @@ class Robot {
         hookServo2.setPosition(hookAngle);
         valveServo.setPosition(valveAngle);
     }
-/*
-    void updatePIDCoefficients(double Kp, double Ki, double Kd) {
-        leftDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
-        rightDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
-        strafeDrive.setVelocityPIDFCoefficients(Kp, Ki, Kd, 0);
-    }
-*/
-    int leftPosition() {
-        return leftDrive.getCurrentPosition();
-    }
-    int rightPosition() {
-        return rightDrive.getCurrentPosition();
-    }
-    int strafePosition() {
-        return strafeDrive.getCurrentPosition();
-    }
 
-    void move(int z_inches, int x_inches) {
-        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + 55 * z_inches);
-        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + 55 * z_inches);
-        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + 55 * x_inches);
+    void move(int z_inches, int x_inches, boolean waitUntilDone) {
+        int left_target_z = leftDrive.getCurrentPosition() + 55 * z_inches;
+        int right_target_z = rightDrive.getCurrentPosition() + 55 * z_inches;
+        int strafe_target_x = strafeDrive.getCurrentPosition() + (int) (61.73 * x_inches);
+        leftDrive.setTargetPosition(left_target_z);
+        rightDrive.setTargetPosition(right_target_z);
+        strafeDrive.setTargetPosition(strafe_target_x);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        strafeDrive.setPower(1);
+        leftDrive.setPower(speed);
+        rightDrive.setPower(speed);
+        strafeDrive.setPower(speed);
+
+        if (waitUntilDone) {
+            while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) { }
+            move(0, 0, false);
+        }
     }
 }
 
