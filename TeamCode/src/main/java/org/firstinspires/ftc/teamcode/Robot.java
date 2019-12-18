@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
 class Robot {
+    // This is a test message.
     double leftPower = 0;
     double rightPower = 0;
     double strafePower = 0;
