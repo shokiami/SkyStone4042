@@ -126,8 +126,11 @@ public class Tele1 extends OpMode {
             }
         }
 
+
+
         robot.update();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Gyro", "Angle: " + gyro.getAngle());
     }
 
     //Code to run ONCE after the driver hits STOP

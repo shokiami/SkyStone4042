@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
 class Robot {
-    // This is a test message.
     double leftPower = 0;
     double rightPower = 0;
     double strafePower = 0;
@@ -21,6 +20,7 @@ class Robot {
 
     static final double Z_TICKS_PER_INCH = 49.606;
     static final double X_TICKS_PER_INCH = 58.504;
+    static final double TURN_RADIUS = 8.4925;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -32,6 +32,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
+    Gyro gyro;
 
     Robot(HardwareMap hardwareMap) {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
@@ -122,7 +123,7 @@ class Robot {
         valveServo.setPosition(valveAngle);
     }
 
-    void move(int z_inches, int x_inches, boolean waitUntilDone) {
+    void move(int z_inches, int x_inches) {
         int left_target_z = leftDrive.getCurrentPosition() + (int)(Z_TICKS_PER_INCH * z_inches);
         int right_target_z = rightDrive.getCurrentPosition() + (int)(Z_TICKS_PER_INCH * z_inches);
         int strafe_target_x = strafeDrive.getCurrentPosition() + (int)(X_TICKS_PER_INCH * x_inches);
@@ -135,13 +136,32 @@ class Robot {
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);
         strafeDrive.setPower(speed);
+        while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) {
+            //Wait
+        }
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition());
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition());
+        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition());
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+    }
+
+    void rotate(double angle) { // clockwise
+        angle *= Math.PI / 180.0;
+        int left_target = (int) (TURN_RADIUS * angle * Z_TICKS_PER_INCH);
+        int right_target = (int) (- TURN_RADIUS * angle * Z_TICKS_PER_INCH);
+        leftDrive.setTargetPosition(left_target);
+        rightDrive.setTargetPosition(right_target);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(speed);
+        rightDrive.setPower(speed);
         if (waitUntilDone) {
             while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) {
                 //Wait
             }
-            move(0, 0, false);
-        }
     }
 }
 
