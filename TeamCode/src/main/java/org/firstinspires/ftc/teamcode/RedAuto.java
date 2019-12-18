@@ -42,7 +42,7 @@ public class RedAuto extends LinearOpMode {
     boolean run;
 
     void move(int z_inches, int x_inches) {
-        robot.move(z_inches, x_inches, true);
+        robot.move(z_inches, x_inches);
     }
 
     void wait(double waitTime) {

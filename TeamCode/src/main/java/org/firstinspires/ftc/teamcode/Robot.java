@@ -158,10 +158,13 @@ class Robot {
         rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);
-        if (waitUntilDone) {
-            while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) {
-                //Wait
-            }
+        while (Math.abs(leftDrive.getCurrentPosition() - left_target) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target) > 10) {
+            //Wait
+        }
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition());
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition());
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
 
