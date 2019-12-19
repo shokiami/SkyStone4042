@@ -40,29 +40,18 @@ public class TeleTest extends OpMode
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    Vuforia vuforia;
-    ElapsedTime runtime;
-    Pid pidX;
-    Pid pidY;
-    Pid pidHeading;
-    double Kp;
-    double Ki;
-    double Kd;
+    double p;
+    double i;
+    double d;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
         controller1 = new Controller(gamepad1);
-        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
-        runtime = new ElapsedTime();
-        pidX = new Pid(0.1, 0, 0);
-        pidY = new Pid(0.1, 0, 0);
-        pidHeading = new Pid(0.1, 0, 0);
-        Kp = 0;
-        Ki = 0;
-        Kd = 0;
-        runtime = new ElapsedTime();
+        p = 0;
+        i = 0;
+        d = 0;
 
         telemetry.addData("Status", "Initialized");
     }
@@ -75,8 +64,8 @@ public class TeleTest extends OpMode
     //Code to run ONCE when the driver hits PLAY
     @Override
     public void start() {
-        runtime.reset();
-        vuforia.flashlight(true);
+        robot.resetElapsedTime();
+        robot.turnOnFlashlight();
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -85,48 +74,39 @@ public class TeleTest extends OpMode
         controller1.update();
 
         if (controller1.y.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Kp += 0.01;
+            p += 0.1;
         }
         if (controller1.y.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            Kp -= 0.01;
+            p -= 0.1;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Ki += 0.01;
+            i += 0.1;
         }
         if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            Ki -= 0.01;
+            i -= 0.1;
         }
         if (controller1.a.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            Kd += 0.01;
+            d += 0.1;
         }
         if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            Kd -= 0.01;
+            d -= 0.1;
         }
 
-        pidX.update(Kp, Ki, Kd);
-        pidY.update(Kp, Ki, Kd);
-        pidHeading.update(Kp, Ki, Kd);
+        robot.updatePIDCoefficients(p, i, d);
 
-        if (vuforia.isTargetVisible()) {
-            double leftPower = pidX.getPower(-5 - vuforia.getX()) + 0.5 * pidHeading.getPower(vuforia.getHeading());
-            double rightPower = pidX.getPower(-5 - vuforia.getX()) - 0.5 * pidHeading.getPower(vuforia.getHeading());
-            double strafePower = pidY.getPower(vuforia.getY() - 2);
-
-            robot.leftPower = Range.clip(leftPower,-1.0, 1.0);
-            robot.rightPower = Range.clip(rightPower,-1.0, 1.0);
-            robot.strafePower = Range.clip(strafePower,-1.0, 1.0);
+        if (robot.isTargetVisible()) {
+            robot.rotate(robot.getVuforiaHeading());
+            robot.move(robot.getVuforiaZ(), robot.getVuforiaX());
         } else {
             robot.leftPower = 0;
             robot.rightPower = 0;
             robot.strafePower = 0;
         }
 
-        vuforia.update();
         robot.update();
-        telemetry.addData("Kp:", "" + Kp);
-        telemetry.addData("Ki:", "" + Ki);
-        telemetry.addData("Kf:", "" + Kd);
-        telemetry.addData("left_power", "" + robot.leftPower);
+        telemetry.addData("p:", "" + p);
+        telemetry.addData("i:", "" + i);
+        telemetry.addData("d:", "" + d);
     }
 
     //Code to run ONCE after the driver hits STOP

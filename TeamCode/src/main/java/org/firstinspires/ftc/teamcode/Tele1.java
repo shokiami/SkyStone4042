@@ -38,8 +38,6 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    ElapsedTime runtime;
-    Gyro gyro;
     boolean spin;
 
     //Code to run ONCE when the driver hits INIT
@@ -48,8 +46,6 @@ public class Tele1 extends OpMode {
         robot = new Robot(hardwareMap);
         robot.update();
         controller1 = new Controller(gamepad1);
-        gyro = new Gyro(hardwareMap);
-        runtime = new ElapsedTime();
         telemetry.addData("Status", "Initialized");
     }
 
@@ -61,7 +57,7 @@ public class Tele1 extends OpMode {
     //Code to run ONCE when the driver hits PLAY
     @Override
     public void start() {
-        runtime.reset();
+        robot.resetElapsedTime();
         robot.toggleIntakeAngle();
         robot.update();
     }
@@ -113,21 +109,10 @@ public class Tele1 extends OpMode {
 
         //Gyroscope
         if (controller1.left_bumper.equals("pressing")) {
-            spin = true;
-            gyro.resetAngle();
-        }
-        if (spin) {
-            if (gyro.getAngle() < 5) {
-                robot.rightPower = -0.00324*gyro.getAngle() - 0.684;
-                robot.leftPower = 0.00324*gyro.getAngle() + 0.684;
-            }
-            else if (gyro.getAngle() > 5) {
-                spin = false;
-            }
+            robot.rotate(Math.PI);
         }
 
         robot.update();
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
     //Code to run ONCE after the driver hits STOP
@@ -135,26 +120,3 @@ public class Tele1 extends OpMode {
     public void stop () {
     }
 }
-
-//Valve (not in use)
-        /*
-        if (controller1.left_bumper.equals("pressing")) {
-            robot.toggleValve();
-        }
-
-        //Spin
-        if (controller1.left_bumper.equals("pressing")) {
-            spin = true;
-            gyro.resetAngle();
-        }
-        if (spin) {
-            if (gyro.getAngle() < 5) {
-                robot.rightPower = -0.00324*gyro.getAngle() - 0.684;
-                robot.leftPower = 0.00324*gyro.getAngle() + 0.684;
-            }
-            else if (gyro.getAngle() > 5) {
-                spin = false;
-            }
-        }
-
-        */

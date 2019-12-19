@@ -57,7 +57,6 @@ public class Vuforia {
 
     private List<VuforiaTrackable> allTrackables;
     private VuforiaTrackables targetsSkyStone;
-    private Telemetry telemetry;
 
     // looking out from red alliance side
     // the robot is facing to the right (along +X)
@@ -73,7 +72,8 @@ public class Vuforia {
 
     // if the target is a stone:
     // robot is -X away from target, -Y to the right of target, +Z above target
-    Vuforia(HardwareMap hardwareMap, Telemetry telemetry, PhoneInfoPackage infoPackage) {
+    Vuforia(HardwareMap hardwareMap) {
+        PhoneInfoPackage infoPackage = PhoneInfoPackage.getPhoneInfoPackage();
         CAMERA_CHOICE = infoPackage.CAMERA_CHOICE;
         PHONE_IS_PORTRAIT = infoPackage.PHONE_IS_PORTRAIT;
         CAMERA_FORWARD_DISPLACEMENT = infoPackage.CAMERA_FORWARD_DISPLACEMENT;
@@ -82,7 +82,6 @@ public class Vuforia {
 
         elapsedTime = new ElapsedTime();
 
-        this.telemetry = telemetry;
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
@@ -237,24 +236,6 @@ public class Vuforia {
                 break;
             }
         }
-
-        // Provide feedback as to where the robot is located (if we know).
-        if (targetVisible) {
-            telemetrizeTranslation(getTranslation());
-            telemetrizeOrientation(getOrientation());
-        }
-        else {
-            telemetry.addData("Visible Target", "none");
-        }
-        //telemetry.update();
-    }
-
-    private void telemetrizeTranslation(VectorF translation) {
-        telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f", this.getX(), this.getY(), this.getZ());
-    }
-
-    private void telemetrizeOrientation(Orientation rotation) {
-        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", this.getRoll(), this.getPitch(), this.getHeading());
     }
 
     private VectorF getTranslation() {
