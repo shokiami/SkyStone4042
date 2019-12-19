@@ -37,26 +37,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class BlueAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    ElapsedTime runtime;
-    Vuforia vuforia;
     boolean run;
-
-    void move(int z_inches, int x_inches) {
-        robot.move(z_inches, x_inches);
-    }
-
-    void wait(double waitTime) {
-        double start = runtime.seconds();
-        while (runtime.seconds() - start < waitTime) {}
-    }
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap);
         robot.update();
-        runtime = new ElapsedTime();
-        vuforia = new Vuforia(hardwareMap, telemetry, PhoneInfoPackage.getPhoneInfoPackage());
         run = true;
 
         telemetry.addData("Status", "Initialized");
@@ -64,61 +51,60 @@ public class BlueAuto extends LinearOpMode {
         waitForStart();
 
         //Code to run ONCE when the driver hits PLAY
-        runtime.reset();
-        vuforia.flashlight(true);
+        robot.resetElapsedTime();
+        robot.turnOnFlashlight();
         robot.toggleIntakeAngle();
         robot.update();
 
         while (opModeIsActive()) {
             if (run) {
-                wait(0.5);
-                move(20, 0);
-                wait(0.5);
+                robot.wait(0.5);
+                robot.move(20, 0);
+                robot.wait(0.5);
                 int disp = 0;
                 while (disp < 16) {
-                    vuforia.update();
-                    if (vuforia.isTargetVisible()) {
+                    if (robot.isTargetVisible()) {
                         break;
                     }
                     disp += 8;
-                    move(0, 8);
-                    wait(0.5);
+                    robot.move(0, 8);
+                    robot.wait(0.5);
                 }
                 robot.toggleIntake();
                 robot.update();
-                wait(0.5);
-                move(8, 0);
-                wait(0.5);
+                robot.wait(0.5);
+                robot.move(8, 0);
+                robot.wait(0.5);
                 robot.liftPower = 1;
                 robot.update();
-                wait(0.4);
+                robot.wait(0.4);
                 robot.liftPower = 0;
                 robot.update();
-                wait(0.5);
-                move(-12, 0);
-                wait(0.5);
-                move(0, -77 - disp);
-                wait(0.5);
+                robot.wait(0.5);
+                robot.move(-12, 0);
+                robot.wait(0.5);
+                robot.move(0, -77 - disp);
+                robot.wait(0.5);
                 robot.toggleSpeed();
                 robot.update();
-                wait(0.5);
-                move(30, 0);
-                wait(0.5);
+                robot.wait(0.5);
+                robot.move(30, 0);
+                robot.wait(0.5);
                 robot.toggleIntake();
                 robot.toggleHook();
                 robot.toggleSpeed();
                 robot.update();
-                wait(4.0);
-                move(-30, 0);
-                wait(0.5);
+                robot.wait(4.0);
+                robot.move(-30, 0);
+                robot.wait(0.5);
                 robot.toggleHook();
                 robot.update();
-                wait(0.5);
-                move(0, 57);
-                wait(1.);
+                robot.wait(0.5);
+                robot.move(0, 57);
+                robot.wait(1.);
                 robot.liftPower = -1;
                 robot.update();
-                wait(0.3);
+                robot.wait(0.3);
                 robot.liftPower = 0;
                 run = false;
             }
