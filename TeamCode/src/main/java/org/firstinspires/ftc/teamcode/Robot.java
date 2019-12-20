@@ -38,9 +38,9 @@ class Robot {
     Gyro gyro;
 
     Robot(HardwareMap hardwareMap) {
-        leftDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "right_drive");
-        strafeDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "strafe_drive");
+        leftDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "left_drive");
+        rightDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "right_drive");
+        strafeDrive = (DcMotorEx) hardwareMap.get(DcMotor.class, "strafe_drive");
         liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
         liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
@@ -62,9 +62,9 @@ class Robot {
 
         resetEncoders();
 
-        leftDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        rightDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        strafeDrive.setVelocityPIDFCoefficients(10,0,0,0);
+        leftDrive.setVelocityPIDFCoefficients(10, 0, 0, 0);
+        rightDrive.setVelocityPIDFCoefficients(10, 0, 0, 0);
+        strafeDrive.setVelocityPIDFCoefficients(10, 0, 0, 0);
 
         vuforia = new Vuforia(hardwareMap);
         gyro = new Gyro(hardwareMap);
@@ -80,10 +80,10 @@ class Robot {
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void updatePIDCoefficients(double p ,double i ,double d ) {
-        leftDrive.setVelocityPIDFCoefficients(p,i,d,0);
-        rightDrive.setVelocityPIDFCoefficients(p,i,d,0);
-        strafeDrive.setVelocityPIDFCoefficients(p,i,d,0);
+    void updatePIDCoefficients(double p, double i, double d) {
+        leftDrive.setVelocityPIDFCoefficients(p, i, d, 0);
+        rightDrive.setVelocityPIDFCoefficients(p, i, d, 0);
+        strafeDrive.setVelocityPIDFCoefficients(p, i, d, 0);
     }
 
     void toggleSpeed() {
@@ -117,7 +117,8 @@ class Robot {
             hookAngle = 0;
         }
     }
-//Hello reghrgherareahafrrjkd
+
+    //Hello reghrgherareahafrrjkd
     void toggleIntakeAngle() {
         if (intakeAngle == 0) {
             intakeAngle = 0.6;
@@ -140,7 +141,7 @@ class Robot {
 
     boolean isTargetVisible() {
         vuforia.update();
-        return  vuforia.isTargetVisible();
+        return vuforia.isTargetVisible();
     }
 
     double getVuforiaZ() {
@@ -172,9 +173,9 @@ class Robot {
         strafePower *= speed;
         liftPower *= speed;
 
-        leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
-        rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
-        strafeDrive.setPower(Range.clip(strafePower,-1.0, 1.0));
+        leftDrive.setPower(Range.clip(leftPower, -1.0, 1.0));
+        rightDrive.setPower(Range.clip(rightPower, -1.0, 1.0));
+        strafeDrive.setPower(Range.clip(strafePower, -1.0, 1.0));
         liftMotor1.setPower(0.65 * liftPower);
         liftMotor2.setPower(liftPower);
         intakeMotor.setPower(intakePower);
@@ -186,13 +187,14 @@ class Robot {
 
     void wait(double seconds) {
         double start = getElapsedTimeSeconds();
-        while (getElapsedTimeSeconds() - start < seconds) {}
+        while (getElapsedTimeSeconds() - start < seconds) {
+        }
     }
 
     void move(double z_inches, double x_inches) {
-        int left_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
-        int right_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
-        int strafe_target_x = strafeDrive.getCurrentPosition() + (int)(x_inches * X_TICKS_PER_INCH);
+        int left_target_z = (int) (z_inches * Z_TICKS_PER_INCH);
+        int right_target_z = (int) (z_inches * Z_TICKS_PER_INCH);
+        int strafe_target_x = strafeDrive.getCurrentPosition() + (int) (x_inches * X_TICKS_PER_INCH);
         leftDrive.setTargetPosition(left_target_z);
         rightDrive.setTargetPosition(right_target_z);
         strafeDrive.setTargetPosition(strafe_target_x);
@@ -209,8 +211,8 @@ class Robot {
     }
 
     void rotate(double angle) {
-        int left_target_z = (int)(angle * TURN_RADIUS * Z_TICKS_PER_INCH);
-        int right_target_z = (int)(angle * TURN_RADIUS * Z_TICKS_PER_INCH);
+        int left_target_z = (int) (angle * TURN_RADIUS * Z_TICKS_PER_INCH);
+        int right_target_z = (int) (angle * TURN_RADIUS * Z_TICKS_PER_INCH);
         leftDrive.setTargetPosition(left_target_z);
         rightDrive.setTargetPosition(right_target_z);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -220,7 +222,8 @@ class Robot {
         while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10) {
             //Wait
 
-        resetEncoders();
+            resetEncoders();
+        }
     }
 }
 
