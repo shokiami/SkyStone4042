@@ -62,9 +62,9 @@ class Robot {
 
         resetEncoders();
 
-        leftDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        rightDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        strafeDrive.setVelocityPIDFCoefficients(10,0,0,0);
+        //leftDrive.setVelocityPIDFCoefficients(10,0,0,0);
+        //rightDrive.setVelocityPIDFCoefficients(10,0,0,0);
+        //strafeDrive.setVelocityPIDFCoefficients(10,0,0,0);
 
         vuforia = new Vuforia(hardwareMap);
         gyro = new Gyro(hardwareMap);
@@ -81,9 +81,9 @@ class Robot {
     }
 
     void updatePIDCoefficients(double p ,double i ,double d ) {
-        leftDrive.setVelocityPIDFCoefficients(p,i,d,0);
-        rightDrive.setVelocityPIDFCoefficients(p,i,d,0);
-        strafeDrive.setVelocityPIDFCoefficients(p,i,d,0);
+//        leftDrive.setVelocityPIDFCoefficients(p,i,d,0);
+//        rightDrive.setVelocityPIDFCoefficients(p,i,d,0);
+//        strafeDrive.setVelocityPIDFCoefficients(p,i,d,0);
     }
 
     void toggleSpeed() {
