@@ -106,7 +106,7 @@ public class Tele1 extends OpMode {
             robot.toggleValve();
         }
 
-        //Gyroscope
+        //Spin 180
         if (controller1.left_bumper.equals("pressing")) {
             robot.rotate(Math.PI);
         }
