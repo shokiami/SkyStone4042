@@ -89,12 +89,6 @@ public class Tele1 extends OpMode {
         if (controller1.right_bumper.equals("pressing")) {
             robot.toggleIntake();
         }
-        if (controller1.y.equals("pressed")) {
-            robot.intakeAngle += 0.01;
-        }
-        if (controller1.b.equals("pressed")) {
-            robot.intakeAngle -= 0.01;
-        }
 
         //Hook
         if (controller1.a.equals("pressing")) {
