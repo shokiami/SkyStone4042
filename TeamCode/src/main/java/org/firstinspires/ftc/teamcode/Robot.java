@@ -66,7 +66,7 @@ class Robot {
         //rightDrive.setVelocityPIDFCoefficients(10,0,0,0);
         //strafeDrive.setVelocityPIDFCoefficients(10,0,0,0);
 
-        vuforia = new Vuforia(hardwareMap);
+        //vuforia = new Vuforia(hardwareMap);
         gyro = new Gyro(hardwareMap);
         elapsedTime = new ElapsedTime();
     }
