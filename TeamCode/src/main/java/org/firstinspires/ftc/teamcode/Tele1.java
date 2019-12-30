@@ -37,13 +37,11 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    boolean spin;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        robot = new Robot(hardwareMap);
-        robot.update();
+        robot = new Robot(hardwareMap, false);
         controller1 = new Controller(gamepad1);
         telemetry.addData("Status", "Initialized");
     }
@@ -77,12 +75,10 @@ public class Tele1 extends OpMode {
         robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
 
         //Lift
-        if (controller1.dpad_up.equals("pressed")) {
-            robot.liftPower = 1;
-        } else if (controller1.dpad_down.equals("pressed")) {
-            robot.liftPower = -1;
-        } else {
-            robot.liftPower = 0;
+        if (controller1.dpad_up.equals("pressing")) {
+            robot.lift(4);
+        } else if (controller1.dpad_down.equals("pressing")) {
+            robot.lift(-4);
         }
 
         //Intake
@@ -102,7 +98,7 @@ public class Tele1 extends OpMode {
 
         //Spin 180
         if (controller1.left_bumper.equals("pressing")) {
-            robot.rotate(Math.PI);
+            robot.rotate(180);
         }
 
         robot.update();

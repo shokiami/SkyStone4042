@@ -41,7 +41,7 @@ public class BlueAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap);
+        robot = new Robot(hardwareMap, true);
         robot.update();
         run = true;
 

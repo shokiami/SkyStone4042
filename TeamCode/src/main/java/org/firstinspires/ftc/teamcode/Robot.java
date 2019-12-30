@@ -21,10 +21,11 @@ class Robot {
     static final double Z_TICKS_PER_INCH = 49.606;
     static final double X_TICKS_PER_INCH = 58.504;
     static final double TURN_RADIUS = 8.4925;
+    static final double Y_TICKS_PER_INCH = 274.236;
 
-    DcMotorEx leftDrive;
-    DcMotorEx rightDrive;
-    DcMotorEx strafeDrive;
+    DcMotor leftDrive;
+    DcMotor rightDrive;
+    DcMotor strafeDrive;
     DcMotor liftMotor1;
     DcMotor liftMotor2;
     DcMotor intakeMotor;
@@ -37,10 +38,10 @@ class Robot {
     Vuforia vuforia;
     Gyro gyro;
 
-    Robot(HardwareMap hardwareMap) {
-        leftDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "right_drive");
-        strafeDrive = (DcMotorEx)hardwareMap.get(DcMotor.class, "strafe_drive");
+    Robot(HardwareMap hardwareMap, boolean vuforia) {
+        leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
+        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
         liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
         liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
@@ -60,15 +61,17 @@ class Robot {
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
 
-        resetEncoders();
+        liftMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //leftDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        //rightDrive.setVelocityPIDFCoefficients(10,0,0,0);
-        //strafeDrive.setVelocityPIDFCoefficients(10,0,0,0);
-
-        //vuforia = new Vuforia(hardwareMap);
         gyro = new Gyro(hardwareMap);
         elapsedTime = new ElapsedTime();
+        if (vuforia) {
+            this.vuforia = new Vuforia(hardwareMap);
+        }
+
+        resetEncoders();
+        update();
     }
 
     void resetEncoders() {
@@ -78,6 +81,10 @@ class Robot {
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void updatePIDCoefficients(double p ,double i ,double d ) {
@@ -175,7 +182,7 @@ class Robot {
         leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(strafePower,-1.0, 1.0));
-        liftMotor1.setPower(0.65 * liftPower);
+        liftMotor1.setPower(liftPower);
         liftMotor2.setPower(liftPower);
         intakeMotor.setPower(intakePower);
         intakeServo.setPosition(intakeAngle);
@@ -190,6 +197,7 @@ class Robot {
     }
 
     void move(double z_inches, double x_inches) {
+        resetEncoders();
         int left_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
         int right_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
         int strafe_target_x = strafeDrive.getCurrentPosition() + (int)(x_inches * X_TICKS_PER_INCH);
@@ -209,8 +217,9 @@ class Robot {
     }
 
     void rotate(double angle) {
-        int left_target_z = (int)(angle * TURN_RADIUS * Z_TICKS_PER_INCH);
-        int right_target_z = (int)(angle * TURN_RADIUS * Z_TICKS_PER_INCH);
+        resetEncoders();
+        int left_target_z = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+        int right_target_z = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
         leftDrive.setTargetPosition(left_target_z);
         rightDrive.setTargetPosition(right_target_z);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -218,6 +227,21 @@ class Robot {
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);
         while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10) {
+            //Wait
+        }
+        resetEncoders();
+    }
+
+    void lift(double y_inches) {
+        resetEncoders();
+        int lift_target_y = (int)(y_inches * Y_TICKS_PER_INCH);
+        liftMotor1.setTargetPosition(lift_target_y);
+        liftMotor2.setTargetPosition(lift_target_y);
+        liftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor1.setPower(speed);
+        liftMotor2.setPower(speed);
+        while (Math.abs(liftMotor1.getCurrentPosition() - lift_target_y) > 10 || Math.abs(liftMotor2.getCurrentPosition() - lift_target_y) > 10) {
             //Wait
         }
         resetEncoders();

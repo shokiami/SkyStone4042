@@ -38,19 +38,16 @@ public class TeleTest extends OpMode
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    double p;
-    double i;
-    double d;
+
+    public TeleTest(){
+        msStuckDetectInit = 10000;
+    }
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        robot = new Robot(hardwareMap);
+        robot = new Robot(hardwareMap, true);
         controller1 = new Controller(gamepad1);
-        p = 0;
-        i = 0;
-        d = 0;
-
         telemetry.addData("Status", "Initialized");
     }
 
@@ -64,34 +61,13 @@ public class TeleTest extends OpMode
     public void start() {
         robot.resetElapsedTime();
         robot.turnOnFlashlight();
+        robot.toggleIntakeAngle();
+        robot.update();
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        controller1.update();
-
-        if (controller1.y.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            p += 0.1;
-        }
-        if (controller1.y.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            p -= 0.1;
-        }
-        if (controller1.b.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            i += 0.1;
-        }
-        if (controller1.b.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            i -= 0.1;
-        }
-        if (controller1.a.equals("pressed") && controller1.dpad_up.equals("pressing")) {
-            d += 0.1;
-        }
-        if (controller1.a.equals("pressed") && controller1.dpad_down.equals("pressing")) {
-            d -= 0.1;
-        }
-
-        robot.updatePIDCoefficients(p, i, d);
-
         if (robot.isTargetVisible()) {
             robot.rotate(robot.getVuforiaHeading());
             robot.move(robot.getVuforiaZ(), robot.getVuforiaX());
@@ -102,9 +78,6 @@ public class TeleTest extends OpMode
         }
 
         robot.update();
-        telemetry.addData("p:", "" + p);
-        telemetry.addData("i:", "" + i);
-        telemetry.addData("d:", "" + d);
     }
 
     //Code to run ONCE after the driver hits STOP
