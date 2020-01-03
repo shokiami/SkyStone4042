@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -68,6 +67,7 @@ class Robot {
         elapsedTime = new ElapsedTime();
         if (vuforia) {
             this.vuforia = new Vuforia(hardwareMap);
+            turnOnFlashlight();
         }
 
         resetEncoders();
@@ -99,6 +99,7 @@ class Robot {
         } else {
             speed = 1;
         }
+        update();
     }
 
     void toggleIntake() {
@@ -107,6 +108,7 @@ class Robot {
         } else {
             intakePower = 0;
         }
+        update();
     }
 
     void toggleValve() {
@@ -115,6 +117,7 @@ class Robot {
         } else {
             valveAngle = 0;
         }
+        update();
     }
 
     void toggleHook() {
@@ -123,6 +126,7 @@ class Robot {
         } else {
             hookAngle = 0;
         }
+        update();
     }
 
     void toggleIntakeAngle() {
@@ -131,6 +135,7 @@ class Robot {
         } else {
             intakeAngle = 0;
         }
+        update();
     }
 
     void resetElapsedTime() {
@@ -178,7 +183,6 @@ class Robot {
         rightPower *= speed;
         strafePower *= speed;
         liftPower *= speed;
-
         leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(strafePower,-1.0, 1.0));

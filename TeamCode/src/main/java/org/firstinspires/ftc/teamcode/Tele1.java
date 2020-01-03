@@ -56,7 +56,6 @@ public class Tele1 extends OpMode {
     public void start() {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
-        robot.update();
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
