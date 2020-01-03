@@ -155,12 +155,12 @@ class Robot {
         return  vuforia.isTargetVisible();
     }
 
-    double getVuforiaZ() {
+    double getVuforiaZ() { //depth
         vuforia.update();
         return -vuforia.getX();
     }
 
-    double getVuforiaX() {
+    double getVuforiaX() { //side to side
         vuforia.update();
         return vuforia.getY();
     }
