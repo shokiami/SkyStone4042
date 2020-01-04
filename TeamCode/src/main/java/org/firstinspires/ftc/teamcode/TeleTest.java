@@ -73,7 +73,7 @@ public class TeleTest extends OpMode
             robot.leftPower = 0;
             robot.rightPower = 0;
             robot.strafePower = 0;
-            robot.update();
+            robot.updateBallDrive();
         }
     }
 
