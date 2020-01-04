@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,18 +16,17 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    int liftHeight = 0;
+    double liftHeight = 0;
 
     static final double Z_TICKS_PER_INCH = 49.606;
     static final double X_TICKS_PER_INCH = 58.504;
-    static final double TURN_RADIUS = 8.4925;
-    static final double Y_TICKS_PER_INCH = 274.236;
+    static final double TURN_RADIUS = 8.493;
+    static final double Y_TICKS_PER_INCH = 415.0;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
     DcMotor strafeDrive;
-    DcMotor liftMotor1;
-    DcMotor liftMotor2;
+    DcMotor liftMotor;
     DcMotor intakeMotor;
     Servo intakeServo;
     Servo hookServo1;
@@ -43,8 +41,7 @@ class Robot {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
+        liftMotor = hardwareMap.get(DcMotor.class, "lift_motor_2");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
@@ -54,8 +51,7 @@ class Robot {
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         strafeDrive.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor2.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.FORWARD);
         hookServo1.setDirection(Servo.Direction.REVERSE);
@@ -80,11 +76,9 @@ class Robot {
         strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         updateBallDrive();
 
-        liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liftMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        updateLift();
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     void updateBallDrive() {
@@ -139,9 +133,11 @@ class Robot {
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    void resetLiftEncoders() {
-        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    void tuneLift(double height) {
+        liftHeight += height;
+        updateLift();
+        liftHeight = 0;
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     void updateLift() {
@@ -151,12 +147,9 @@ class Robot {
         } else {
             y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
         }
-        liftMotor1.setTargetPosition(y_ticks);
-        liftMotor2.setTargetPosition(y_ticks);
-        liftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor1.setPower(-1);
-        liftMotor2.setPower(1);
+        liftMotor.setTargetPosition(y_ticks);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(1);
     }
 
     void toggleSpeed() {

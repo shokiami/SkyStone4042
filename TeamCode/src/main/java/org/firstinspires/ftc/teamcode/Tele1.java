@@ -75,19 +75,19 @@ public class Tele1 extends OpMode {
         robot.updateBallDrive();
 
         //Lift
-        if (controller1.b.equals("pressing")) {
-            robot.resetLiftEncoders();
+        if (controller1.dpad_right.equals("pressed")) {
+            robot.tuneLift(0.002);
         }
-
-        if (controller1.dpad_up.equals("pressing") && robot.liftHeight < 5) {
+        if (controller1.dpad_left.equals("pressed")) {
+            robot.tuneLift(-0.002);
+        }
+        if (controller1.dpad_up.equals("pressing") && robot.liftHeight < 6) {
             robot.liftHeight += 1;
             robot.updateLift();
         } else if (controller1.dpad_down.equals("pressing") && robot.liftHeight > 0) {
             robot.liftHeight -= 1;
             robot.updateLift();
         }
-
-        telemetry.addData("motor1: ", "" + robot.liftMotor1.getCurrentPosition());
 
         //Intake
         if (controller1.right_bumper.equals("pressing")) {
@@ -108,6 +108,8 @@ public class Tele1 extends OpMode {
         if (controller1.left_bumper.equals("pressing")) {
             robot.rotate(180);
         }
+
+        telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
     }
 
     //Code to run ONCE after the driver hits STOP
