@@ -18,8 +18,8 @@ class Robot {
     double speed = 1;
     double liftHeight = 0;
 
-    static final double Z_TICKS_PER_INCH = 49.606;
-    static final double X_TICKS_PER_INCH = 58.504;
+    static final double Z_TICKS_PER_INCH = 55;
+    static final double X_TICKS_PER_INCH = 61.73;
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 415.0;
 
@@ -71,14 +71,14 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         updateBallDrive();
 
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        if (liftMotor.getCurrentPosition() < 0) {
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        updateLift();
     }
 
     void updateBallDrive() {
@@ -102,9 +102,18 @@ class Robot {
         leftDrive.setPower(1);
         rightDrive.setPower(1);
         strafeDrive.setPower(1);
+        double angle = getGyroAngle();
         while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
-            //Wait
+            if (getGyroAngle() < angle) {
+                leftDrive.setPower(Range.clip(1 + 0.1 * (getGyroAngle() - angle),-1.0, 1.0));
+            }
+            if (getGyroAngle() > angle) {
+                rightDrive.setPower(Range.clip(1 - 0.1 * (getGyroAngle() - angle),-1.0, 1.0));
+            }
         }
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
+        strafeDrive.setPower(0);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -127,6 +136,8 @@ class Robot {
         while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
             //Wait
         }
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -237,6 +248,7 @@ class Robot {
     double getGyroAngle() {
         return gyro.getAngle();
     }
+
 }
 
 //https://ftctechnh.github.io/ftc_app/doc/javadoc/index.html

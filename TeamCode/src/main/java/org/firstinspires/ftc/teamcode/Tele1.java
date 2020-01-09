@@ -31,12 +31,14 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Tele1", group="Iterative Opmode")
 public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
+    boolean POV = false;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -69,9 +71,18 @@ public class Tele1 extends OpMode {
         }
 
         //Ball Drive
-        robot.leftPower = controller1.left_stick_y;
-        robot.rightPower = controller1.right_stick_y;
-        robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
+        if (POV) {
+            robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
+            robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
+            robot.strafePower = controller1.left_stick_x;
+        } else {
+            robot.leftPower = controller1.left_stick_y;
+            robot.rightPower = controller1.right_stick_y;
+            robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
+        }
+        if (controller1.b.equals("pressing")) {
+            POV = !POV;
+        }
         robot.updateBallDrive();
 
         //Lift
@@ -110,6 +121,10 @@ public class Tele1 extends OpMode {
         }
 
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
+        telemetry.addData("rightMotorPower", "" + robot.rightPower);
+        telemetry.addData("leftMotorPower", "" + robot.leftPower);
+        telemetry.addData("gyro", "" + robot.getGyroAngle());
+
     }
 
     //Code to run ONCE after the driver hits STOP
