@@ -71,15 +71,16 @@ public class XYAutoTest extends LinearOpMode {
     public void moveToXZ(double target_x, double target_z) {
         double initialX = x;
         double initialZ = z;
-        double xToPlace = target_x - x;
-        double zToPlace = target_z - z;
+        double xToTarget = target_x - x;
+        double zToTarget = target_z - z;
+        double initialAngleToTarget = 90 - robot.getGyroAngle() - Math.atan2(zToTarget, xToTarget);
         robot.leftPower = 0.5;
         robot.rightPower = 0.5;
         robot.strafePower = 0.5;
 
         while (Math.abs(target_x - x) > 0.1 || Math.abs(target_z - z) > 0.1) {
-            xToPlace = target_x - x;
-            zToPlace = target_z - z;
+            xToTarget = target_x - x;
+            zToTarget = target_z - z;
             if (true) {}
             updateXZ();
         }
