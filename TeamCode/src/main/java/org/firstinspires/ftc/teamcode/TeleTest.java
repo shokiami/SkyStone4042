@@ -67,7 +67,7 @@ public class TeleTest extends OpMode
     @Override
     public void loop() {
         if (robot.isTargetVisible()) {
-            //robot.rotate(robot.getVuforiaHeading());
+            robot.rotate(robot.getVuforiaHeading());
             robot.move(robot.getVuforiaZ(), robot.getVuforiaX());
         } else {
             robot.leftPower = 0;

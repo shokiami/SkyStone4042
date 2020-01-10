@@ -36,7 +36,6 @@ class Robot {
     ElapsedTime elapsedTime;
     Vuforia vuforia;
     Gyro gyro;
-    RotateListener rotateListener;
 
     Robot(HardwareMap hardwareMap, boolean vuforia) {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
@@ -112,6 +111,26 @@ class Robot {
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void rotate(double angle) {
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        int left_ticks = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+        int right_ticks = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + left_ticks);
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + right_ticks);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(1);
+        rightDrive.setPower(1);
+        while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
+            //Wait
+        }
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     void tuneLift(double height) {
@@ -217,39 +236,6 @@ class Robot {
 
     double getGyroAngle() {
         return gyro.getAngle();
-    }
-
-    public class RotateListener extends Thread {
-
-        Gyro gyro;
-
-        private boolean pressed = false;
-
-        void setRunning(boolean input) {
-            this.pressed = input;
-        }
-
-        @Override
-        public void run() {
-
-            while(true) {
-
-                if(pressed) {
-
-                    leftDrive .setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-                    gyro.resetAngle();
-
-                    while(gyro.getAngle() <= 180) {
-                        leftPower  = 5;
-                        rightPower = -5;
-                    }
-
-                    pressed = false;
-                }
-            }
-        }
     }
 }
 
