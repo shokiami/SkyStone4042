@@ -61,27 +61,73 @@ public class XYAutoTest extends LinearOpMode {
     }
 
     public void updateXZ() {
-        x += Math.sin(robot.getGyroAngle()) * (((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight))/2) / robot.X_TICKS_PER_INCH + Math.sin(robot.getGyroAngle() + 90) * (robot.strafeDrive.getCurrentPosition() - prevPosStrafe) / robot.Z_TICKS_PER_INCH;
-        z += Math.cos(robot.getGyroAngle()) * (((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight))/2) / robot.X_TICKS_PER_INCH + Math.cos(robot.getGyroAngle() + 90) * (robot.strafeDrive.getCurrentPosition() - prevPosStrafe) / robot.Z_TICKS_PER_INCH;
+        double distForward = ((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight))/2 / robot.Z_TICKS_PER_INCH;
+        double distSideways = (robot.strafeDrive.getCurrentPosition() - prevPosStrafe) / robot.X_TICKS_PER_INCH;
+        x += (-1) * Math.sin(robot.getGyroAngle()) * distForward + Math.cos(robot.getGyroAngle()) * distSideways;
+        z += Math.cos(robot.getGyroAngle()) * distForward + Math.sin(robot.getGyroAngle()) * distSideways;
         prevPosLeft = robot.leftDrive.getCurrentPosition();
         prevPosRight = robot.rightDrive.getCurrentPosition();
         prevPosStrafe = robot.strafeDrive.getCurrentPosition();
     }
 
     public void moveToXZ(double target_x, double target_z) {
-        double initialX = x;
-        double initialZ = z;
-        double xToTarget = target_x - x;
-        double zToTarget = target_z - z;
-        double initialAngleToTarget = 90 - robot.getGyroAngle() - Math.atan2(zToTarget, xToTarget);
-        robot.leftPower = 0.5;
-        robot.rightPower = 0.5;
-        robot.strafePower = 0.5;
+        double iX = x; //initial x
+        double iZ = z; //initial z
+        double xTT = target_x - x; //x to target
+        double zTT = target_z - z; //z to target
+        double iD = Math.sqrt(xTT * xTT + zTT * zTT); //initial distance to target
+        double iTheta = 90 - robot.getGyroAngle() - Math.atan2(zTT, xTT); //initial angle to target
+        double iRX = Math.sin(iTheta) * iD; //initial rotated x
+        double iRZ = Math.cos(iTheta) * iD; //initial rotated z
+        double rXTT = iRX; //rotated x left to target (changeable)
+        double rZTT = iRZ; //rotated z left to target
+        double dTT = iD; //distance to target (changeable)
+        double thetaTT = iTheta; //angle to target (changeable)
+        double tuning = 0.01; //value for automatic fine-tuning
 
-        while (Math.abs(target_x - x) > 0.1 || Math.abs(target_z - z) > 0.1) {
-            xToTarget = target_x - x;
-            zToTarget = target_z - z;
-            if (true) {}
+        //z = mx + b
+        double m = (target_z - iZ) / (target_x - iX);
+        double b = iZ - m * iX;
+        double currentSlopeFromInit = m;
+
+        if (thetaTT > 0){
+            robot.leftPower = 0.5;
+            robot.rightPower = 0.5;
+            robot.strafePower = 0.5;
+        } else {
+            robot.leftPower = 0.5;
+            robot.rightPower = 0.5;
+            robot.strafePower = -0.5;
+        }
+
+        while (dTT > 0.1) {
+            xTT = target_x - x;
+            zTT = target_z - z;
+            dTT = Math.sqrt(xTT * xTT + zTT * zTT);
+            thetaTT = 90 - robot.getGyroAngle() - Math.atan2(zTT, xTT);
+            currentSlopeFromInit = (z - iZ) / (x - iX);
+
+            if (0 <= thetaTT && thetaTT <= 90) {
+                if (currentSlopeFromInit > m) {
+                    robot.leftPower -= tuning;
+                    robot.rightPower -= tuning;
+                    robot.strafePower += tuning;
+                } else {
+                    robot.leftPower += tuning;
+                    robot.rightPower += tuning;
+                    robot.strafePower -= tuning;
+                }
+            } else if (-90 <= thetaTT && thetaTT <= 0) {
+                if (currentSlopeFromInit > m) {
+                    robot.leftPower += tuning;
+                    robot.rightPower += tuning;
+                    robot.strafePower -= tuning;
+                } else {
+                    robot.leftPower -= tuning;
+                    robot.rightPower -= tuning;
+                    robot.strafePower += tuning;
+                }
+            }
             updateXZ();
         }
     }
