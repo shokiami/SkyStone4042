@@ -150,10 +150,9 @@ class Robot {
         while (Math.abs(targetAngle - getGyroAngle()) > 1) {
             targetAngle(targetAngle);
         }
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftPower = 0;
+        rightPower = 0;
+        updateBallDrive();
     }
 
     void targetAngle(double targetAngle) {
