@@ -60,7 +60,7 @@ public class XYAutoTest extends LinearOpMode {
         moveToXZ(18, 20);
     }
 
-    public void updateXZ(double dTT) {
+    public void updateXZ(double dTT, double target_x, double target_z, double xTT, double zTT) {
         double distForward = ((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight)) / 2 / robot.Z_TICKS_PER_INCH;
         double distSideways = (robot.strafeDrive.getCurrentPosition() - prevPosStrafe) / robot.X_TICKS_PER_INCH;
         x += (-1) * Math.sin(robot.getGyroAngle()) * distForward + Math.cos(robot.getGyroAngle()) * distSideways;
@@ -69,8 +69,10 @@ public class XYAutoTest extends LinearOpMode {
         prevPosRight = robot.rightDrive.getCurrentPosition();
         prevPosStrafe = robot.strafeDrive.getCurrentPosition();
         telemetry.addData("Coordinates: ", "x = " + x + ", z = " + z);
-        telemetry.addData("Dist to Target: ", "dTT = " + dTT);
+        telemetry.addData("Dist to Target: ", "dTT = " + dTT + ", xTT = " + xTT + ", zTT = " + zTT);
         telemetry.addData("Gyro: ", "angle = " + robot.getGyroAngle());
+        telemetry.addData("Targets: ", "tX = " + target_x + ", tZ = " + target_z);
+
         telemetry.addData("Increment Distances: ", "dForward = " + distForward + ", dSideways = " + distSideways);
         telemetry.addData("Powers: ", "left = " + robot.leftPower + ", right = " + robot.rightPower + ", strafe = " + robot.strafePower);
         telemetry.addData("Positions: ", "left = " + robot.leftDrive.getCurrentPosition() + ", right = " + robot.rightDrive.getCurrentPosition() + ", strafe = " + robot.strafeDrive.getCurrentPosition());
@@ -134,7 +136,7 @@ public class XYAutoTest extends LinearOpMode {
                 }
             }
             robot.updateBallDrive();
-            updateXZ(dTT);
+            updateXZ(dTT, target_x, target_z, xTT, zTT);
         }
     }
 }
