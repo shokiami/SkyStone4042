@@ -60,14 +60,21 @@ public class XYAutoTest extends LinearOpMode {
         moveToXZ(18, 20);
     }
 
-    public void updateXZ() {
-        double distForward = ((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight))/2 / robot.Z_TICKS_PER_INCH;
+    public void updateXZ(double dTT) {
+        double distForward = ((robot.leftDrive.getCurrentPosition() - prevPosLeft) + (robot.rightDrive.getCurrentPosition() - prevPosRight)) / 2 / robot.Z_TICKS_PER_INCH;
         double distSideways = (robot.strafeDrive.getCurrentPosition() - prevPosStrafe) / robot.X_TICKS_PER_INCH;
         x += (-1) * Math.sin(robot.getGyroAngle()) * distForward + Math.cos(robot.getGyroAngle()) * distSideways;
         z += Math.cos(robot.getGyroAngle()) * distForward + Math.sin(robot.getGyroAngle()) * distSideways;
         prevPosLeft = robot.leftDrive.getCurrentPosition();
         prevPosRight = robot.rightDrive.getCurrentPosition();
         prevPosStrafe = robot.strafeDrive.getCurrentPosition();
+        telemetry.addData("Coordinates: ", "x = " + x + ", z = " + z);
+        telemetry.addData("Dist to Target: ", "dTT = " + dTT);
+        telemetry.addData("Gyro: ", "angle = " + robot.getGyroAngle());
+        telemetry.addData("Increment Distances: ", "dForward = " + distForward + ", dSideways = " + distSideways);
+        telemetry.addData("Powers: ", "left = " + robot.leftPower + ", right = " + robot.rightPower + ", strafe = " + robot.strafePower);
+        telemetry.addData("Positions: ", "left = " + robot.leftDrive.getCurrentPosition() + ", right = " + robot.rightDrive.getCurrentPosition() + ", strafe = " + robot.strafeDrive.getCurrentPosition());
+        telemetry.update();
     }
 
     public void moveToXZ(double target_x, double target_z) {
@@ -79,18 +86,16 @@ public class XYAutoTest extends LinearOpMode {
         double iTheta = 90 - robot.getGyroAngle() - Math.atan2(zTT, xTT); //initial angle to target
         double iRX = Math.sin(iTheta) * iD; //initial rotated x
         double iRZ = Math.cos(iTheta) * iD; //initial rotated z
-        double rXTT = iRX; //rotated x left to target (changeable)
-        double rZTT = iRZ; //rotated z left to target
         double dTT = iD; //distance to target (changeable)
         double thetaTT = iTheta; //angle to target (changeable)
         double tuning = 0.01; //value for automatic fine-tuning
 
         //z = mx + b
         double m = (target_z - iZ) / (target_x - iX);
-        double b = iZ - m * iX;
+        //double b = iZ - m * iX;
         double currentSlopeFromInit = m;
 
-        if (thetaTT > 0){
+        if (thetaTT > 0) {
             robot.leftPower = 0.5;
             robot.rightPower = 0.5;
             robot.strafePower = 0.5;
@@ -128,8 +133,8 @@ public class XYAutoTest extends LinearOpMode {
                     robot.strafePower += tuning;
                 }
             }
-            updateXZ();
+            robot.updateBallDrive();
+            updateXZ(dTT);
         }
     }
 }
-
