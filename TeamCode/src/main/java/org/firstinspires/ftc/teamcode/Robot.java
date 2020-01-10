@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,8 +19,8 @@ class Robot {
     double speed = 1;
     double liftHeight = 0;
 
-    static final double Z_TICKS_PER_INCH = 49.606;
-    static final double X_TICKS_PER_INCH = 58.504;
+    static final double Z_TICKS_PER_INCH = 55;
+    static final double X_TICKS_PER_INCH = 61.73;
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 415.0;
 
@@ -32,6 +33,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
+    DigitalChannel touchSensor;
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
@@ -47,6 +49,7 @@ class Robot {
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
         valveServo = hardwareMap.get(Servo.class, "valve_servo");
+        //touchSensor = hardwareMap.get(DigitalChannel.class, "touch_sensor");
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -57,6 +60,8 @@ class Robot {
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
+
+        //touchSensor.setMode(DigitalChannel.Mode.INPUT);
 
         gyro = new Gyro(hardwareMap);
         elapsedTime = new ElapsedTime();
@@ -71,15 +76,16 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         updateBallDrive();
 
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
+
+    //boolean touchSensor() {
+    //    return !touchSensor.getState();
+    //}
 
     void updateBallDrive() {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
@@ -105,6 +111,9 @@ class Robot {
         while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
             //Wait
         }
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
+        strafeDrive.setPower(0);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -113,24 +122,50 @@ class Robot {
         strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    void rotate(double angle) {
+//    void rotate(double angle) {
+//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        int left_ticks = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+//        int right_ticks = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+//        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + left_ticks);
+//        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + right_ticks);
+//        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        leftDrive.setPower(1);
+//        rightDrive.setPower(1);
+//        while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
+//            //Wait
+//        }
+//        leftDrive.setPower(0);
+//        rightDrive.setPower(0);
+//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//    }
+
+    void rotate(double targetAngle) {
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        int left_ticks = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-        int right_ticks = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + left_ticks);
-        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + right_ticks);
-        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
-            //Wait
+        while (Math.abs(targetAngle - getGyroAngle()) > 1) {
+            targetAngle(targetAngle);
         }
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void targetAngle(double targetAngle) {
+        double dp = 0.1 * (targetAngle - getGyroAngle());
+        if (dp > 0) {
+            leftDrive.setPower(Range.clip(leftPower - dp,-1.0, 1.0));
+            rightDrive.setPower(Range.clip(rightPower + dp,-1.0, 1.0));
+        }
+        if (dp < 0) {
+            leftDrive.setPower(Range.clip(leftPower + dp,-1.0, 1.0));
+            rightDrive.setPower(Range.clip(rightPower - dp,-1.0, 1.0));
+        }
     }
 
     void tuneLift(double height) {
