@@ -57,7 +57,12 @@ public class XYAutoTest extends LinearOpMode {
         robot.toggleIntakeAngle();
 
         //Let's go!
-        moveToXZ(18, 20);
+        moveToXZ(15, 0);
+        robot.wait(6.);
+        moveToXZ(0,15);
+        robot.wait(6.);
+        moveToXZ(0,0);
+        robot.wait(10.);
     }
 
     public void updateXZ(double dTT, double target_x, double target_z, double xTT, double zTT) {
@@ -89,6 +94,7 @@ public class XYAutoTest extends LinearOpMode {
         double iRX = Math.sin(iTheta) * iD; //initial rotated x
         double iRZ = Math.cos(iTheta) * iD; //initial rotated z
         double dTT = iD; //distance to target (changeable)
+        double prevDTT = iD; //previous distance to target (for comparison to previous iteration)
         double thetaTT = iTheta; //angle to target (changeable)
         double tuning = 0.01; //value for automatic fine-tuning
 
@@ -98,18 +104,19 @@ public class XYAutoTest extends LinearOpMode {
         double currentSlopeFromInit = m;
 
         if (thetaTT > 0) {
-            robot.leftPower = 0.5;
-            robot.rightPower = 0.5;
-            robot.strafePower = 0.5;
+            robot.leftPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            robot.rightPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            robot.strafePower = Math.sin(thetaTT) * Math.sin(thetaTT) * 0.5;
         } else {
-            robot.leftPower = 0.5;
-            robot.rightPower = 0.5;
-            robot.strafePower = -0.5;
+            robot.leftPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            robot.rightPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            robot.strafePower = (-1) * Math.sin(thetaTT) * Math.sin(thetaTT) * 0.5;
         }
 
-        while (dTT > 0.1) {
+        while (dTT > 3 && dTT <= prevDTT) { //consider: dTT > 3 && dTT <= prevDTT
             xTT = target_x - x;
             zTT = target_z - z;
+            prevDTT = dTT;
             dTT = Math.sqrt(xTT * xTT + zTT * zTT);
             thetaTT = 90 - robot.getGyroAngle() - Math.atan2(zTT, xTT);
             currentSlopeFromInit = (z - iZ) / (x - iX);
@@ -138,5 +145,11 @@ public class XYAutoTest extends LinearOpMode {
             robot.updateBallDrive();
             updateXZ(dTT, target_x, target_z, xTT, zTT);
         }
+
+        robot.leftPower = 0;
+        robot.rightPower = 0;
+        robot.strafePower = 0;
+        robot.updateBallDrive();
+
     }
 }
