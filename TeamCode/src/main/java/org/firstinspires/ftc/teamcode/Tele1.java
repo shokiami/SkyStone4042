@@ -73,6 +73,7 @@ public class Tele1 extends OpMode {
         robot.rightPower = controller1.right_stick_y;
         robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
         robot.updateBallDrive();
+        telemetry.addData("Coordinates: ", "x = " + robot.x + ", z = " + robot.z);
 
         //Lift
         if (controller1.dpad_right.equals("pressed")) {

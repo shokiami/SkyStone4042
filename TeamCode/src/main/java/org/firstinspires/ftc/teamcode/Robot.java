@@ -18,6 +18,13 @@ class Robot {
     double speed = 1;
     double liftHeight = 0;
 
+    //Virtual coordinate plane
+    double x = 0; // perpendicular to bridge, 0 to 144 in (or 144 - 18 inches due to robot's length)
+    double z = 0; // parallel axis to bridge, 0 to 144 in
+    int prevPosLeft = 0;
+    int prevPosRight = 0;
+    int prevPosStrafe = 0;
+
     static final double Z_TICKS_PER_INCH = 49.606;
     static final double X_TICKS_PER_INCH = 58.504;
     static final double TURN_RADIUS = 8.493;
@@ -85,6 +92,7 @@ class Robot {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+        updateXZ();
     }
 
     void move(double z_inches, double x_inches) {
@@ -236,6 +244,16 @@ class Robot {
 
     double getGyroAngle() {
         return gyro.getAngle();
+    }
+
+    void updateXZ() {
+        double distForward = ((leftDrive.getCurrentPosition() - prevPosLeft) + (rightDrive.getCurrentPosition() - prevPosRight)) / 2 / Z_TICKS_PER_INCH;
+        double distSideways = (strafeDrive.getCurrentPosition() - prevPosStrafe) / X_TICKS_PER_INCH;
+        x += (-1) * Math.sin(getGyroAngle()) * distForward + Math.cos(getGyroAngle()) * distSideways;
+        z += Math.cos(getGyroAngle()) * distForward + Math.sin(getGyroAngle()) * distSideways;
+        prevPosLeft = leftDrive.getCurrentPosition();
+        prevPosRight = rightDrive.getCurrentPosition();
+        prevPosStrafe = strafeDrive.getCurrentPosition();
     }
 }
 
