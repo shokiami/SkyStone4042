@@ -248,6 +248,8 @@ class Robot {
 
     void updateXZ() {
         double distForward = ((leftDrive.getCurrentPosition() - prevPosLeft) + (rightDrive.getCurrentPosition() - prevPosRight)) / 2 / Z_TICKS_PER_INCH;
+//        double distLeftFoward = 0;
+//        double distRightFoward = 0;
         double distSideways = (strafeDrive.getCurrentPosition() - prevPosStrafe) / X_TICKS_PER_INCH;
         x += (-1) * Math.sin(getGyroAngle()) * distForward + Math.cos(getGyroAngle()) * distSideways;
         z += Math.cos(getGyroAngle()) * distForward + Math.sin(getGyroAngle()) * distSideways;
