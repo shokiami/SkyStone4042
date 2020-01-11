@@ -255,6 +255,74 @@ class Robot {
         prevPosRight = rightDrive.getCurrentPosition();
         prevPosStrafe = strafeDrive.getCurrentPosition();
     }
+
+    void moveToXZ(double tX, double tZ){
+        double iX = x; //initial x
+        double iZ = z; //initial z
+        double xTT = tX - x; //x to target
+        double zTT = tZ - z; //z to target
+        double iD = Math.sqrt(xTT * xTT + zTT * zTT); //initial distance to target
+        double iTheta = 90 - getGyroAngle() - Math.atan2(zTT, xTT); //initial angle to target
+        double iRX = Math.sin(iTheta) * iD; //initial rotated x
+        double iRZ = Math.cos(iTheta) * iD; //initial rotated z
+        double dTT = iD; //distance to target (changeable)
+        double prevDTT = iD; //previous distance to target (for comparison to previous iteration)
+        double thetaTT = iTheta; //angle to target (changeable)
+        double tuning = 0.01; //value for automatic fine-tuning
+
+        //z = mx + b
+        double m = (tZ - iZ) / (tX - iX);
+        //double b = iZ - m * iX;
+        double currentSlopeFromInit = m;
+
+        if (thetaTT > 0) {
+            leftPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            rightPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            strafePower = Math.sin(thetaTT) * Math.sin(thetaTT) * 0.5;
+        } else {
+            leftPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            rightPower = Math.cos(thetaTT) * Math.cos(thetaTT) * 0.5;
+            strafePower = (-1) * Math.sin(thetaTT) * Math.sin(thetaTT) * 0.5;
+        }
+
+        while (dTT > 3 && dTT <= prevDTT) { //consider: dTT > 3 && dTT <= prevDTT
+            xTT = tX - x;
+            zTT = tZ - z;
+            prevDTT = dTT;
+            dTT = Math.sqrt(xTT * xTT + zTT * zTT);
+            thetaTT = 90 - getGyroAngle() - Math.atan2(zTT, xTT);
+            currentSlopeFromInit = (z - iZ) / (x - iX);
+
+            if (0 <= thetaTT && thetaTT <= 90) {
+                if (currentSlopeFromInit > m) {
+                    leftPower -= tuning;
+                    rightPower -= tuning;
+                    strafePower += tuning;
+                } else {
+                    leftPower += tuning;
+                    rightPower += tuning;
+                    strafePower -= tuning;
+                }
+            } else if (-90 <= thetaTT && thetaTT <= 0) {
+                if (currentSlopeFromInit > m) {
+                    leftPower += tuning;
+                    rightPower += tuning;
+                    strafePower -= tuning;
+                } else {
+                    leftPower -= tuning;
+                    rightPower -= tuning;
+                    strafePower += tuning;
+                }
+            }
+            updateBallDrive();
+            updateXZ();
+        }
+
+        leftPower = 0;
+        rightPower = 0;
+        strafePower = 0;
+        updateBallDrive();
+    }
 }
 
 //https://ftctechnh.github.io/ftc_app/doc/javadoc/index.html
