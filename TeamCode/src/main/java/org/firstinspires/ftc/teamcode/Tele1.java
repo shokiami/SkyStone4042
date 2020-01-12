@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Tele1", group="Iterative Opmode")
 public class Tele1 extends OpMode {
@@ -69,10 +70,10 @@ public class Tele1 extends OpMode {
         }
 
         //Ball Drive
-        robot.leftPower = controller1.left_stick_y;
-        robot.rightPower = controller1.right_stick_y;
-        robot.strafePower = 0.5 * controller1.right_stick_x + 0.5 * controller1.left_stick_x;
-        robot.updateBallDrive();
+        robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
+        robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
+        robot.strafePower = controller1.left_stick_x;
+        robot.updateBallDrive(controller1.right_stick_x == 0);
 
         //Lift
         if (controller1.dpad_right.equals("pressed")) {
@@ -111,8 +112,6 @@ public class Tele1 extends OpMode {
 
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
         telemetry.addData("Gyro", "" + robot.getGyroAngle());
-        telemetry.addData("touchSensor", "" + robot.liftAtBottom());
-        telemetry.addData("touchValue", "" + robot.touchValue());
     }
 
     //Code to run ONCE after the driver hits STOP

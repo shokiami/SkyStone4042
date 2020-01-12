@@ -33,7 +33,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
-    TouchSensor touchSensor;
+    TouchSensor touchSensor; //Configure as port n+1 for n&n+1
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
@@ -78,25 +78,21 @@ class Robot {
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        updateBallDrive();
+        updateBallDrive(false);
 
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    boolean liftAtBottom() {
-        return touchSensor.isPressed();
-    }
-
-    double touchValue(){
-        return touchSensor.getValue();
-    }
-
-    void updateBallDrive() {
+    void updateBallDrive(boolean straight) {
+        double targetAngle= getGyroAngle();
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+        if (straight) {
+            targetAngle(targetAngle);
+        }
     }
 
     void move(double z_inches, double x_inches) {
@@ -128,28 +124,6 @@ class Robot {
         strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-//    void rotate(double angle) {
-//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        int left_ticks = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-//        int right_ticks = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-//        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + left_ticks);
-//        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + right_ticks);
-//        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        leftDrive.setPower(1);
-//        rightDrive.setPower(1);
-//        while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
-//            //Wait
-//        }
-//        leftDrive.setPower(0);
-//        rightDrive.setPower(0);
-//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//    }
-
     void rotate(double targetAngle) {
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -158,7 +132,7 @@ class Robot {
         }
         leftPower = 0;
         rightPower = 0;
-        updateBallDrive();
+        updateBallDrive(false);
     }
 
     void targetAngle(double targetAngle) {
@@ -167,11 +141,13 @@ class Robot {
         rightDrive.setPower(Range.clip(rightPower + dp,-1.0, 1.0));
     }
 
+    boolean liftAtBottom() {
+        return touchSensor.isPressed();
+    }
+
     void tuneLift(double height) {
         liftHeight += height;
         updateLift();
-        liftHeight = 0;
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     void updateLift() {
