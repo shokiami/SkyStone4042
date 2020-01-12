@@ -29,76 +29,30 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@TeleOp(name="Tele1", group="Iterative Opmode")
-public class Tele1 extends OpMode {
+@Autonomous(name="ParkAuto", group="Linear Opmode")
+public class ParkAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    Controller controller1;
-    double angle = 0;
 
-    //Code to run ONCE when the driver hits INIT
     @Override
-    public void init() {
-        robot = new Robot(hardwareMap, false);
-        controller1 = new Controller(gamepad1);
+    public void runOpMode() {
+        //Code to run ONCE when the driver hits INIT
+        robot = new Robot(hardwareMap, true);
+
         telemetry.addData("Status", "Initialized");
-    }
 
-    //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-    @Override
-    public void init_loop() {
-    }
+        waitForStart();
 
-    //Code to run ONCE when the driver hits PLAY
-    @Override
-    public void start() {
+        //Code to run ONCE when the driver hits PLAY
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
-    }
 
-    //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-    @Override
-    public void loop() {
-        controller1.update();
-
-        //Speed
-        if (controller1.x.equals("pressing")) {
-            robot.toggleSpeed();
-        }
-
-        //Ball Drive
-        robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
-        robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
-        robot.strafePower = controller1.left_stick_x;
-        robot.updateBallDrive();
-
-        //Lift
-        if (controller1.dpad_right.equals("pressed")) {
-            robot.liftPower = 1;
-        } else if (controller1.dpad_left.equals("pressed")) {
-            robot.liftPower = -1;
-        } else {
-            robot.liftPower = 0;
-        }
-        robot.updateLift();
-
-        //Intake
-        if (controller1.right_bumper.equals("pressing")) {
-            robot.toggleIntake();
-        }
-
-        //Hook
-        if (controller1.a.equals("pressing")) {
-            robot.toggleHook();
-        }
-    }
-
-    //Code to run ONCE after the driver hits STOP
-    @Override
-    public void stop () {
+        robot.wait(0.5);
+        robot.move(10, 0);
+        robot.wait(0.5);
     }
 }
+

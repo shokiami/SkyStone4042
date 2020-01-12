@@ -36,13 +36,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class RedAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    boolean run;
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
-        run = true;
 
         telemetry.addData("Status", "Initialized");
 
@@ -52,53 +50,48 @@ public class RedAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        while (opModeIsActive()) {
-            if (run) {
-                robot.wait(0.5);
-                robot.move(20, 0);
-                robot.wait(0.5);
-                int disp = 0;
-                while (disp > -16) {
-                    if (robot.isTargetVisible()) {
-                        break;
-                    }
-                    disp -= 8;
-                    robot.move(0, -8);
-                    robot.wait(0.5);
-                }
-                robot.alignVuforia();
-                robot.toggleIntake();
-                robot.wait(0.5);
-                robot.move(8, 0);
-                robot.wait(0.5);
-                robot.liftPower = 1;
-                robot.wait(0.5);
-                robot.liftPower = 0;
-                robot.wait(0.5);
-                robot.move(-12, 0);
-                robot.wait(0.5);
-                robot.move(0, 77 - disp);
-                robot.wait(0.5);
-                robot.toggleSpeed();
-                robot.wait(0.5);
-                robot.move(20, 0);
-                robot.wait(0.4);
-                robot.toggleIntake();
-                robot.toggleHook();
-                robot.toggleSpeed();
-                robot.wait(5.0);
-                robot.move(-30, 0);
-                robot.wait(0.5);
-                robot.toggleHook();
-                robot.wait(0.5);
-                robot.move(0, -60);
-                robot.wait(0.5);
-                robot.liftPower = -1;
-                robot.wait(0.3);
-                robot.liftPower = 0;
-                run = false;
+        robot.wait(0.5);
+        robot.move(20, 0);
+        robot.wait(0.5);
+        int disp = 0;
+        while (disp > -16) {
+            if (robot.isTargetVisible()) {
+                break;
             }
+            disp -= 8;
+            robot.move(0, -8);
+            robot.wait(0.5);
         }
+        robot.alignVuforia();
+        robot.toggleIntake();
+        robot.wait(0.5);
+        robot.move(8, 0);
+        robot.wait(0.5);
+        robot.liftPower = 1;
+        robot.wait(0.5);
+        robot.liftPower = 0;
+        robot.wait(0.5);
+        robot.move(-12, 0);
+        robot.wait(0.5);
+        robot.move(0, 77 - disp);
+        robot.wait(0.5);
+        robot.toggleSpeed();
+        robot.wait(0.5);
+        robot.move(20, 0);
+        robot.wait(0.4);
+        robot.toggleIntake();
+        robot.toggleHook();
+        robot.toggleSpeed();
+        robot.wait(5.0);
+        robot.move(-30, 0);
+        robot.wait(0.5);
+        robot.toggleHook();
+        robot.wait(0.5);
+        robot.move(0, -60);
+        robot.wait(0.5);
+        robot.liftPower = -1;
+        robot.wait(0.3);
+        robot.liftPower = 0;
     }
 }
 

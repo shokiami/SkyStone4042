@@ -17,7 +17,6 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    double liftHeight = 0;
 
     static final double Z_TICKS_PER_INCH = 55;
     static final double X_TICKS_PER_INCH = 61.73;
@@ -68,72 +67,70 @@ class Robot {
             this.vuforia.flashlight(true);
         }
 
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        resetBallDrive();
+
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        resetLift();
+
+        updateBallDrive();
+        resetLift();
+    }
+
+    void resetBallDrive() {
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        updateBallDrive();
-
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        resetLift();
     }
 
-    void updateBallDrive(boolean targetAngle) {
+    void updateBallDrive() {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+    }
+
+    void move(double z_inches, double x_inches) {
+        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
+        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + z_ticks);
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + z_ticks);
+        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + x_ticks);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(1);
+        rightDrive.setPower(1);
+        strafeDrive.setPower(1);
+        updateBallDrive();
+        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
+            //Wait
+        }
+        resetBallDrive();
     }
 
 //    void move(double z_inches, double x_inches) {
 //        double targetAngle= getGyroAngle();
 //        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
 //        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
-//        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + z_ticks);
-//        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + z_ticks);
-//        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + x_ticks);
-//        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        leftDrive.setPower(1);
-//        rightDrive.setPower(1);
-//        strafeDrive.setPower(1);
-//        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
-//            updateBallDrive(true);
+//        while (Math.abs(z_ticks - leftDrive.getCurrentPosition()) > 5 || Math.abs(x_ticks - strafeDrive.getCurrentPosition()) > 5) {
+//            double dz = 0.02 * (z_ticks - leftDrive.getCurrentPosition());
+//            double dx = 0.02 * (x_ticks - strafeDrive.getCurrentPosition());
+//            leftPower = dz;
+//            rightPower = dz;
+//            strafePower = dx;
+//            updateBallDrive();
+//            targetAngle(targetAngle);
 //        }
-//        leftDrive.setPower(0);
-//        rightDrive.setPower(0);
-//        strafeDrive.setPower(0);
-//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftPower = 0;
+//        rightPower = 0;
+//        strafePower = 0;
+//        updateBallDrive();
 //    }
-
-    void move(double z_inches, double x_inches) {
-        double targetAngle= getGyroAngle();
-        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
-        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
-        while (Math.abs(z_ticks - leftDrive.getCurrentPosition()) > 5 || Math.abs(x_ticks - strafeDrive.getCurrentPosition()) > 5) {
-            double dz = 0.02 * (z_ticks - leftDrive.getCurrentPosition());
-            double dx = 0.02 * (x_ticks - strafeDrive.getCurrentPosition());
-            leftPower = dz;
-            rightPower = dz;
-            strafePower = dx;
-            updateBallDrive();
-            targetAngle(targetAngle);
-        }
-        leftPower = 0;
-        rightPower = 0;
-        strafePower = 0;
-        updateBallDrive();
-    }
 
     void rotate(double targetAngle) {
         while (Math.abs(targetAngle - getGyroAngle()) > 1) {
@@ -155,35 +152,30 @@ class Robot {
     }
 
     void resetLift() {
-//        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        while (!liftAtBottom()) {
-//            tuneLift(-0.003);
-//        }
-//        while (liftAtBottom()) {
-//            tuneLift(0.003);
-//        }
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftHeight = 0;
-    }
-
-    void tuneLift(double height) {
-        liftHeight += height;
-        updateLift();
     }
 
     void updateLift() {
-        int y_ticks;
-        if (liftHeight == 0) {
-            y_ticks = 0;
-        } else {
-            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
-        }
-        liftMotor.setTargetPosition(y_ticks);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(1);
+        liftMotor.setPower(liftPower);
     }
+
+//    void tuneLift(double height) {
+//        liftHeight += height;
+//        updateLift();
+//    }
+
+//    void updateLift() {
+//        int y_ticks;
+//        if (liftHeight == 0) {
+//            y_ticks = 0;
+//        } else {
+//            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
+//        }
+//        liftMotor.setTargetPosition(y_ticks);
+//        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        liftMotor.setPower(1);
+//    }
 
     void toggleSpeed() {
         if (speed == 1) {
