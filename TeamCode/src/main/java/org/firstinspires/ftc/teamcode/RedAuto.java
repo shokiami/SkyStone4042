@@ -66,6 +66,7 @@ public class RedAuto extends LinearOpMode {
                     robot.move(0, -8);
                     robot.wait(0.5);
                 }
+                robot.alignVuforia();
                 robot.toggleIntake();
                 robot.wait(0.5);
                 robot.move(8, 0);

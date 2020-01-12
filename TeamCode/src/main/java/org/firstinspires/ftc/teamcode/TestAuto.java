@@ -52,30 +52,9 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        /*
-        while (opModeIsActive()) {
-            telemetry.addData("touch_sensor", "" + robot.touchSensor());
-            telemetry.update();
+        if (robot.isTargetVisible()) {
+            robot.alignVuforia();
         }
-        */
-
-        robot.rotate(180);
-
-
-//        if (robot.isTargetVisible()) {
-//            robot.move(0, robot.getVuforiaX());
-//            robot.move(robot.getVuforiaZ() - 10, 0);
-//        }
-
-//        while(robot.leftDrive.getCurrentPosition() < 1000) {
-//            robot.leftPower = 1;
-//            robot.rightPower = 1;
-//            robot.updateBallDrive();
-//
-//            telemetry.addData("leftDrive", "" + robot.leftDrive.getCurrentPosition());
-//            telemetry.addData("rightDrive", "" + robot.rightDrive.getCurrentPosition());
-//            telemetry.update();
-//        }
 
         robot.wait(5.);
     }
