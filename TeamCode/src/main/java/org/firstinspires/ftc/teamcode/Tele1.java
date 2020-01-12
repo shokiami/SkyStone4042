@@ -39,12 +39,14 @@ public class Tele1 extends OpMode {
     Robot robot;
     Controller controller1;
     double angle = 0;
+    Controller controller2;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
         robot = new Robot(hardwareMap, false);
         controller1 = new Controller(gamepad1);
+        controller2 = new Controller(gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -64,6 +66,7 @@ public class Tele1 extends OpMode {
     @Override
     public void loop() {
         controller1.update();
+        controller2.update();
 
         //Speed
         if (controller1.x.equals("pressing")) {
@@ -75,6 +78,12 @@ public class Tele1 extends OpMode {
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
         robot.updateBallDrive();
+        if (controller1.right_stick_x != 0) {
+            angle = robot.getGyroAngle();
+        }
+        if (controller1.right_stick_x == 0) {
+            robot.targetAngle(angle);
+        }
 
         //Lift
         if (controller1.dpad_right.equals("pressed")) {
@@ -87,7 +96,7 @@ public class Tele1 extends OpMode {
         robot.updateLift();
 
         //Intake
-        if (controller1.right_bumper.equals("pressing")) {
+        if (controller2.right_bumper.equals("pressing")) {
             robot.toggleIntake();
         }
 
