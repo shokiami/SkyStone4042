@@ -16,17 +16,17 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
+    double liftHeight = 0;
 
     static final double Z_TICKS_PER_INCH = 49.606;
     static final double X_TICKS_PER_INCH = 58.504;
-    static final double TURN_RADIUS = 8.4925;
-    static final double Y_TICKS_PER_INCH = 274.236;
+    static final double TURN_RADIUS = 8.493;
+    static final double Y_TICKS_PER_INCH = 415.0;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
     DcMotor strafeDrive;
-    DcMotor liftMotor1;
-    DcMotor liftMotor2;
+    DcMotor liftMotor;
     DcMotor intakeMotor;
     Servo intakeServo;
     Servo hookServo1;
@@ -41,8 +41,7 @@ class Robot {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
-        liftMotor1 = hardwareMap.get(DcMotor.class, "lift_motor_1");
-        liftMotor2 = hardwareMap.get(DcMotor.class, "lift_motor_2");
+        liftMotor = hardwareMap.get(DcMotor.class, "lift_motor_2");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake_motor");
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
@@ -52,45 +51,105 @@ class Robot {
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         strafeDrive.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor2.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.FORWARD);
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
 
-        liftMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liftMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         gyro = new Gyro(hardwareMap);
         elapsedTime = new ElapsedTime();
         if (vuforia) {
             this.vuforia = new Vuforia(hardwareMap);
-            turnOnFlashlight();
+            this.vuforia.flashlight(true);
         }
 
-        resetEncoders();
-        update();
-    }
-
-    void resetEncoders() {
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        updateBallDrive();
+
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    void updatePIDCoefficients(double p ,double i ,double d ) {
-//        leftDrive.setVelocityPIDFCoefficients(p,i,d,0);
-//        rightDrive.setVelocityPIDFCoefficients(p,i,d,0);
-//        strafeDrive.setVelocityPIDFCoefficients(p,i,d,0);
+    void updateBallDrive() {
+        leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
+        rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
+        strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+    }
+
+    void move(double z_inches, double x_inches) {
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
+        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + z_ticks);
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + z_ticks);
+        strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + x_ticks);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(1);
+        rightDrive.setPower(1);
+        strafeDrive.setPower(1);
+        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
+            //Wait
+        }
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void rotate(double angle) {
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        int left_ticks = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+        int right_ticks = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
+        leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + left_ticks);
+        rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + right_ticks);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(1);
+        rightDrive.setPower(1);
+        while (Math.abs(leftDrive.getCurrentPosition() - left_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - right_ticks) > 5) {
+            //Wait
+        }
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void tuneLift(double height) {
+        liftHeight += height;
+        updateLift();
+        liftHeight = 0;
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    void updateLift() {
+        int y_ticks;
+        if (liftHeight == 0) {
+            y_ticks = 0;
+        } else {
+            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
+        }
+        liftMotor.setTargetPosition(y_ticks);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(1);
     }
 
     void toggleSpeed() {
@@ -99,7 +158,6 @@ class Robot {
         } else {
             speed = 1;
         }
-        update();
     }
 
     void toggleIntake() {
@@ -108,7 +166,7 @@ class Robot {
         } else {
             intakePower = 0;
         }
-        update();
+        intakeMotor.setPower(intakePower);
     }
 
     void toggleValve() {
@@ -117,7 +175,7 @@ class Robot {
         } else {
             valveAngle = 0;
         }
-        update();
+        valveServo.setPosition(valveAngle);
     }
 
     void toggleHook() {
@@ -126,7 +184,8 @@ class Robot {
         } else {
             hookAngle = 0;
         }
-        update();
+        hookServo1.setPosition(hookAngle);
+        hookServo2.setPosition(hookAngle);
     }
 
     void toggleIntakeAngle() {
@@ -135,7 +194,7 @@ class Robot {
         } else {
             intakeAngle = 0;
         }
-        update();
+        intakeServo.setPosition(intakeAngle);
     }
 
     void resetElapsedTime() {
@@ -146,8 +205,9 @@ class Robot {
         return elapsedTime.seconds();
     }
 
-    void turnOnFlashlight() {
-        vuforia.flashlight(true);
+    void wait(double seconds) {
+        double start = getElapsedTimeSeconds();
+        while (getElapsedTimeSeconds() - start < seconds) {}
     }
 
     boolean isTargetVisible() {
@@ -155,12 +215,12 @@ class Robot {
         return  vuforia.isTargetVisible();
     }
 
-    double getVuforiaZ() { //depth
+    double getVuforiaZ() {
         vuforia.update();
         return -vuforia.getX();
     }
 
-    double getVuforiaX() { //side to side
+    double getVuforiaX() {
         vuforia.update();
         return vuforia.getY();
     }
@@ -176,79 +236,6 @@ class Robot {
 
     double getGyroAngle() {
         return gyro.getAngle();
-    }
-
-    void update() {
-        leftPower *= speed;
-        rightPower *= speed;
-        strafePower *= speed;
-        liftPower *= speed;
-        leftDrive.setPower(Range.clip(leftPower,-1.0, 1.0));
-        rightDrive.setPower(Range.clip(rightPower,-1.0, 1.0));
-        strafeDrive.setPower(Range.clip(strafePower,-1.0, 1.0));
-        liftMotor1.setPower(liftPower);
-        liftMotor2.setPower(liftPower);
-        intakeMotor.setPower(intakePower);
-        intakeServo.setPosition(intakeAngle);
-        hookServo1.setPosition(hookAngle);
-        hookServo2.setPosition(hookAngle);
-        valveServo.setPosition(valveAngle);
-    }
-
-    void wait(double seconds) {
-        double start = getElapsedTimeSeconds();
-        while (getElapsedTimeSeconds() - start < seconds) {}
-    }
-
-    void move(double z_inches, double x_inches) {
-        resetEncoders();
-        int left_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
-        int right_target_z = (int)(z_inches * Z_TICKS_PER_INCH);
-        int strafe_target_x = strafeDrive.getCurrentPosition() + (int)(x_inches * X_TICKS_PER_INCH);
-        leftDrive.setTargetPosition(left_target_z);
-        rightDrive.setTargetPosition(right_target_z);
-        strafeDrive.setTargetPosition(strafe_target_x);
-        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(speed);
-        rightDrive.setPower(speed);
-        strafeDrive.setPower(speed);
-        while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10 || Math.abs(strafeDrive.getCurrentPosition() - strafe_target_x) > 10) {
-            //Wait
-        }
-        resetEncoders();
-    }
-
-    void rotate(double angle) {
-        resetEncoders();
-        int left_target_z = (int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-        int right_target_z = -(int)(angle / 180 * Math.PI * TURN_RADIUS * Z_TICKS_PER_INCH);
-        leftDrive.setTargetPosition(left_target_z);
-        rightDrive.setTargetPosition(right_target_z);
-        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(speed);
-        rightDrive.setPower(speed);
-        while (Math.abs(leftDrive.getCurrentPosition() - left_target_z) > 10 || Math.abs(rightDrive.getCurrentPosition() - right_target_z) > 10) {
-            //Wait
-        }
-        resetEncoders();
-    }
-
-    void lift(double y_inches) {
-        resetEncoders();
-        int lift_target_y = (int)(y_inches * Y_TICKS_PER_INCH);
-        liftMotor1.setTargetPosition(lift_target_y);
-        liftMotor2.setTargetPosition(lift_target_y);
-        liftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor1.setPower(speed);
-        liftMotor2.setPower(speed);
-        while (Math.abs(liftMotor1.getCurrentPosition() - lift_target_y) > 10 || Math.abs(liftMotor2.getCurrentPosition() - lift_target_y) > 10) {
-            //Wait
-        }
-        resetEncoders();
     }
 }
 
