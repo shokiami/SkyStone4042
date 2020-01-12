@@ -39,12 +39,14 @@ public class Tele1 extends OpMode {
     Robot robot;
     Controller controller1;
     double angle = 0;
+    Controller controller2;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
         robot = new Robot(hardwareMap, false);
         controller1 = new Controller(gamepad1);
+        controller2 = new Controller(gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -64,6 +66,7 @@ public class Tele1 extends OpMode {
     @Override
     public void loop() {
         controller1.update();
+        controller2.update();
 
         //Speed
         if (controller1.x.equals("pressing")) {
@@ -83,24 +86,24 @@ public class Tele1 extends OpMode {
         }
 
         //Lift
-        if (controller1.dpad_right.equals("pressed")) {
+        if (controller2.dpad_right.equals("pressed")) {
             robot.tuneLift(0.01);
             robot.resetLift();
         }
-        if (controller1.dpad_left.equals("pressed")) {
+        if (controller2.dpad_left.equals("pressed")) {
             robot.tuneLift(-0.01);
             robot.resetLift();
         }
-        if (controller1.dpad_up.equals("pressing") && robot.liftHeight < 6) {
+        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
             robot.liftHeight += 1;
             robot.updateLift();
-        } else if (controller1.dpad_down.equals("pressing") && robot.liftHeight > 0) {
+        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
             robot.liftHeight -= 1;
             robot.updateLift();
         }
 
         //Intake
-        if (controller1.right_bumper.equals("pressing")) {
+        if (controller2.right_bumper.equals("pressing")) {
             robot.toggleIntake();
         }
 

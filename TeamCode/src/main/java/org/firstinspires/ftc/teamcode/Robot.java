@@ -33,7 +33,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
-    TouchSensor touchSensor; //Configure as port n+1 for n&n+1
+    TouchSensor touchSensor;
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
