@@ -32,17 +32,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="TestAuto", group="Linear Opmode")
-public class TestAuto extends LinearOpMode {
+@Autonomous(name="ParkAuto", group="Linear Opmode")
+public class ParkAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    boolean run;
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
-        run = true;
+        double wait = 0.4;
 
         telemetry.addData("Status", "Initialized");
 
@@ -52,30 +51,8 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        if (robot.isTargetVisible()) {
-            robot.alignVuforia();
-        }
-
-        robot.wait(5.);
-
-        robot.resetBallDrive();
-        robot.wait(1.);
-
-        robot.targetAngle = 0;
-        int z_ticks = 500;
-        int x_ticks = 0;
-        while (Math.abs(robot.leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(robot.rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(robot.strafeDrive.getCurrentPosition() - x_ticks) > 5) {
-            double dz = 0.05 * (z_ticks - robot.leftDrive.getCurrentPosition() + z_ticks - robot.rightDrive.getCurrentPosition()) / 2;
-            double dx = 0.05 * (x_ticks - robot.strafeDrive.getCurrentPosition());
-            robot.leftPower = dz;
-            robot.rightPower = dz;
-            robot.strafePower = dx;
-            robot.updateBallDrive(true);
-        }
-        robot.leftPower = 0;
-        robot.rightPower = 0;
-        robot.strafePower = 0;
-        robot.updateBallDrive(false);
+        robot.wait(0.5);
+        robot.move(5, 0, wait);
     }
 }
 

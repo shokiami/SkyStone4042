@@ -38,7 +38,6 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    double angle = 0;
     Controller controller2;
 
     //Code to run ONCE when the driver hits INIT
@@ -73,34 +72,35 @@ public class Tele1 extends OpMode {
             robot.toggleSpeed();
         }
 
-        //Ball Drive
+        //Ball Drive (POV)
         robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
-        robot.updateBallDrive();
         if (controller1.right_stick_x != 0) {
-            angle = robot.getGyroAngle();
+            robot.updateBallDrive(false);
+            robot.targetAngle = robot.getGyroAngle();
         }
         if (controller1.right_stick_x == 0) {
-            robot.targetAngle(angle);
+            robot.updateBallDrive(true);
         }
 
         //Lift
-        if (controller2.dpad_right.equals("pressed")) {
-            robot.tuneLift(0.01);
+        if (controller2.dpad_up.equals("pressed")) {
             robot.resetLift();
-        }
-        if (controller2.dpad_left.equals("pressed")) {
-            robot.tuneLift(-0.01);
+            robot.liftMotor.setPower(1);
+        } else if (controller2.dpad_down.equals("pressed") && !robot.liftAtBottom()) {
             robot.resetLift();
+            robot.liftMotor.setPower(-1);
+        } else {
+            robot.liftMotor.setPower(0);
         }
-        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
-            robot.liftHeight += 1;
-            robot.updateLift();
-        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
-            robot.liftHeight -= 1;
-            robot.updateLift();
-        }
+//        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
+//            robot.liftHeight += 1;
+//            robot.updateLift();
+//        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
+//            robot.liftHeight -= 1;
+//            robot.updateLift();
+//        }
 
         //Intake
         if (controller2.right_bumper.equals("pressing")) {
@@ -122,7 +122,10 @@ public class Tele1 extends OpMode {
             robot.rotate(robot.getGyroAngle() + 180);
         }
 
+        telemetry.addData("IntakeAngle", "" + robot.intakeAngle);
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
+        telemetry.addData("liftHeight", "" + robot.liftHeight);
+        telemetry.addData("targetEncoder", "" + ((4 * robot.liftHeight - 2) * 415.0));
         telemetry.addData("Gyro", "" + robot.getGyroAngle());
     }
 
