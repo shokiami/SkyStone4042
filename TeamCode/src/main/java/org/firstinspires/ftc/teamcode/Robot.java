@@ -246,6 +246,15 @@ class Robot {
         return gyro.getAngle();
     }
 
+    void moveAndWait(double z, double x, double t){
+        move(z, x);
+        wait(0.0 + t);
+    }
+
+    void alignSkystone(){
+
+    }
+
     void updateXZ() {
         double distForward = ((leftDrive.getCurrentPosition() - prevPosLeft) + (rightDrive.getCurrentPosition() - prevPosRight)) / 2 / Z_TICKS_PER_INCH;
 //        double distLeftFoward = 0;
