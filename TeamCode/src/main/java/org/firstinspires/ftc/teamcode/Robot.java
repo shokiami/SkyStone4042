@@ -86,7 +86,7 @@ class Robot {
         resetLift();
     }
 
-    void updateBallDrive() {
+    void updateBallDrive(boolean targetAngle) {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
@@ -120,9 +120,9 @@ class Robot {
         double targetAngle= getGyroAngle();
         int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
         int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
-        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
-            double dz = 0.05 * (z_ticks - leftDrive.getCurrentPosition() + z_ticks - rightDrive.getCurrentPosition()) / 2;
-            double dx = 0.05 * (x_ticks - strafeDrive.getCurrentPosition());
+        while (Math.abs(z_ticks - leftDrive.getCurrentPosition()) > 5 || Math.abs(x_ticks - strafeDrive.getCurrentPosition()) > 5) {
+            double dz = 0.02 * (z_ticks - leftDrive.getCurrentPosition());
+            double dx = 0.02 * (x_ticks - strafeDrive.getCurrentPosition());
             leftPower = dz;
             rightPower = dz;
             strafePower = dx;
