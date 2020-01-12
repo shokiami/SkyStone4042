@@ -106,10 +106,13 @@ public class Tele1 extends OpMode {
 
         //Spin 180
         if (controller1.left_bumper.equals("pressing")) {
-            robot.rotate(180);
+            robot.rotate(robot.getGyroAngle() + 180);
         }
 
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
+        telemetry.addData("Gyro", "" + robot.getGyroAngle());
+        telemetry.addData("touchSensor", "" + robot.liftAtBottom());
+        telemetry.addData("touchValue", "" + robot.touchValue());
     }
 
     //Code to run ONCE after the driver hits STOP

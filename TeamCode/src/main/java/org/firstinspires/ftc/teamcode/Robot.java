@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -33,7 +33,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
-    DigitalChannel touchSensor;
+    TouchSensor touchSensor;
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
@@ -49,7 +49,7 @@ class Robot {
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
         valveServo = hardwareMap.get(Servo.class, "valve_servo");
-        //touchSensor = hardwareMap.get(DigitalChannel.class, "touch_sensor");
+        touchSensor = hardwareMap.get(TouchSensor.class, "touch_sensor");
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -60,8 +60,6 @@ class Robot {
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
-
-        //touchSensor.setMode(DigitalChannel.Mode.INPUT);
 
         gyro = new Gyro(hardwareMap);
         elapsedTime = new ElapsedTime();
@@ -76,6 +74,10 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         updateBallDrive();
 
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -83,9 +85,13 @@ class Robot {
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    //boolean touchSensor() {
-    //    return !touchSensor.getState();
-    //}
+    boolean liftAtBottom() {
+        return touchSensor.isPressed();
+    }
+
+    double touchValue(){
+        return touchSensor.getValue();
+    }
 
     void updateBallDrive() {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
@@ -117,9 +123,9 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
 //    void rotate(double angle) {
@@ -156,15 +162,9 @@ class Robot {
     }
 
     void targetAngle(double targetAngle) {
-        double dp = 0.1 * (targetAngle - getGyroAngle());
-        if (dp > 0) {
-            leftDrive.setPower(Range.clip(leftPower - dp,-1.0, 1.0));
-            rightDrive.setPower(Range.clip(rightPower + dp,-1.0, 1.0));
-        }
-        if (dp < 0) {
-            leftDrive.setPower(Range.clip(leftPower + dp,-1.0, 1.0));
-            rightDrive.setPower(Range.clip(rightPower - dp,-1.0, 1.0));
-        }
+        double dp = 0.05 * (targetAngle - getGyroAngle());
+        leftDrive.setPower(Range.clip(leftPower - dp,-1.0, 1.0));
+        rightDrive.setPower(Range.clip(rightPower + dp,-1.0, 1.0));
     }
 
     void tuneLift(double height) {
