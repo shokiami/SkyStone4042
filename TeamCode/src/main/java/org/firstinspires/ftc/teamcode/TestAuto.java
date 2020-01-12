@@ -29,56 +29,55 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@TeleOp(name="TeleTest", group="Iterative Opmode")
-public class TeleTest extends OpMode
-{
+@Autonomous(name="TestAuto", group="Linear Opmode")
+public class TestAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    Controller controller1;
+    boolean run;
 
-    public TeleTest(){
-        msStuckDetectInit = 10000;
-    }
-
-    //Code to run ONCE when the driver hits INIT
     @Override
-    public void init() {
+    public void runOpMode() {
+        //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
-        controller1 = new Controller(gamepad1);
+        run = true;
+
         telemetry.addData("Status", "Initialized");
-    }
 
-    //Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-    @Override
-    public void init_loop() {
-    }
+        waitForStart();
 
-    //Code to run ONCE when the driver hits PLAY
-    @Override
-    public void start() {
+        //Code to run ONCE when the driver hits PLAY
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
-    }
 
-    //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-    @Override
-    public void loop() {
-        if (robot.isTargetVisible()) {
-            robot.rotate(robot.getVuforiaHeading());
-            robot.move(robot.getVuforiaZ(), robot.getVuforiaX());
-        } else {
-            robot.leftPower = 0;
-            robot.rightPower = 0;
-            robot.strafePower = 0;
-            robot.updateBallDrive();
+        /*
+        while (opModeIsActive()) {
+            telemetry.addData("touch_sensor", "" + robot.touchSensor());
+            telemetry.update();
         }
-    }
+        */
 
-    //Code to run ONCE after the driver hits STOP
-    @Override
-    public void stop() {
+        robot.rotate(180);
+
+
+//        if (robot.isTargetVisible()) {
+//            robot.move(0, robot.getVuforiaX());
+//            robot.move(robot.getVuforiaZ() - 10, 0);
+//        }
+
+//        while(robot.leftDrive.getCurrentPosition() < 1000) {
+//            robot.leftPower = 1;
+//            robot.rightPower = 1;
+//            robot.updateBallDrive();
+//
+//            telemetry.addData("leftDrive", "" + robot.leftDrive.getCurrentPosition());
+//            telemetry.addData("rightDrive", "" + robot.rightDrive.getCurrentPosition());
+//            telemetry.update();
+//        }
+
+        robot.wait(5.);
     }
 }
+
