@@ -11,12 +11,12 @@ class Robot {
     double leftPower = 0;
     double rightPower = 0;
     double strafePower = 0;
-    double liftPower = 0;
     double intakePower = 0;
-    double intakeAngle = 0.6;
+    double intakeAngle = 0.53; //down
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
+    double liftHeight = 0;
     double targetAngle = 0;
 
     static final double Z_TICKS_PER_INCH = 55;
@@ -61,22 +61,23 @@ class Robot {
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
 
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        toggleIntakeAngle();
+
         gyro = new Gyro(hardwareMap);
+        resetGyro();
         elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
         if (vuforia) {
             this.vuforia = new Vuforia(hardwareMap);
             this.vuforia.flashlight(true);
         }
 
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        strafeDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         resetBallDrive();
-
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        resetLift();
-
-        updateBallDrive(false);
         resetLift();
     }
 
@@ -84,64 +85,70 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        strafeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftPower = 0;
+        rightPower = 0;
+        strafePower = 0;
+        updateBallDrive(false);
     }
 
     void updateBallDrive(boolean targetAngle) {
-        double dp = 0;
         if (targetAngle) {
-            dp = 0.05 * (this.targetAngle - getGyroAngle());
+            double dp = 0.05 * (this.targetAngle - getGyroAngle());
+            leftDrive.setPower(Range.clip(speed * (leftPower - dp),-1.0, 1.0));
+            rightDrive.setPower(Range.clip(speed * (rightPower + dp),-1.0, 1.0));
+        } else {
+            leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
+            rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         }
-        leftDrive.setPower(Range.clip(speed * (leftPower - dp),-1.0, 1.0));
-        rightDrive.setPower(Range.clip(speed * (rightPower + dp),-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
-        if (!targetAngle) {
-            this.targetAngle = getGyroAngle();
-        }
     }
 
-    void move(double z_inches, double x_inches) {
+    void move(double z_inches, double x_inches, double wait) {
+        targetAngle = getGyroAngle();
         int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
         int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
         leftDrive.setTargetPosition(leftDrive.getCurrentPosition() + z_ticks);
         rightDrive.setTargetPosition(rightDrive.getCurrentPosition() + z_ticks);
         strafeDrive.setTargetPosition(strafeDrive.getCurrentPosition() + x_ticks);
+        leftPower = 1;
+        rightPower = 1;
+        strafePower = 1;
+        updateBallDrive(true);
         leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        strafeDrive.setPower(1);
-        updateBallDrive(false);
         while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
-            //Wait
+            //updateBallDrive(true);
         }
         resetBallDrive();
+        wait(0.0 + wait);
     }
 
-//    void move(double z_inches, double x_inches) {
-//        double targetAngle= getGyroAngle();
+//    void move(double z_inches, double x_inches, double wait) {
+//        targetAngle = getGyroAngle();
 //        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
 //        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
-//        while (Math.abs(z_ticks - leftDrive.getCurrentPosition()) > 5 || Math.abs(x_ticks - strafeDrive.getCurrentPosition()) > 5) {
-//            double dz = 0.02 * (z_ticks - leftDrive.getCurrentPosition());
-//            double dx = 0.02 * (x_ticks - strafeDrive.getCurrentPosition());
+//        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 20 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 20 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 20) {
+//            double dz = 0.005 * (z_ticks - leftDrive.getCurrentPosition() + z_ticks - rightDrive.getCurrentPosition()) / 2;
+//            double dx = 0.005 * (x_ticks - strafeDrive.getCurrentPosition());
 //            leftPower = dz;
 //            rightPower = dz;
 //            strafePower = dx;
-//            updateBallDrive();
-//            targetAngle(targetAngle);
+//            updateBallDrive(true);
 //        }
 //        leftPower = 0;
 //        rightPower = 0;
 //        strafePower = 0;
-//        updateBallDrive();
+//        updateBallDrive(false);
+//        wait(0.0 + wait);
 //    }
 
-    void rotate(double targetAngle) {
-        while (Math.abs(targetAngle - getGyroAngle()) > 1) {
+    void rotate(double angle) {
+        targetAngle = angle;
+        while (Math.abs(angle - getGyroAngle()) > 1) {
             updateBallDrive(true);
         }
         leftPower = 0;
@@ -149,41 +156,44 @@ class Robot {
         updateBallDrive(false);
     }
 
-    void targetAngle(double targetAngle) {
-        double dp = 0.05 * (targetAngle - getGyroAngle());
-        leftDrive.setPower(Range.clip(leftPower - dp,-1.0, 1.0));
-        rightDrive.setPower(Range.clip(rightPower + dp,-1.0, 1.0));
-    }
-
     boolean liftAtBottom() {
         return touchSensor.isPressed();
     }
 
     void resetLift() {
+//        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        while (!liftAtBottom()) {
+//            tuneLift(-0.003);
+//        }
+//        while (liftAtBottom()) {
+//            tuneLift(0.003);
+//        }
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftHeight = 0;
+    }
+
+    void tuneLift(double height) {
+        resetLift();
+
+
+        liftHeight = 0;
+        updateLift();
+        resetLift();
     }
 
     void updateLift() {
-        liftMotor.setPower(liftPower);
+        int y_ticks;
+        if (liftHeight == 0) {
+            y_ticks = 0;
+        } else {
+            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
+        }
+        liftMotor.setTargetPosition(y_ticks);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(1);
     }
-
-//    void tuneLift(double height) {
-//        liftHeight += height;
-//        updateLift();
-//    }
-
-//    void updateLift() {
-//        int y_ticks;
-//        if (liftHeight == 0) {
-//            y_ticks = 0;
-//        } else {
-//            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
-//        }
-//        liftMotor.setTargetPosition(y_ticks);
-//        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        liftMotor.setPower(1);
-//    }
 
     void toggleSpeed() {
         if (speed == 1) {
@@ -222,10 +232,10 @@ class Robot {
     }
 
     void toggleIntakeAngle() {
-        if (intakeAngle == 0) {
-            intakeAngle = 0.6;
+        if (intakeAngle == 1.5) {
+            intakeAngle = 0.53;
         } else {
-            intakeAngle = 0;
+            intakeAngle = 1.5;
         }
         intakeServo.setPosition(intakeAngle);
     }
@@ -244,12 +254,13 @@ class Robot {
     }
 
     void alignVuforia() {
-        while (Math.abs(getVuforiaZ() - 10) < 1 && Math.abs(getVuforiaX()) < 1) {
+        while (Math.abs(getVuforiaZ() - 10) > 1 && Math.abs(getVuforiaX()) > 1) {
             double dz = 0.05 * (getVuforiaZ() - 10);
             double dx = 0.05 * (getVuforiaX());
-            leftDrive.setPower(Range.clip(leftPower + dz,-1.0, 1.0));
-            rightDrive.setPower(Range.clip(rightPower + dz,-1.0, 1.0));
-            strafeDrive.setPower(Range.clip(strafePower + dx,-1.0, 1.0));
+            leftPower = dz;
+            rightPower = dz;
+            strafePower = dx;
+            updateBallDrive(true);
         }
         leftPower = 0;
         rightPower = 0;

@@ -57,6 +57,25 @@ public class TestAuto extends LinearOpMode {
         }
 
         robot.wait(5.);
+
+        robot.resetBallDrive();
+        robot.wait(1.);
+
+        robot.targetAngle = 0;
+        int z_ticks = 500;
+        int x_ticks = 0;
+        while (Math.abs(robot.leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(robot.rightDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(robot.strafeDrive.getCurrentPosition() - x_ticks) > 5) {
+            double dz = 0.05 * (z_ticks - robot.leftDrive.getCurrentPosition() + z_ticks - robot.rightDrive.getCurrentPosition()) / 2;
+            double dx = 0.05 * (x_ticks - robot.strafeDrive.getCurrentPosition());
+            robot.leftPower = dz;
+            robot.rightPower = dz;
+            robot.strafePower = dx;
+            robot.updateBallDrive(true);
+        }
+        robot.leftPower = 0;
+        robot.rightPower = 0;
+        robot.strafePower = 0;
+        robot.updateBallDrive(false);
     }
 }
 

@@ -72,21 +72,35 @@ public class Tele1 extends OpMode {
             robot.toggleSpeed();
         }
 
-        //Ball Drive
+        //Ball Drive (POV)
         robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
-        robot.updateBallDrive(false);
+        if (controller1.right_stick_x != 0) {
+            robot.updateBallDrive(false);
+            robot.targetAngle = robot.getGyroAngle();
+        }
+        if (controller1.right_stick_x == 0) {
+            robot.updateBallDrive(true);
+        }
 
         //Lift
-        if (controller1.dpad_right.equals("pressed")) {
-            robot.liftPower = 1;
-        } else if (controller1.dpad_left.equals("pressed")) {
-            robot.liftPower = -1;
+        if (controller2.dpad_up.equals("pressed")) {
+            robot.resetLift();
+            robot.liftMotor.setPower(1);
+        } else if (controller2.dpad_down.equals("pressed") && !robot.liftAtBottom()) {
+            robot.resetLift();
+            robot.liftMotor.setPower(-1);
         } else {
-            robot.liftPower = 0;
+            robot.liftMotor.setPower(0);
         }
-        robot.updateLift();
+//        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
+//            robot.liftHeight += 1;
+//            robot.updateLift();
+//        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
+//            robot.liftHeight -= 1;
+//            robot.updateLift();
+//        }
 
         //Intake
         if (controller2.right_bumper.equals("pressing")) {
@@ -97,6 +111,22 @@ public class Tele1 extends OpMode {
         if (controller1.a.equals("pressing")) {
             robot.toggleHook();
         }
+
+        //Valve (not in use)
+        if (controller1.left_bumper.equals("pressing")) {
+            robot.toggleValve();
+        }
+
+        //Spin 180
+        if (controller1.left_bumper.equals("pressing")) {
+            robot.rotate(robot.getGyroAngle() + 180);
+        }
+
+        telemetry.addData("IntakeAngle", "" + robot.intakeAngle);
+        telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
+        telemetry.addData("liftHeight", "" + robot.liftHeight);
+        telemetry.addData("targetEncoder", "" + ((4 * robot.liftHeight - 2) * 415.0));
+        telemetry.addData("Gyro", "" + robot.getGyroAngle());
     }
 
     //Code to run ONCE after the driver hits STOP

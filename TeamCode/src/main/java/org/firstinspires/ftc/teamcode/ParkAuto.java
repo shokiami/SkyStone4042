@@ -41,6 +41,7 @@ public class ParkAuto extends LinearOpMode {
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
+        double wait = 0.4;
 
         telemetry.addData("Status", "Initialized");
 
@@ -51,8 +52,7 @@ public class ParkAuto extends LinearOpMode {
         robot.toggleIntakeAngle();
 
         robot.wait(0.5);
-        robot.move(10, 0);
-        robot.wait(0.5);
+        robot.move(5, 0, wait);
     }
 }
 
