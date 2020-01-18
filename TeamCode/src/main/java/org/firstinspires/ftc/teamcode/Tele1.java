@@ -38,7 +38,6 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    double angle = 0;
     Controller controller2;
 
     //Code to run ONCE when the driver hits INIT
@@ -78,12 +77,6 @@ public class Tele1 extends OpMode {
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
         robot.updateBallDrive(false);
-        if (controller1.right_stick_x != 0) {
-            angle = robot.getGyroAngle();
-        }
-        if (controller1.right_stick_x == 0) {
-            robot.targetAngle(angle);
-        }
 
         //Lift
         if (controller1.dpad_right.equals("pressed")) {

@@ -84,15 +84,22 @@ class Robot {
         leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        strafeDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    void updateBallDrive(boolean straighten) {
-        leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
-        rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
+    void updateBallDrive(boolean targetAngle) {
+        double dp = 0;
+        if (targetAngle) {
+            dp = 0.05 * (this.targetAngle - getGyroAngle());
+        }
+        leftDrive.setPower(Range.clip(speed * (leftPower - dp),-1.0, 1.0));
+        rightDrive.setPower(Range.clip(speed * (rightPower + dp),-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+        if (!targetAngle) {
+            this.targetAngle = getGyroAngle();
+        }
     }
 
     void move(double z_inches, double x_inches) {
@@ -135,7 +142,7 @@ class Robot {
 
     void rotate(double targetAngle) {
         while (Math.abs(targetAngle - getGyroAngle()) > 1) {
-            targetAngle(targetAngle);
+            updateBallDrive(true);
         }
         leftPower = 0;
         rightPower = 0;
