@@ -77,7 +77,7 @@ public class Tele1 extends OpMode {
         robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
-        robot.updateBallDrive();
+        robot.updateBallDrive(false);
         if (controller1.right_stick_x != 0) {
             angle = robot.getGyroAngle();
         }

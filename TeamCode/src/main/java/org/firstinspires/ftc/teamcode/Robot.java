@@ -17,6 +17,7 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
+    double targetAngle = 0;
 
     static final double Z_TICKS_PER_INCH = 55;
     static final double X_TICKS_PER_INCH = 61.73;
@@ -75,7 +76,7 @@ class Robot {
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         resetLift();
 
-        updateBallDrive();
+        updateBallDrive(false);
         resetLift();
     }
 
@@ -88,7 +89,7 @@ class Robot {
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void updateBallDrive() {
+    void updateBallDrive(boolean straighten) {
         leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
         rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
         strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
@@ -106,7 +107,7 @@ class Robot {
         leftDrive.setPower(1);
         rightDrive.setPower(1);
         strafeDrive.setPower(1);
-        updateBallDrive();
+        updateBallDrive(false);
         while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 5 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 5) {
             //Wait
         }
@@ -138,7 +139,7 @@ class Robot {
         }
         leftPower = 0;
         rightPower = 0;
-        updateBallDrive();
+        updateBallDrive(false);
     }
 
     void targetAngle(double targetAngle) {
@@ -246,7 +247,7 @@ class Robot {
         leftPower = 0;
         rightPower = 0;
         strafePower = 0;
-        updateBallDrive();
+        updateBallDrive(false);
     }
 
     boolean isTargetVisible() {
