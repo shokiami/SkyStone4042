@@ -43,7 +43,7 @@ public class Tele1 extends OpMode {
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, false);
+        robot = new Robot(hardwareMap, telemetry, false);
         controller1 = new Controller(gamepad1);
         controller2 = new Controller(gamepad2);
         telemetry.addData("Status", "Initialized");
@@ -76,12 +76,12 @@ public class Tele1 extends OpMode {
         robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
-        if (controller1.right_stick_x != 0) {
+
+        if ((controller1.left_stick_y != 0 || controller1.left_stick_x != 0) && controller1.right_stick_x == 0) {
+            robot.updateBallDrive(true);
+        } else {
             robot.updateBallDrive(false);
             robot.targetAngle = robot.getGyroAngle();
-        }
-        if (controller1.right_stick_x == 0) {
-            robot.updateBallDrive(true);
         }
 
         //Lift
@@ -122,11 +122,11 @@ public class Tele1 extends OpMode {
             robot.rotate(robot.getGyroAngle() + 180);
         }
 
-        telemetry.addData("IntakeAngle", "" + robot.intakeAngle);
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
-        telemetry.addData("liftHeight", "" + robot.liftHeight);
-        telemetry.addData("targetEncoder", "" + ((4 * robot.liftHeight - 2) * 415.0));
         telemetry.addData("Gyro", "" + robot.getGyroAngle());
+        telemetry.addData("targetAngle", "" + robot.targetAngle);
+        telemetry.addData("leftPower", "" + robot.leftDrive.getPower());
+        telemetry.addData("rightPower", "" + robot.rightDrive.getPower());
     }
 
     //Code to run ONCE after the driver hits STOP

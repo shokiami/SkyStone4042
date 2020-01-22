@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 class Robot {
     double leftPower = 0;
     double rightPower = 0;
@@ -19,8 +21,8 @@ class Robot {
     double liftHeight = 0;
     double targetAngle = 0;
 
-    static final double Z_TICKS_PER_INCH = 55;
-    static final double X_TICKS_PER_INCH = 61.73;
+    static final double Z_TICKS_PER_INCH = 21.645;
+    static final double X_TICKS_PER_INCH = 58.504;
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 415.0;
 
@@ -39,7 +41,15 @@ class Robot {
     Vuforia vuforia;
     Gyro gyro;
 
+    ElapsedTime delta = new ElapsedTime();
+    double lastError;
+    Telemetry telemetry;
+
     Robot(HardwareMap hardwareMap, boolean vuforia) {
+        this(hardwareMap, null, vuforia);
+    }
+
+    Robot(HardwareMap hardwareMap, Telemetry telemetry, boolean vuforia) {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         strafeDrive = hardwareMap.get(DcMotor.class, "strafe_drive");
@@ -68,6 +78,8 @@ class Robot {
 
         toggleIntakeAngle();
 
+        this.telemetry = telemetry;
+
         gyro = new Gyro(hardwareMap);
         resetGyro();
         elapsedTime = new ElapsedTime();
@@ -95,17 +107,26 @@ class Robot {
     }
 
     void updateBallDrive(boolean targetAngle) {
-        if (targetAngle) {
-            double dp = 0.05 * (this.targetAngle - getGyroAngle());
-            leftDrive.setPower(Range.clip(speed * (leftPower - dp),-1.0, 1.0));
-            rightDrive.setPower(Range.clip(speed * (rightPower + dp),-1.0, 1.0));
-        } else {
-            leftDrive.setPower(Range.clip(speed * leftPower,-1.0, 1.0));
-            rightDrive.setPower(Range.clip(speed * rightPower,-1.0, 1.0));
+        double p = 0.15 * getError();
+        double d = -.002 * (getError() - lastError) / delta.seconds();
+
+        if (telemetry != null) {
+            telemetry.addData("p ", p);
+            telemetry.addData("d ", d);
         }
-        strafeDrive.setPower(Range.clip(speed * strafePower,-1.0, 1.0));
+
+        leftDrive.setPower(speed * (leftPower - (targetAngle ? p + d : 0)));
+        rightDrive.setPower(speed * (rightPower + (targetAngle ? p + d : 0)));
+        strafeDrive.setPower(speed * strafePower);
+        lastError = getError();
+        delta.reset();
     }
 
+    double getError() {
+        return this.targetAngle - getGyroAngle();
+    }
+
+    /*
     void move(double z_inches, double x_inches, double wait) {
         targetAngle = getGyroAngle();
         int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
@@ -126,25 +147,29 @@ class Robot {
         resetBallDrive();
         wait(0.0 + wait);
     }
+    */
 
-//    void move(double z_inches, double x_inches, double wait) {
-//        targetAngle = getGyroAngle();
-//        int z_ticks = (int)(z_inches * Z_TICKS_PER_INCH);
-//        int x_ticks = (int)(x_inches * X_TICKS_PER_INCH);
-//        while (Math.abs(leftDrive.getCurrentPosition() - z_ticks) > 20 || Math.abs(rightDrive.getCurrentPosition() - z_ticks) > 20 || Math.abs(strafeDrive.getCurrentPosition() - x_ticks) > 20) {
-//            double dz = 0.005 * (z_ticks - leftDrive.getCurrentPosition() + z_ticks - rightDrive.getCurrentPosition()) / 2;
-//            double dx = 0.005 * (x_ticks - strafeDrive.getCurrentPosition());
-//            leftPower = dz;
-//            rightPower = dz;
-//            strafePower = dx;
-//            updateBallDrive(true);
-//        }
-//        leftPower = 0;
-//        rightPower = 0;
-//        strafePower = 0;
-//        updateBallDrive(false);
-//        wait(0.0 + wait);
-//    }
+    void move(double zInches, double xInches, double wait) {
+        targetAngle = getGyroAngle();
+        double targetZ = zInches * Z_TICKS_PER_INCH + (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
+        double targetX = xInches * X_TICKS_PER_INCH + strafeDrive.getCurrentPosition();
+        while (true) {
+            double dz = targetZ - (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
+            double dx = targetX - strafeDrive.getCurrentPosition();
+            leftPower = 0.002 * dz;
+            rightPower = 0.002 * dz;
+            strafePower = 0.002 * dx;
+            updateBallDrive(true);
+            if (Math.sqrt(dz * dz + dx * dx) < 10) {
+                break;
+            }
+        }
+        leftPower = 0;
+        rightPower = 0;
+        strafePower = 0;
+        updateBallDrive(false);
+        wait(wait);
+    }
 
     void rotate(double angle) {
         targetAngle = angle;
