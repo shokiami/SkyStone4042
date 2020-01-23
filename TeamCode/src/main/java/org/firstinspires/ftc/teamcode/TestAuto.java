@@ -36,13 +36,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class TestAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
-    boolean run;
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap, true);
-        run = true;
+        robot = new Robot(hardwareMap, false);
 
         telemetry.addData("Status", "Initialized");
 
@@ -52,32 +50,17 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        /*
-        while (opModeIsActive()) {
-            telemetry.addData("touch_sensor", "" + robot.touchSensor());
-            telemetry.update();
+
+        robot.wait(1.);
+        while (opModeIsActive()){
+            if (robot.isTargetVisible()){
+                robot.alignVuforia();
+            } else {
+                robot.leftPower = 0;
+                robot.rightPower = 0;
+                robot.strafePower = 0;
+            }
         }
-        */
-
-        robot.rotate(180);
-
-
-//        if (robot.isTargetVisible()) {
-//            robot.move(0, robot.getVuforiaX());
-//            robot.move(robot.getVuforiaZ() - 10, 0);
-//        }
-
-//        while(robot.leftDrive.getCurrentPosition() < 1000) {
-//            robot.leftPower = 1;
-//            robot.rightPower = 1;
-//            robot.updateBallDrive();
-//
-//            telemetry.addData("leftDrive", "" + robot.leftDrive.getCurrentPosition());
-//            telemetry.addData("rightDrive", "" + robot.rightDrive.getCurrentPosition());
-//            telemetry.update();
-//        }
-
-        robot.wait(5.);
     }
 }
 

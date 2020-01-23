@@ -32,8 +32,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="XZAutoTest", group="Linear Opmode")
-public class XZAutoTest extends LinearOpMode {
+@Autonomous(name="ParkAuto", group="Linear Opmode")
+public class ParkAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
 
@@ -41,6 +41,8 @@ public class XZAutoTest extends LinearOpMode {
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
+        double wait = 0.4;
+
         telemetry.addData("Status", "Initialized");
 
         waitForStart();
@@ -49,12 +51,8 @@ public class XZAutoTest extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        //Let's go!
-        robot.moveToXZ(15, 0);
-        robot.wait(6.);
-        robot.moveToXZ(0,15);
-        robot.wait(6.);
-        robot.moveToXZ(0,0);
-        robot.wait(10.);
+        robot.wait(0.5);
+        robot.move(5, 0, wait);
     }
 }
+

@@ -52,46 +52,46 @@ public class AutoTest extends LinearOpMode {
         robot.toggleIntakeAngle();
 
         //Let's go!
-        robot.wait(2.0);
-        robot.moveAndWait(40, 0, 0.5);
-        int disp = 0;
-        while (disp > -16) {
-            if (robot.isTargetVisible()) {
-                break;
-            }
-            disp -= 8;
-            robot.move(0, -8);
-            robot.wait(0.5);
-        }
-        robot.toggleIntake();
-        robot.wait(0.5);
-        robot.move(8, 0);
-        robot.wait(0.5);
-        robot.liftPower = 1;
-        robot.wait(0.5);
-        robot.liftPower = 0;
-        robot.wait(0.5);
-        robot.move(-12, 0);
-        robot.wait(0.5);
-        robot.move(0, 77 - disp);
-        robot.wait(0.5);
-        robot.toggleSpeed();
-        robot.wait(0.5);
-        robot.move(20, 0);
-        robot.wait(0.4);
-        robot.toggleIntake();
-        robot.toggleHook();
-        robot.toggleSpeed();
-        robot.wait(5.0);
-        robot.move(-30, 0);
-        robot.wait(0.5);
-        robot.toggleHook();
-        robot.wait(0.5);
-        robot.move(0, -60);
-        robot.wait(0.5);
-        robot.liftPower = -1;
-        robot.wait(0.3);
-        robot.liftPower = 0;
+//        robot.wait(2.0);
+//        robot.move(40, 0, 0.5);
+//        int disp = 0;
+//        while (disp > -16) {
+//            if (robot.isTargetVisible()) {
+//                break;
+//            }
+//            disp -= 8;
+//            robot.move(0, -8);
+//            robot.wait(0.5);
+//        }
+//        robot.toggleIntake();
+//        robot.wait(0.5);
+//        robot.move(8, 0);
+//        robot.wait(0.5);
+////        robot.liftPower = 1;
+//        robot.wait(0.5);
+////        robot.liftPower = 0;
+//        robot.wait(0.5);
+//        robot.move(-12, 0);
+//        robot.wait(0.5);
+//        robot.move(0, 77 - disp);
+//        robot.wait(0.5);
+//        robot.toggleSpeed();
+//        robot.wait(0.5);
+//        robot.move(20, 0);
+//        robot.wait(0.4);
+//        robot.toggleIntake();
+//        robot.toggleHook();
+//        robot.toggleSpeed();
+//        robot.wait(5.0);
+//        robot.move(-30, 0);
+//        robot.wait(0.5);
+//        robot.toggleHook();
+//        robot.wait(0.5);
+//        robot.move(0, -60);
+//        robot.wait(0.5);
+//        robot.liftPower = -1;
+//        robot.wait(0.3);
+//        robot.liftPower = 0;
     }
 }
 

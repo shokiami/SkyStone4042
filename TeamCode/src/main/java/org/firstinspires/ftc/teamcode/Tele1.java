@@ -38,12 +38,14 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
+    Controller controller2;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, false);
+        robot = new Robot(hardwareMap, telemetry, false);
         controller1 = new Controller(gamepad1);
+        controller2 = new Controller(gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -63,36 +65,45 @@ public class Tele1 extends OpMode {
     @Override
     public void loop() {
         controller1.update();
+        controller2.update();
 
         //Speed
         if (controller1.x.equals("pressing")) {
             robot.toggleSpeed();
         }
 
-        //Ball Drive
-        telemetry.addData("Coordinates: ", "x = " + robot.x + ", z = " + robot.z);
+        //Ball Drive (POV)
         robot.leftPower = Range.clip(controller1.left_stick_y + controller1.right_stick_x, -1.0, 1.0);
         robot.rightPower = Range.clip(controller1.left_stick_y - controller1.right_stick_x, -1.0, 1.0);
         robot.strafePower = controller1.left_stick_x;
-        robot.updateBallDrive(controller1.right_stick_x == 0);
+
+        if ((controller1.left_stick_y != 0 || controller1.left_stick_x != 0) && controller1.right_stick_x == 0) {
+            robot.updateBallDrive(true);
+        } else {
+            robot.updateBallDrive(false);
+            robot.targetAngle = robot.getGyroAngle();
+        }
 
         //Lift
-        if (controller1.dpad_right.equals("pressed")) {
-            robot.tuneLift(0.002);
+        if (controller2.dpad_up.equals("pressed")) {
+            robot.resetLift();
+            robot.liftMotor.setPower(1);
+        } else if (controller2.dpad_down.equals("pressed") && !robot.liftAtBottom()) {
+            robot.resetLift();
+            robot.liftMotor.setPower(-1);
+        } else {
+            robot.liftMotor.setPower(0);
         }
-        if (controller1.dpad_left.equals("pressed")) {
-            robot.tuneLift(-0.002);
-        }
-        if (controller1.dpad_up.equals("pressing") && robot.liftHeight < 6) {
-            robot.liftHeight += 1;
-            robot.updateLift();
-        } else if (controller1.dpad_down.equals("pressing") && robot.liftHeight > 0) {
-            robot.liftHeight -= 1;
-            robot.updateLift();
-        }
+//        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
+//            robot.liftHeight += 1;
+//            robot.updateLift();
+//        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
+//            robot.liftHeight -= 1;
+//            robot.updateLift();
+//        }
 
         //Intake
-        if (controller1.right_bumper.equals("pressing")) {
+        if (controller2.right_bumper.equals("pressing")) {
             robot.toggleIntake();
         }
 
@@ -113,6 +124,9 @@ public class Tele1 extends OpMode {
 
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
         telemetry.addData("Gyro", "" + robot.getGyroAngle());
+        telemetry.addData("targetAngle", "" + robot.targetAngle);
+        telemetry.addData("leftPower", "" + robot.leftDrive.getPower());
+        telemetry.addData("rightPower", "" + robot.rightDrive.getPower());
     }
 
     //Code to run ONCE after the driver hits STOP
