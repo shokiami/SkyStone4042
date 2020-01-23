@@ -61,35 +61,31 @@ public class RedAuto extends LinearOpMode {
             disp -= 8;
             robot.move(0, -8, wait);
         }
-        if (robot.isTargetVisible()) {
-            robot.alignVuforia();
-            robot.toggleIntake();
-            robot.wait(0.5);
-            robot.move(11, 0, wait);
-            robot.liftHeight = 1;
-            robot.updateLift();
+//        robot.alignVuforia();
+//        robot.toggleIntake();
+        robot.wait(0.5);
+        robot.move(11, 0, wait);
+//        robot.liftHeight = 1;
+//        robot.updateLift();
 
-            robot.move(-6, 0, wait);
-            robot.rotate(-90);
-            robot.wait(wait);
-            robot.move(77 - disp, 0, wait);
-            robot.rotate(0);
-            robot.speed = 0.15;
-            robot.move(10, 0, wait);
-            robot.toggleHook();
-            robot.toggleIntake();
-            robot.speed = 0.5;
-            robot.move(-35, 0, wait);
-            robot.toggleHook();
-            robot.speed = 1;
-            robot.wait(0.1);
-            robot.move(0, -30, 0);
-            robot.liftHeight = 0;
-            robot.updateLift();
-            robot.move(0, -30, 0);
-        } else {
-            // backup
-        }
+        robot.move(-6, 0, wait);
+        robot.rotate(-90);
+        robot.wait(wait);
+        robot.move(77 - disp, 0, wait);
+        robot.rotate(0);
+        robot.speed = 0.15;
+        robot.move(10, 0, wait);
+//        robot.toggleHook();
+//        robot.toggleIntake();
+        robot.speed = 0.5;
+        robot.move(-35, 0, wait);
+        robot.toggleHook();
+        robot.speed = 1;
+        robot.wait(0.1);
+        robot.move(0, -30, 0);
+//        robot.liftHeight = 0;
+//        robot.updateLift();
+        robot.move(0, -30, 0);
     }
 }
 
