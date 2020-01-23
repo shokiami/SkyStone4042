@@ -107,16 +107,16 @@ class Robot {
     }
 
     void updateBallDrive(boolean targetAngle) {
-        double p = 0.15 * getError();
-        double d = -.002 * (getError() - lastError) / delta.seconds();
-
-        if (telemetry != null) {
-            telemetry.addData("p ", p);
-            telemetry.addData("d ", d);
+        double error = this.targetAngle - getGyroAngle();
+        double pCoeff = 0.08;
+        double dCoeff = 0.004;
+        if (strafeDrive.getPower() > 0.6){
+            pCoeff = 0.05;
+            dCoeff = 0.001;
         }
-
-        leftDrive.setPower(speed * (leftPower - (targetAngle ? p + d : 0)));
-        rightDrive.setPower(speed * (rightPower + (targetAngle ? p + d : 0)));
+        double tuning = Range.clip(pCoeff * error + dCoeff * (error - lastError) / delta.seconds(), -0.5, 0.5);
+        leftDrive.setPower(speed * (leftPower - (targetAngle ? tuning : 0)));
+        rightDrive.setPower(speed * (rightPower + (targetAngle ? tuning : 0)));
         strafeDrive.setPower(speed * strafePower);
         lastError = getError();
         delta.reset();
