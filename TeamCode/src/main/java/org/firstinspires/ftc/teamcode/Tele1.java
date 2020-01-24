@@ -37,14 +37,15 @@ public class Tele1 extends OpMode {
     //Declare OpMode members
     Robot robot;
     Controller controller1;
-    Robot.RotateListener rl;
+
+    RotateListener rl;
 
     //Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
         robot = new Robot(hardwareMap, false);
         controller1 = new Controller(gamepad1);
-        rl.start();
+        rl = new RotateListener(telemetry, robot);
 
         telemetry.addData("Status", "Initialized");
     }
@@ -59,6 +60,7 @@ public class Tele1 extends OpMode {
     public void start() {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
+        new Thread(rl).start();
     }
 
     //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -111,6 +113,7 @@ public class Tele1 extends OpMode {
         if (controller1.left_bumper.equals("pressing")) {
             rl.setRunnable(true);
         }
+
 
         telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
     }

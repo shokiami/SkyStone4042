@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 class Robot {
     double leftPower = 0;
     double rightPower = 0;
@@ -134,7 +136,8 @@ class Robot {
 
     void toggleSpeed() {
         if (speed == 1) {
-            speed = 0.3;
+            //speed = 0.3;
+            speed = 0.1;
         } else {
             speed = 1;
         }
@@ -218,36 +221,6 @@ class Robot {
         return gyro.getAngle();
     }
 
-    class RotateListener extends Thread {
-
-        boolean pressed;
-
-
-
-        void setRunnable(boolean input) {
-            this.pressed = input;
-        }
-
-        @Override
-        public void run() {
-
-            leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-            //GYRO = 0, might potentially mess something up
-            resetGyro();
-
-            while(true) {
-                if(pressed) {
-                    while(getGyroAngle() <= 180) {
-                        leftPower = 5;
-                        rightPower = -5;
-                    }
-                    pressed = false;
-                }
-            }
-        }
-    }
 }
 
 //https://ftctechnh.github.io/ftc_app/doc/javadoc/index.html
