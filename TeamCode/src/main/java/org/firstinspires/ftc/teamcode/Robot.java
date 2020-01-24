@@ -21,7 +21,7 @@ class Robot {
     double liftHeight = 0;
     double targetAngle = 0;
 
-    static final double Z_TICKS_PER_INCH = 21.645;
+    static final double Z_TICKS_PER_INCH = 54.000;
     static final double X_TICKS_PER_INCH = 59.529;
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 415.0;

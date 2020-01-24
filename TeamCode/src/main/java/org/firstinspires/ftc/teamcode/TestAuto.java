@@ -53,7 +53,7 @@ public class TestAuto extends LinearOpMode {
         robot.wait(1.);
         robot.leftPower = 1;
         robot.rightPower = 1;
-        while (robot.leftDrive.getCurrentPosition() < 5000) {
+        while (robot.rightDrive.getCurrentPosition() < 10000) {
             robot.updateBallDrive(true);
             telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
             telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
@@ -61,6 +61,7 @@ public class TestAuto extends LinearOpMode {
         }
         robot.leftPower = 0;
         robot.rightPower = 0;
+        robot.updateBallDrive(false);
         robot.wait(1.);
         telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
         telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
