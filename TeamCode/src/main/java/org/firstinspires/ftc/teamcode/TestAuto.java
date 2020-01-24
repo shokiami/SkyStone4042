@@ -51,15 +51,20 @@ public class TestAuto extends LinearOpMode {
         robot.toggleIntakeAngle();
 
         robot.wait(1.);
-        while (robot.strafeDrive.getCurrentPosition() < 10000) {
-            robot.strafePower = 1;
+        robot.leftPower = 1;
+        robot.rightPower = 1;
+        while (robot.leftDrive.getCurrentPosition() < 5000) {
             robot.updateBallDrive(true);
-            telemetry.addData("strafeTicks", "" + robot.strafeDrive.getCurrentPosition());
-            telemetry.addData("gyroAngle", "" + robot.getGyroAngle());
-            telemetry.addData("targetAngle", "" + robot.targetAngle);
+            telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
+            telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
             telemetry.update();
         }
+        robot.leftPower = 0;
+        robot.rightPower = 0;
         robot.wait(1.);
+        telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
+        telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
+        telemetry.update();
     }
 }
 
