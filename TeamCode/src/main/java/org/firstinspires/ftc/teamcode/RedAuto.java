@@ -42,6 +42,7 @@ public class RedAuto extends LinearOpMode {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
         double wait = 0.4;
+        int stoneConfig; // SkyStone rightmost (001 001) = 1; 2nd rightmost (010 010) = 2; 3rd rightmost (100 100) = 3
 
         telemetry.addData("Status", "Initialized");
 
@@ -53,39 +54,60 @@ public class RedAuto extends LinearOpMode {
 
         robot.wait(0.5);
         robot.move(20, 0, wait);
-        int disp = 0;
-        while (disp > -16) {
-            if (robot.isTargetVisible() && Math.abs(robot.getVuforiaX()) < 4) {
-                break;
+        if (robot.isTargetVisible() && Math.abs(robot.getVuforiaX()) < 4) { // if SkyStone straight ahead
+            stoneConfig = 3;
+        } else { // SkyStone is to the right
+            robot.move(0, 8, wait);
+            if (robot.isTargetVisible() && Math.abs(robot.getVuforiaX()) < 4) { // if SkyStone straight ahead
+                stoneConfig = 2;
+            } else { // SkyStone is to the right
+                stoneConfig = 1;
+                robot.move(0, 8, wait);
             }
-            disp -= 8;
-            robot.move(0, -8, wait);
         }
-//        robot.alignVuforia();
-//        robot.toggleIntake();
-        robot.wait(0.5);
-        robot.move(11, 0, wait);
+        robot.alignVuforia();
+        robot.toggleIntake();
+        robot.wait(wait);
+        robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
 //        robot.liftHeight = 1;
 //        robot.updateLift();
 
-        robot.move(-6, 0, wait);
-        robot.rotate(-90);
+        robot.move(-5, 0, wait);
+        robot.rotate(-90); // rotates to face the bridge
         robot.wait(wait);
-        robot.move(77 - disp, 0, wait);
-        robot.rotate(0);
+        robot.move(64 + 8 * stoneConfig, 0, wait); // goes next to foundation
+        robot.rotate(0); // faces foundation
         robot.speed = 0.15;
-        robot.move(10, 0, wait);
+        robot.move(6, 0, wait); // one inch over shoot into foundation
 //        robot.toggleHook();
 //        robot.toggleIntake();
         robot.speed = 0.5;
-        robot.move(-35, 0, wait);
+        robot.move(-33, 0, wait); // backs into wall
         robot.toggleHook();
         robot.speed = 1;
         robot.wait(0.1);
-        robot.move(0, -30, 0);
+        robot.move(1, -30, 0);
 //        robot.liftHeight = 0;
 //        robot.updateLift();
-        robot.move(0, -30, 0);
+        robot.move(22, 0, wait);
+        if (stoneConfig != 3) { // code for second stone
+            robot.move(0, -(58 + 8 * stoneConfig), wait); // supposedly 0 inches short of second skystone
+            robot.move(-3, 0, 0);
+            if (robot.isTargetVisible()) {
+                robot.alignVuforia();
+            }
+            robot.toggleIntake();
+            robot.wait(wait);
+            robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
+//        robot.liftHeight = 1;
+//        robot.updateLift();
+
+            robot.move(-5, 0, wait);
+            robot.rotate(-90); // rotates to face the bridge
+            robot.wait(wait);
+            robot.move(30, 0, 0);
+            robot.toggleIntake();
+        }
     }
 }
 
