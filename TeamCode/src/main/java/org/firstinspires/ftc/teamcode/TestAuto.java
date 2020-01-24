@@ -40,7 +40,7 @@ public class TestAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap, false);
+        robot = new Robot(hardwareMap, telemetry, false);
 
         telemetry.addData("Status", "Initialized");
 
@@ -50,9 +50,8 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-
         robot.wait(1.);
-        while (robot.strafeDrive.getCurrentPosition() < 5000) {
+        while (robot.strafeDrive.getCurrentPosition() < 10000) {
             robot.strafePower = 1;
             robot.updateBallDrive(true);
             telemetry.addData("strafeTicks", "" + robot.strafeDrive.getCurrentPosition());

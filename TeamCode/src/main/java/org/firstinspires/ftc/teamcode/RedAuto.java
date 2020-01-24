@@ -41,7 +41,7 @@ public class RedAuto extends LinearOpMode {
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, true);
-        double wait = 0.4;
+        double wait = 0.1;
 
         telemetry.addData("Status", "Initialized");
 
@@ -81,11 +81,9 @@ public class RedAuto extends LinearOpMode {
         robot.move(-35, 0, wait);
         robot.toggleHook();
         robot.speed = 1;
-        robot.wait(0.1);
-        robot.move(0, -30, 0);
         robot.liftHeight = 0;
         robot.updateLift();
-        robot.move(0, -30, 0);
+        robot.wait(wait);
+
     }
 }
-
