@@ -50,22 +50,25 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        robot.wait(1.);
-        robot.leftPower = 1;
-        robot.rightPower = 1;
-        while (robot.rightDrive.getCurrentPosition() < 10000) {
-            robot.updateBallDrive(true);
-            telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
-            telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
-            telemetry.update();
-        }
-        robot.leftPower = 0;
-        robot.rightPower = 0;
-        robot.updateBallDrive(false);
-        robot.wait(1.);
-        telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
-        telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
-        telemetry.update();
+        robot.wait(0.5);
+        robot.move(20, 0, 0, 1);
+        robot.rotate(180);
+        robot.move(20, 0, 180,0);
+        robot.rotate(90);
+        robot.move(20, 0, 90, 0);
+        robot.move(-20, 0, 90, 0);
+//        robot.targetAngle = 0;
+//        robot.moveNew(0, -20, 1);
+//        while (opModeIsActive()) {
+//            if (robot.isTargetVisible()) {
+//                robot.alignVuforia();
+//            } else {
+//                robot.leftPower = 0;
+//                robot.rightPower = 0;
+//                robot.strafePower = 0;
+//            }
+//        }
+
     }
 }
 

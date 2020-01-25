@@ -108,22 +108,27 @@ class Robot {
 
     void updateBallDrive(boolean targetAngle) {
         double error = this.targetAngle - getGyroAngle();
-        double pCoeff = 0.3;
-        //double dCoeff = 0.001;
+        double pCoeff = 0.02; //0.02
+        double dCoeff = 0.003; //0.001
         if (strafeDrive.getPower() > 0.6){
             pCoeff = 0.01;
+            dCoeff = 0.002; // 0.002
         }
-        telemetry.addData("p","" + pCoeff * error);
-        //telemetry.addData("d","" + dCoeff * (error - lastError) / delta.seconds());
-        double tuning = Range.clip(pCoeff * error, -0.75, 0.75);
-        leftDrive.setPower(speed * (leftPower - (targetAngle ? tuning : 0)));
-        rightDrive.setPower(speed * (rightPower + (targetAngle ? tuning : 0)));
+        double p = pCoeff * error;
+        double d = dCoeff * (error - lastError) / delta.seconds();
+        telemetry.addData("pd","p = " + p + ", d = " + d);
+        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + targetAngle);
+        telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
+        double tuning = Range.clip(p + d, -0.75, 0.75);
+        double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
+        leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
+        rightDrive.setPower(speed * rightPower + (targetAngle ? slowTuning : 0));
         strafeDrive.setPower(speed * strafePower);
         lastError = error;
         delta.reset();
     }
 
-    void move(double zInches, double xInches, double wait) {
+    void moveOld(double zInches, double xInches, double wait) {
         resetBallDrive();
         double targetZ = zInches * Z_TICKS_PER_INCH;
         double targetX = xInches * X_TICKS_PER_INCH;
@@ -148,7 +153,7 @@ class Robot {
         wait(wait);
     }
 
-    void moveNew(double zInches, double xInches, double wait) {
+    void move(double zInches, double xInches, double wait) {
         double targetZ = zInches * Z_TICKS_PER_INCH + (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
         double targetX = xInches * X_TICKS_PER_INCH + strafeDrive.getCurrentPosition();
         while (true) {
@@ -164,6 +169,11 @@ class Robot {
         }
         resetBallDrive();
         wait(wait);
+    }
+
+    void move(double zInches, double xInches, double angle, double wait) {
+        rotate(angle);
+        move(zInches, xInches, wait);
     }
 
     void rotate(double angle) {
