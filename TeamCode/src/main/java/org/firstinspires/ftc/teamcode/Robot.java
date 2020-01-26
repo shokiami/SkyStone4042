@@ -20,7 +20,8 @@ class Robot {
     double speed = 1;
     double liftHeight = 0;
     double targetAngle = 0;
-    double liftZeroPos = 0;
+    int liftZeroPos = 0;
+    boolean liftUp = false;
 
     static final double Z_TICKS_PER_INCH = 54.000;
     static final double X_TICKS_PER_INCH = 59.529; //
@@ -185,13 +186,24 @@ class Robot {
     void updateLift() {
         int y_ticks;
         if (liftHeight == 0) {
-            y_ticks = 0;
+            y_ticks = liftZeroPos;
         } else {
-            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
+            y_ticks = liftZeroPos - 150;
         }
         liftMotor.setTargetPosition(y_ticks);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(1);
+        liftMotor.setPower(0.7);
+    }
+
+    void toggleLift() {
+        if (liftUp) {
+            liftMotor.setPower(-0.3);
+        } else {
+            liftMotor.setPower(0.8);
+        }
+        wait(0.2);
+        liftMotor.setPower(0);
+        liftUp = !liftUp;
     }
 
     void toggleSpeed() {
@@ -255,7 +267,7 @@ class Robot {
     void alignVuforia() {
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
-            double dx = (getVuforiaX());
+            double dx = (getVuforiaX() - 2);
             leftPower = 0.05 * dz;
             rightPower = 0.05 * dz;
             strafePower = 0.02 * dx;
