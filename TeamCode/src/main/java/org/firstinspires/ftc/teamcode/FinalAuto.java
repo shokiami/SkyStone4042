@@ -32,8 +32,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="RedAuto", group="Linear Opmode")
-public class RedAuto extends LinearOpMode {
+@Autonomous(name="FinalAuto", group="Linear Opmode")
+public class FinalAuto extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
 
@@ -41,8 +41,8 @@ public class RedAuto extends LinearOpMode {
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, telemetry, true);
-        double wait = 0.001;
-        int stoneConfig; // SkyStone rightmost (001 001) = 1; 2nd rightmost (010 010) = 2; 3rd rightmost (100 100) = 3
+        double wait = 0.05;
+        int stoneConfig = 0; // SkyStone rightmost (001 001) = 1; 2nd rightmost (010 010) = 2; 3rd rightmost (100 100) = 3
 
         telemetry.addData("Status", "Initialized");
 
@@ -54,43 +54,37 @@ public class RedAuto extends LinearOpMode {
 
         robot.toggleLift();
         robot.toggleLift();
-        robot.move(20, 0, 0, 0);
-        if (robot.isTargetVisible()) { // if SkyStone straight ahead
-            stoneConfig = 3;
-        } else { // SkyStone is to the right
-            robot.move(0, 8, 0, 0);
-            if (robot.isTargetVisible()) { // if SkyStone straight ahead
-                stoneConfig = 2;
-            } else { // SkyStone is to the right
-                robot.move(0, 8, 0, 0);
-                stoneConfig = 1;
-            }
+        robot.move(15, 0, 0, 1.);
+        int count = 0;
+        while(!robot.isTargetVisible() && count < 20) {
+            robot.move(0, 1, 0, .5);
+            count++;
         }
 //        robot.alignVuforia();
         robot.toggleIntake();
         robot.wait(wait);
-        robot.move(7, 0, 0, 1.); // runs into skystone (since the intake protrudes)
+        robot.move(4, 0, 0, 1.); // runs into skystone (since the intake protrudes)
 
-        robot.move(-3, 0, 0, wait);
+        robot.move(-6, 0, 0, wait);
         robot.rotate(-95); // rotates to face the bridge
         robot.wait(wait);
-        robot.move(70, 0, -90, 0);
+        robot.move(40, 0, -90, 0);
         robot.toggleLift();
         robot.move(8 * stoneConfig, 0, -90, wait); // goes next to foundation
         robot.rotate(0); // faces foundation
-        robot.speed = 0.2;
+        robot.speed = 0.15;
         robot.move(8, 0, 0, wait); // one inch over shoot into foundation
         robot.toggleHook();
         robot.toggleIntake();
-        robot.speed = 1;
-        robot.move(-30, 0, 0, wait); // backs into wall
+        robot.speed = 0.5;
+        robot.move(-26, 0, 0, wait); // backs into wall
         robot.toggleHook();
-//        robot.speed = 1;
-        robot.wait(0.05);
-        robot.move(1, -20, 0);
+        robot.speed = 1;
+        robot.wait(0.1);
+        robot.move(1, -15, 0, 0);
         robot.toggleLift();
-        robot.move(20, -10, 0);
-        robot.move(0, -23, 0);
+        robot.move(20, 0, 0, wait);
+        robot.move(0, -13, 0, wait);
 
 //        robot.move(4, 0, 0, wait);
 //        if (stoneConfig != 3) { // code for second stone

@@ -105,7 +105,7 @@ class Robot {
 
     void updateBallDrive(boolean targetAngle) {
         double error = this.targetAngle - getGyroAngle();
-        double pCoeff = 0.03; //0.02
+        double pCoeff = 0.03; //0.03
         double dCoeff = 0.003; //0.003
         if (strafeDrive.getPower() > 0.6){
             pCoeff = 0.01;
@@ -116,8 +116,10 @@ class Robot {
         telemetry.addData("pd","p = " + p + ", d = " + d);
         telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + this.targetAngle);
         telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
-        telemetry.addData("pos", "leftPos = " + leftDrive.getCurrentPosition() + ", rightPos = " + rightDrive.getCurrentPosition());
+        telemetry.addData("rightTicks", "" + rightDrive.getCurrentPosition());
         telemetry.addData("liftMotor", "" + liftMotor.getCurrentPosition());
+        telemetry.addData("strafePos", "" + strafeDrive.getCurrentPosition());
+        telemetry.update();
         double tuning = Range.clip(p + d, -0.75, 0.75);
         double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
         leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
@@ -127,42 +129,18 @@ class Robot {
         delta.reset();
     }
 
-//    void moveOld(double zInches, double xInches, double wait) {
-//        resetBallDrive();
-//        double targetZ = zInches * Z_TICKS_PER_INCH;
-//        double targetX = xInches * X_TICKS_PER_INCH;
-//        leftDrive.setTargetPosition((int)targetZ);
-//        rightDrive.setTargetPosition((int)targetZ);
-//        strafeDrive.setTargetPosition((int)targetX);
-//        leftPower = 1;
-//        rightPower = 1;
-//        strafePower = 1;
-//        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        while (true) {
-//            updateBallDrive(true);
-//            double dz = targetZ - (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
-//            double dx = targetX - strafeDrive.getCurrentPosition();
-//            if (Math.sqrt(dz * dz + dx * dx) < 10) {
-//                break;
-//            }
-//        }
-//        resetBallDrive();
-//        wait(wait);
-//    }
-
     void move(double zInches, double xInches, double wait) {
-        double targetZ = zInches * Z_TICKS_PER_INCH + (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
-        double targetX = xInches * X_TICKS_PER_INCH + strafeDrive.getCurrentPosition();
+        resetBallDrive();
+        double targetZ = zInches * Z_TICKS_PER_INCH;
+        double targetX = xInches * X_TICKS_PER_INCH;
         while (true) {
             double dz = targetZ - rightDrive.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
             leftPower = 0.0013 * dz;
             rightPower = 0.0013 * dz;
-            strafePower = 0.002 * dx;
+            strafePower = 0.001 * dx;
             updateBallDrive(true);
-            if (Math.sqrt(dz * dz + dx * dx) < 50) {
+            if (Math.sqrt(dz * dz + dx * dx) < 20) {
                 break;
             }
         }
@@ -177,6 +155,7 @@ class Robot {
 
     void rotate(double angle) {
         targetAngle = angle;
+        resetBallDrive();
         while (Math.abs(angle - getGyroAngle()) > 5) {
             updateBallDrive(true);
         }
@@ -201,7 +180,7 @@ class Robot {
         } else {
             liftMotor.setPower(0.8);
         }
-        wait(0.4);
+        wait(0.6);
         liftMotor.setPower(0);
         liftUp = !liftUp;
     }
@@ -265,20 +244,23 @@ class Robot {
     }
 
     void alignVuforia() {
+//        rotate(0);
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
             double dx = (getVuforiaX() - 2);
-            leftPower = 0.001 * dz;
-            rightPower = 0.001 * dz;
-            strafePower = 0.002 * dx;
+            leftPower = 0.07 * dz;
+            rightPower = 0.07 * dz;
+            strafePower = 0.05 * dx;
             updateBallDrive(true);
             telemetry.addData("vuforiaX", "" + dx);
             telemetry.addData("vuforiaZ", "" + dz);
+            telemetry.update();
             if (Math.sqrt(dz * dz + dx * dx) < 1) {
                 break;
             }
         }
         resetBallDrive();
+        wait(0.1);
     }
 
     boolean isTargetVisible() {
