@@ -85,12 +85,13 @@ public class Tele1 extends OpMode {
         }
 
         //Lift
-        if (controller2.dpad_up.equals("pressing")) {
-            robot.liftMotor.setPower(0.1);
-        } else if (controller2.dpad_down.equals("pressing")) {
-            robot.liftMotor.setPower(-0.1);
-        } else {
-            robot.liftMotor.setPower(0);
+        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 4) {
+            robot.liftHeight += 1;
+            robot.updateLift();
+        }
+        if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
+            robot.liftHeight -= 1;
+            robot.updateLift();
         }
 
         //Intake
@@ -113,11 +114,10 @@ public class Tele1 extends OpMode {
             robot.rotate(robot.getGyroAngle() + 180);
         }
 
-        telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
-        telemetry.addData("Gyro", "" + robot.getGyroAngle());
-        telemetry.addData("targetAngle", "" + robot.targetAngle);
-        telemetry.addData("leftPower", "" + robot.leftDrive.getPower());
-        telemetry.addData("rightPower", "" + robot.rightDrive.getPower());
+        telemetry.addData("liftTicks", "" + robot.liftMotor.getCurrentPosition());
+        telemetry.addData("liftHeight", "" + robot.liftHeight);
+        telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
+        telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
     }
 
     //Code to run ONCE after the driver hits STOP

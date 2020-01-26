@@ -52,12 +52,12 @@ public class TestAuto extends LinearOpMode {
         robot.targetAngle = 0;
 
         robot.wait(0.5);
-        robot.move(20, 0, 0, .1);
+        robot.move(20, 0, 0.1);
         robot.rotate(180);
-        robot.move(20, 0, 180,.1);
+        robot.move(20, 0, 0.1);
         robot.rotate(90);
-        robot.move(20, 0, 90, 0.1);
-        robot.move(-20, 0, 90, 0.1);
+        robot.move(20, 0, 0.1);
+        robot.move(-20, 0, 0.1);
 
 //        while (opModeIsActive()) {
 //            if (robot.isTargetVisible()) {
