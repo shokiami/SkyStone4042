@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Tele1", group="Iterative Opmode")
@@ -85,12 +86,22 @@ public class Tele1 extends OpMode {
         }
 
         //Lift
-        if (controller2.dpad_up.equals("pressing")) {
-            robot.liftMotor.setPower(0.1);
-        } else if (controller2.dpad_down.equals("pressing")) {
-            robot.liftMotor.setPower(-0.1);
+        if (controller2.dpad_up.equals("pressed") /*&& robot.liftMotor.getCurrentPosition() > robot.liftZeroPos - 1700*/) {
+            robot.liftMotor.setPower(0.8);
+        } else if (controller2.dpad_down.equals("pressed") /*&& robot.liftMotor.getCurrentPosition() < robot.liftZeroPos - 10*/) {
+            robot.liftMotor.setPower(-0.3);
         } else {
             robot.liftMotor.setPower(0);
+        }
+
+        if (controller2.dpad_right.equals("pressed")) {
+            robot.liftMotor.setPower(0.8);
+            robot.liftZeroPos = robot.liftMotor.getCurrentPosition();
+            robot.liftHeight = 0;
+        } else if (controller2.dpad_left.equals("pressed")) {
+            robot.liftMotor.setPower(-0.3);
+            robot.liftZeroPos = robot.liftMotor.getCurrentPosition();
+            robot.liftHeight = 0;
         }
 
         //Intake
@@ -112,12 +123,6 @@ public class Tele1 extends OpMode {
         if (controller1.left_bumper.equals("pressing")) {
             robot.rotate(robot.getGyroAngle() + 180);
         }
-
-        telemetry.addData("liftMotor", "" + robot.liftMotor.getCurrentPosition());
-        telemetry.addData("Gyro", "" + robot.getGyroAngle());
-        telemetry.addData("targetAngle", "" + robot.targetAngle);
-        telemetry.addData("leftPower", "" + robot.leftDrive.getPower());
-        telemetry.addData("rightPower", "" + robot.rightDrive.getPower());
     }
 
     //Code to run ONCE after the driver hits STOP

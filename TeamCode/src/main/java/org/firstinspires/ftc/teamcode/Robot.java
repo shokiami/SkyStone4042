@@ -20,11 +20,12 @@ class Robot {
     double speed = 1;
     double liftHeight = 0;
     double targetAngle = 0;
+    double liftZeroPos = 0;
 
-    static final double Z_TICKS_PER_INCH = 21.645; //54.000
+    static final double Z_TICKS_PER_INCH = 54.000;
     static final double X_TICKS_PER_INCH = 59.529; //
     static final double TURN_RADIUS = 8.493;
-    static final double Y_TICKS_PER_INCH = 415.0;
+    static final double Y_TICKS_PER_INCH = 50; //415.0
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -112,8 +113,10 @@ class Robot {
         double p = pCoeff * error;
         double d = dCoeff * (error - lastError) / delta.seconds();
         telemetry.addData("pd","p = " + p + ", d = " + d);
-        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + targetAngle);
+        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + this.targetAngle);
         telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
+        telemetry.addData("pos", "leftPos = " + leftDrive.getCurrentPosition() + ", rightPos = " + rightDrive.getCurrentPosition());
+        telemetry.addData("liftMotor", "" + liftMotor.getCurrentPosition());
         double tuning = Range.clip(p + d, -0.75, 0.75);
         double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
         leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
@@ -152,7 +155,7 @@ class Robot {
         double targetZ = zInches * Z_TICKS_PER_INCH + (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
         double targetX = xInches * X_TICKS_PER_INCH + strafeDrive.getCurrentPosition();
         while (true) {
-            double dz = targetZ - (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
+            double dz = targetZ - rightDrive.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
             leftPower = 0.002 * dz;
             rightPower = 0.002 * dz;
