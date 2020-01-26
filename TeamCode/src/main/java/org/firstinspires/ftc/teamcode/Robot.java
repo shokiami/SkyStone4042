@@ -18,11 +18,15 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    boolean liftUp = false;
+//    double liftHeight = 0;
     double targetAngle = 0;
+//    int liftZeroPos = 0;
+    boolean liftUp = false;
 
     static final double Z_TICKS_PER_INCH = 54.000;
-    static final double X_TICKS_PER_INCH = 59.529;
+    static final double X_TICKS_PER_INCH = 59.529; //
+    static final double TURN_RADIUS = 8.493;
+    static final double Y_TICKS_PER_INCH = 50; //415.0
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -33,6 +37,7 @@ class Robot {
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
+    TouchSensor touchSensor;
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
@@ -52,6 +57,7 @@ class Robot {
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
         valveServo = hardwareMap.get(Servo.class, "valve_servo");
+        touchSensor = hardwareMap.get(TouchSensor.class, "touch_sensor");
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -81,6 +87,7 @@ class Robot {
         this.telemetry = telemetry;
 
         resetBallDrive();
+        //resetLift();
     }
 
     void resetBallDrive() {
@@ -98,7 +105,7 @@ class Robot {
 
     void updateBallDrive(boolean targetAngle) {
         double error = this.targetAngle - getGyroAngle();
-        double pCoeff = 0.02; //0.02
+        double pCoeff = 0.03; //0.03
         double dCoeff = 0.003; //0.003
         if (strafeDrive.getPower() > 0.6){
             pCoeff = 0.01;
@@ -106,6 +113,13 @@ class Robot {
         }
         double p = pCoeff * error;
         double d = dCoeff * (error - lastError) / delta.seconds();
+        telemetry.addData("pd","p = " + p + ", d = " + d);
+        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + this.targetAngle);
+        telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
+        telemetry.addData("rightTicks", "" + rightDrive.getCurrentPosition());
+        telemetry.addData("liftMotor", "" + liftMotor.getCurrentPosition());
+        telemetry.addData("strafePos", "" + strafeDrive.getCurrentPosition());
+        telemetry.update();
         double tuning = Range.clip(p + d, -0.75, 0.75);
         double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
         leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
@@ -116,16 +130,17 @@ class Robot {
     }
 
     void move(double zInches, double xInches, double wait) {
-        double targetZ = zInches * Z_TICKS_PER_INCH + rightDrive.getCurrentPosition();
-        double targetX = xInches * X_TICKS_PER_INCH + strafeDrive.getCurrentPosition();
+        resetBallDrive();
+        double targetZ = zInches * Z_TICKS_PER_INCH;
+        double targetX = xInches * X_TICKS_PER_INCH;
         while (true) {
             double dz = targetZ - rightDrive.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
-            leftPower = 0.001 * dz;
-            rightPower = 0.001 * dz;
-            strafePower = 0.002 * dx;
+            leftPower = 0.0013 * dz;
+            rightPower = 0.0013 * dz;
+            strafePower = 0.001 * dx;
             updateBallDrive(true);
-            if (Math.sqrt(dz * dz + dx * dx) < 50  ) {
+            if (Math.sqrt(dz * dz + dx * dx) < 20) {
                 break;
             }
         }
@@ -133,14 +148,31 @@ class Robot {
         wait(wait);
     }
 
-    void rotate(double angle, double wait) {
+    void move(double zInches, double xInches, double angle, double wait) {
+        rotate(angle);
+        move(zInches, xInches, wait);
+    }
+
+    void rotate(double angle) {
         targetAngle = angle;
+        resetBallDrive();
         while (Math.abs(angle - getGyroAngle()) > 5) {
             updateBallDrive(true);
         }
         resetBallDrive();
-        wait(wait);
     }
+
+//    void updateLift() {
+//        int y_ticks;
+//        if (liftHeight == 0) {
+//            y_ticks = liftZeroPos;
+//        } else {
+//            y_ticks = liftZeroPos - 150;
+//        }
+//        liftMotor.setTargetPosition(y_ticks);
+//        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        liftMotor.setPower(0.7);
+//    }
 
     void toggleLift() {
         if (liftUp) {
@@ -148,7 +180,7 @@ class Robot {
         } else {
             liftMotor.setPower(0.8);
         }
-        wait(0.2);
+        wait(0.6);
         liftMotor.setPower(0);
         liftUp = !liftUp;
     }
@@ -212,20 +244,23 @@ class Robot {
     }
 
     void alignVuforia() {
+//        rotate(0);
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
             double dx = (getVuforiaX() - 2);
-            leftPower = 0.05 * dz;
-            rightPower = 0.05 * dz;
-            strafePower = 0.02 * dx;
+            leftPower = 0.07 * dz;
+            rightPower = 0.07 * dz;
+            strafePower = 0.05 * dx;
             updateBallDrive(true);
             telemetry.addData("vuforiaX", "" + dx);
             telemetry.addData("vuforiaZ", "" + dz);
+            telemetry.update();
             if (Math.sqrt(dz * dz + dx * dx) < 1) {
                 break;
             }
         }
         resetBallDrive();
+        wait(0.1);
     }
 
     boolean isTargetVisible() {

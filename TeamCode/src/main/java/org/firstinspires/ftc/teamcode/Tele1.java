@@ -111,7 +111,7 @@ public class Tele1 extends OpMode {
 
         //Spin 180
         if (controller1.left_bumper.equals("pressing")) {
-            robot.rotate(robot.getGyroAngle() + 180, 0);
+            robot.rotate(robot.getGyroAngle() + 180);
         }
     }
 
