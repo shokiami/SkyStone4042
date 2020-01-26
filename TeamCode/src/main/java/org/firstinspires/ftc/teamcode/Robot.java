@@ -121,11 +121,11 @@ class Robot {
         while (true) {
             double dz = targetZ - rightDrive.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
-            leftPower = 0.002 * dz;
-            rightPower = 0.002 * dz;
+            leftPower = 0.001 * dz;
+            rightPower = 0.001 * dz;
             strafePower = 0.002 * dx;
             updateBallDrive(true);
-            if (Math.sqrt(dz * dz + dx * dx) < 10) {
+            if (Math.sqrt(dz * dz + dx * dx) < 50  ) {
                 break;
             }
         }
@@ -214,11 +214,13 @@ class Robot {
     void alignVuforia() {
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
-            double dx = (getVuforiaX() - 5);
+            double dx = (getVuforiaX() - 2);
             leftPower = 0.05 * dz;
             rightPower = 0.05 * dz;
             strafePower = 0.02 * dx;
             updateBallDrive(true);
+            telemetry.addData("vuforiaX", "" + dx);
+            telemetry.addData("vuforiaZ", "" + dz);
             if (Math.sqrt(dz * dz + dx * dx) < 1) {
                 break;
             }

@@ -51,11 +51,11 @@ public class TestAuto extends LinearOpMode {
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
 
-        robot.move(20,0, wait);
-        robot.rotate(-90, wait);
-        robot.move(0,20, wait);
-        robot.toggleLift();
-        robot.toggleLift();
+        robot.move(48,0, wait);
+//        robot.rotate(-90, wait);
+//        robot.move(0,20, wait);
+//        robot.toggleLift();
+//        robot.toggleLift();
     }
 }
 
