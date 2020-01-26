@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -15,12 +16,10 @@ class Robot {
     double strafePower = 0;
     double intakePower = 0;
     double intakeAngle = 0.53;
-    double hookAngle = 0;
+    double hookAngle = 0.25;
     double valveAngle = 0;
     double speed = 1;
-//    double liftHeight = 0;
     double targetAngle = 0;
-//    int liftZeroPos = 0;
     boolean liftUp = false;
 
     static final double Z_TICKS_PER_INCH = 54.000;
@@ -28,16 +27,22 @@ class Robot {
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 50; //415.0
 
+    double minPowerZ = 0;
+    double minPowerX = 0;
+
     DcMotor leftDrive;
     DcMotor rightDrive;
     DcMotor strafeDrive;
     DcMotor liftMotor;
     DcMotor intakeMotor;
+    DcMotor leftDriveEncoder;
+    DcMotor rightDriveEncoder;
+    
+    
     Servo intakeServo;
     Servo hookServo1;
     Servo hookServo2;
     Servo valveServo;
-    TouchSensor touchSensor;
 
     ElapsedTime elapsedTime;
     Vuforia vuforia;
@@ -57,17 +62,20 @@ class Robot {
         hookServo1 = hardwareMap.get(Servo.class, "hook_servo_1");
         hookServo2 = hardwareMap.get(Servo.class, "hook_servo_2");
         valveServo = hardwareMap.get(Servo.class, "valve_servo");
-        touchSensor = hardwareMap.get(TouchSensor.class, "touch_sensor");
+        leftDriveEncoder = hardwareMap.get(DcMotor.class, "left_encoder");
+        rightDriveEncoder = hardwareMap.get(DcMotor.class, "right_encoder");
 
-        leftDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightDrive.setDirection(DcMotor.Direction.FORWARD);
         strafeDrive.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.FORWARD);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.FORWARD);
         hookServo1.setDirection(Servo.Direction.REVERSE);
         hookServo2.setDirection(Servo.Direction.FORWARD);
         valveServo.setDirection(Servo.Direction.FORWARD);
+        leftDriveEncoder.setDirection(DcMotor.Direction.REVERSE);
+        rightDriveEncoder.setDirection(DcMotor.Direction.FORWARD);
 
         leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -88,14 +96,32 @@ class Robot {
 
         resetBallDrive();
         //resetLift();
+        calibrateMinPower();
+    }
+
+    void calibrateMinPower() {
+        resetBallDrive();
+        while(rightDriveEncoder.getCurrentPosition() < 10) {
+            minPowerZ += 0.001;
+            leftPower = minPowerZ;
+            rightPower = minPowerZ;
+            updateBallDrive(false);
+        }
+        resetBallDrive();
+        while(strafeDrive.getCurrentPosition() < 10) {
+            minPowerX += 0.001;
+            strafePower = minPowerX;
+            updateBallDrive(false);
+        }
+        resetBallDrive();
     }
 
     void resetBallDrive() {
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDriveEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDriveEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDriveEncoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDriveEncoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         strafeDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftPower = 0;
         rightPower = 0;
@@ -113,28 +139,32 @@ class Robot {
         }
         double p = pCoeff * error;
         double d = dCoeff * (error - lastError) / delta.seconds();
-        telemetry.addData("pd","p = " + p + ", d = " + d);
-        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + this.targetAngle);
-        telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
-        telemetry.addData("rightTicks", "" + rightDrive.getCurrentPosition());
-        telemetry.addData("liftMotor", "" + liftMotor.getCurrentPosition());
-        telemetry.addData("strafePos", "" + strafeDrive.getCurrentPosition());
+        telemetry.addData("minPowerZ", "" + minPowerZ);
+        telemetry.addData("minPowerX", "" + minPowerX);
+        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", targetAngle = " + this.targetAngle);
+        telemetry.addData("leftTicks", "" + leftDriveEncoder.getCurrentPosition());
+        telemetry.addData("rightTicks", "" + rightDriveEncoder.getCurrentPosition());
+        telemetry.addData("strafeTicks", "" + strafeDrive.getCurrentPosition());
+        telemetry.addData("liftTicks", "" + liftMotor.getCurrentPosition());
+        telemetry.addData( "leftPower", "" + leftDrive.getPower());
+        telemetry.addData("rightPower", "" + rightDrive.getPower());
+        telemetry.addData("strafePower", "" + strafeDrive.getPower());
         telemetry.update();
         double tuning = Range.clip(p + d, -0.75, 0.75);
         double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
-        leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
-        rightDrive.setPower(speed * rightPower + (targetAngle ? slowTuning : 0));
-        strafeDrive.setPower(speed * strafePower);
+        leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0) + Math.signum(leftPower) * minPowerZ);
+        rightDrive.setPower(speed * rightPower + (targetAngle ? slowTuning : 0) + Math.signum(rightPower) * minPowerZ);
+        strafeDrive.setPower(speed * strafePower + Math.signum(strafePower) * minPowerX);
         lastError = error;
         delta.reset();
     }
 
-    void move(double zInches, double xInches, double wait) {
+    void move(double zInches, double xInches) {
         resetBallDrive();
         double targetZ = zInches * Z_TICKS_PER_INCH;
         double targetX = xInches * X_TICKS_PER_INCH;
         while (true) {
-            double dz = targetZ - rightDrive.getCurrentPosition();
+            double dz = targetZ - rightDriveEncoder.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
             leftPower = 0.0013 * dz;
             rightPower = 0.0013 * dz;
@@ -145,12 +175,6 @@ class Robot {
             }
         }
         resetBallDrive();
-        wait(wait);
-    }
-
-    void move(double zInches, double xInches, double angle, double wait) {
-        rotate(angle);
-        move(zInches, xInches, wait);
     }
 
     void rotate(double angle) {
@@ -178,9 +202,9 @@ class Robot {
         if (liftUp) {
             liftMotor.setPower(-0.3);
         } else {
-            liftMotor.setPower(0.8);
+            liftMotor.setPower(1);
         }
-        wait(0.6);
+        wait(0.4);
         liftMotor.setPower(0);
         liftUp = !liftUp;
     }
@@ -212,10 +236,10 @@ class Robot {
     }
 
     void toggleHook() {
-        if (hookAngle == 0) {
-            hookAngle = 0.5;
+        if (hookAngle == 0.25) {
+            hookAngle = 0.75;
         } else {
-            hookAngle = 0;
+            hookAngle = 0.25;
         }
         hookServo1.setPosition(hookAngle);
         hookServo2.setPosition(hookAngle);
@@ -241,26 +265,6 @@ class Robot {
     void wait(double seconds) {
         double start = getElapsedTimeSeconds();
         while (getElapsedTimeSeconds() - start < seconds) {}
-    }
-
-    void alignVuforia() {
-//        rotate(0);
-        while (isTargetVisible()) {
-            double dz = (getVuforiaZ() - 10);
-            double dx = (getVuforiaX() - 2);
-            leftPower = 0.07 * dz;
-            rightPower = 0.07 * dz;
-            strafePower = 0.05 * dx;
-            updateBallDrive(true);
-            telemetry.addData("vuforiaX", "" + dx);
-            telemetry.addData("vuforiaZ", "" + dz);
-            telemetry.update();
-            if (Math.sqrt(dz * dz + dx * dx) < 1) {
-                break;
-            }
-        }
-        resetBallDrive();
-        wait(0.1);
     }
 
     boolean isTargetVisible() {

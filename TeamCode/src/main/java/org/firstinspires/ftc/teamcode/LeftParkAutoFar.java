@@ -32,16 +32,15 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="RedAuto", group="Linear Opmode")
-public class RedAuto extends LinearOpMode {
+@Autonomous(name="LeftParkAutoFar", group="Linear Opmode")
+public class LeftParkAutoFar extends LinearOpMode {
     //Declare OpMode members
     Robot robot;
 
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap, telemetry, true);
-        int stoneConfig; // SkyStone rightmost (001 001) = 1; 2nd rightmost (010 010) = 2; 3rd rightmost (100 100) = 3
+        robot = new Robot(hardwareMap, telemetry, false);
 
         telemetry.addData("Status", "Initialized");
 
@@ -50,42 +49,9 @@ public class RedAuto extends LinearOpMode {
         //Code to run ONCE when the driver hits PLAY
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
-        robot.toggleLift();
-        robot.toggleLift();
 
-        //Ok, here we go
-        robot.move(20, 0);
-        if (robot.isTargetVisible()) { // if SkyStone straight ahead
-            stoneConfig = 3;
-        } else { // SkyStone is to the right
-            robot.move(0, 8);
-            if (robot.isTargetVisible()) { // if SkyStone straight ahead
-                stoneConfig = 2;
-            } else { // SkyStone is to the right
-                robot.move(0, 8);
-                stoneConfig = 1;
-            }
-        }
-        robot.toggleIntake();
-        robot.move(7, 0); // runs into skystone (since the intake protrudes)
-        robot.move(-3, 0);
-        robot.rotate(-90); // rotates to face the bridge
-        robot.move(70, 0);
-        robot.toggleLift();
-        robot.move(8 * stoneConfig, 0); // goes next to foundation
-        robot.rotate(0); // faces foundation
-        robot.speed = 0.2;
-        robot.move(8, 0); // one inch over shoot into foundation
-        robot.toggleHook();
-        robot.toggleIntake();
-        robot.speed = 1;
-        robot.move(-30, 0); // backs into wall
-        robot.toggleHook();
-        robot.move(1, -20);
-        robot.toggleLift();
-        robot.move(20, -10);
-        robot.move(0, -23);
-
+        robot.move(25, 0);
+        robot.move(0, 9);
     }
 }
 

@@ -40,6 +40,7 @@ public class Tele1 extends OpMode {
     Robot robot;
     Controller controller1;
     Controller controller2;
+    boolean gyroMode = true;
 
     //Code to run ONCE when the driver hits INIT
     @Override
@@ -79,15 +80,22 @@ public class Tele1 extends OpMode {
         robot.strafePower = controller1.left_stick_x;
 
         if ((controller1.left_stick_y != 0 || controller1.left_stick_x != 0) && controller1.right_stick_x == 0) {
-            robot.updateBallDrive(true);
+            robot.updateBallDrive(gyroMode);
         } else {
             robot.updateBallDrive(false);
             robot.targetAngle = robot.getGyroAngle();
         }
 
+        if (controller1.right_bumper.equals("pressing")) {
+            gyroMode = true;
+        }
+        if (controller1.left_bumper.equals("pressing")) {
+            gyroMode = false;
+        }
+
         //Lift
         if (controller2.dpad_up.equals("pressed")) {
-            robot.liftMotor.setPower(0.8);
+            robot.liftMotor.setPower(1);
         } else if (controller2.dpad_down.equals("pressed")) {
             robot.liftMotor.setPower(-0.3);
         } else {
@@ -95,23 +103,21 @@ public class Tele1 extends OpMode {
         }
 
         //Intake
-        if (controller2.right_bumper.equals("pressing")) {
-            robot.toggleIntake();
+        if (controller2.y.equals("pressing")) {
+            robot.intakeMotor.setPower(1);
+        }
+        if (controller2.b.equals("pressing")) {
+            robot.intakeMotor.setPower(0);
         }
 
         //Hook
-        if (controller1.a.equals("pressing")) {
-            robot.toggleHook();
+        if (controller1.y.equals("pressing")) {
+            robot.hookServo1.setPosition(0.25);
+            robot.hookServo2.setPosition(0.25);
         }
-
-        //Valve (not in use)
-        if (controller1.left_bumper.equals("pressing")) {
-            robot.toggleValve();
-        }
-
-        //Spin 180
-        if (controller1.left_bumper.equals("pressing")) {
-            robot.rotate(robot.getGyroAngle() + 180);
+        if (controller1.b.equals("pressing")) {
+            robot.hookServo1.setPosition(0.75);
+            robot.hookServo2.setPosition(0.75);
         }
     }
 
