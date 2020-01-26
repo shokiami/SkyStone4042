@@ -18,12 +18,11 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    double liftHeight = 0;
+    boolean liftUp = false;
     double targetAngle = 0;
 
     static final double Z_TICKS_PER_INCH = 54.000;
     static final double X_TICKS_PER_INCH = 59.529;
-    static final double Y_TICKS_PER_INCH = 415.0;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -82,7 +81,6 @@ class Robot {
         this.telemetry = telemetry;
 
         resetBallDrive();
-        //resetLift();
     }
 
     void resetBallDrive() {
@@ -108,9 +106,6 @@ class Robot {
         }
         double p = pCoeff * error;
         double d = dCoeff * (error - lastError) / delta.seconds();
-        telemetry.addData("pd","p = " + p + ", d = " + d);
-        telemetry.addData("angles", "Gyro = " + getGyroAngle() + ", tAngle = " + targetAngle);
-        telemetry.addData("powers", "leftPow = " + leftPower + ", rightPow = " + rightPower);
         double tuning = Range.clip(p + d, -0.75, 0.75);
         double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
         leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0));
@@ -138,24 +133,24 @@ class Robot {
         wait(wait);
     }
 
-    void rotate(double angle) {
+    void rotate(double angle, double wait) {
         targetAngle = angle;
         while (Math.abs(angle - getGyroAngle()) > 5) {
             updateBallDrive(true);
         }
         resetBallDrive();
+        wait(wait);
     }
 
-    void updateLift() {
-        int y_ticks;
-        if (liftHeight == 0) {
-            y_ticks = 0;
+    void toggleLift() {
+        if (liftUp) {
+            liftMotor.setPower(-0.3);
         } else {
-            y_ticks = (int)((4 * liftHeight - 2) * Y_TICKS_PER_INCH);
+            liftMotor.setPower(0.8);
         }
-        liftMotor.setTargetPosition(y_ticks);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(1);
+        wait(0.2);
+        liftMotor.setPower(0);
+        liftUp = !liftUp;
     }
 
     void toggleSpeed() {
@@ -219,13 +214,11 @@ class Robot {
     void alignVuforia() {
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
-            double dx = (getVuforiaX());
+            double dx = (getVuforiaX() - 5);
             leftPower = 0.05 * dz;
             rightPower = 0.05 * dz;
             strafePower = 0.02 * dx;
             updateBallDrive(true);
-            telemetry.addData("vuforiaX", "" + dx);
-            telemetry.addData("vuforiaZ", "" + dz);
             if (Math.sqrt(dz * dz + dx * dx) < 1) {
                 break;
             }

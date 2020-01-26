@@ -61,22 +61,20 @@ public class RedAuto extends LinearOpMode {
             if (robot.isTargetVisible() && Math.abs(robot.getVuforiaX()) < 4) { // if SkyStone straight ahead
                 stoneConfig = 2;
             } else { // SkyStone is to the right
-                stoneConfig = 1;
                 robot.move(0, 8, wait);
+                stoneConfig = 1;
             }
         }
         robot.alignVuforia();
         robot.toggleIntake();
-        robot.wait(wait);
         robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
-        robot.liftHeight = 1;
-        robot.updateLift();
+        robot.toggleLift();
 
         robot.move(-5, 0, wait);
-        robot.rotate(-90); // rotates to face the bridge
+        robot.rotate(-90, wait); // rotates to face the bridge
         robot.wait(wait);
         robot.move(64 /*+ 8 * stoneConfig */, 0, wait); // goes next to foundation
-        robot.rotate(0); // faces foundation
+        robot.rotate(0, wait); // faces foundation
         robot.speed = 0.15;
         robot.move(6, 0, wait); // one inch over shoot into foundation
         robot.toggleHook();
@@ -87,8 +85,8 @@ public class RedAuto extends LinearOpMode {
         robot.speed = 1;
         robot.wait(0.1);
         robot.move(1, -30, wait);
-        robot.liftHeight = 0;
-        robot.updateLift();
+        robot.toggleLift();
+        robot.toggleLift();
         robot.move(22, 0, wait);
         if (stoneConfig != 3) { // code for second stone
             robot.move(0, -(58 + 8 * stoneConfig), wait); // supposedly 0 inches short of second skystone
@@ -99,11 +97,10 @@ public class RedAuto extends LinearOpMode {
             robot.toggleIntake();
             robot.wait(wait);
             robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
-            robot.liftHeight = 1;
-            robot.updateLift();
+            robot.toggleLift();
 
             robot.move(-5, 0, wait);
-            robot.rotate(-90); // rotates to face the bridge
+            robot.rotate(-90, wait); // rotates to face the bridge
             robot.wait(wait);
             robot.move(30, 0, wait);
             robot.toggleIntake();
