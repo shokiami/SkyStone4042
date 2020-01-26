@@ -40,14 +40,10 @@ class Robot {
     ElapsedTime elapsedTime;
     Vuforia vuforia;
     Gyro gyro;
+    Telemetry telemetry;
 
     ElapsedTime delta = new ElapsedTime();
     double lastError;
-    Telemetry telemetry;
-
-    Robot(HardwareMap hardwareMap, boolean vuforia) {
-        this(hardwareMap, null, vuforia);
-    }
 
     Robot(HardwareMap hardwareMap, Telemetry telemetry, boolean vuforia) {
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
@@ -78,8 +74,6 @@ class Robot {
 
         toggleIntakeAngle();
 
-        this.telemetry = telemetry;
-
         gyro = new Gyro(hardwareMap);
         resetGyro();
         elapsedTime = new ElapsedTime();
@@ -88,6 +82,7 @@ class Robot {
             this.vuforia = new Vuforia(hardwareMap);
             this.vuforia.flashlight(true);
         }
+        this.telemetry = telemetry;
 
         resetBallDrive();
         //resetLift();
@@ -267,7 +262,7 @@ class Robot {
     }
 
     void alignVuforia() {
-        while (true) {
+        while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
             double dx = (getVuforiaX());
             leftPower = 0.05 * dz;

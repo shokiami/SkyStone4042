@@ -40,7 +40,7 @@ public class ParkAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap, true);
+        robot = new Robot(hardwareMap, telemetry, false);
         double wait = 0.4;
 
         telemetry.addData("Status", "Initialized");

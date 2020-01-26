@@ -40,7 +40,7 @@ public class TestAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
-        robot = new Robot(hardwareMap, telemetry, false);
+        robot = new Robot(hardwareMap, telemetry, true);
 
         telemetry.addData("Status", "Initialized");
 
@@ -51,23 +51,23 @@ public class TestAuto extends LinearOpMode {
         robot.toggleIntakeAngle();
 
         robot.wait(0.5);
-        robot.move(20, 0, 0, 1);
-        robot.rotate(180);
-        robot.move(20, 0, 180,0);
-        robot.rotate(90);
-        robot.move(20, 0, 90, 0);
-        robot.move(-20, 0, 90, 0);
+//        robot.move(20, 0, 0, 1);
+//        robot.rotate(180);
+//        robot.move(20, 0, 180,0);
+//        robot.rotate(90);
+//        robot.move(20, 0, 90, 0);
+//        robot.move(-20, 0, 90, 0);
 //        robot.targetAngle = 0;
 //        robot.moveNew(0, -20, 1);
-//        while (opModeIsActive()) {
-//            if (robot.isTargetVisible()) {
-//                robot.alignVuforia();
-//            } else {
-//                robot.leftPower = 0;
-//                robot.rightPower = 0;
-//                robot.strafePower = 0;
-//            }
-//        }
+        while (opModeIsActive()) {
+            if (robot.isTargetVisible()) {
+                robot.alignVuforia();
+            } else {
+                robot.leftPower = 0;
+                robot.rightPower = 0;
+                robot.strafePower = 0;
+            }
+        }
 
     }
 }
