@@ -65,12 +65,12 @@ public class RedAuto extends LinearOpMode {
                 robot.move(0, 8, wait);
             }
         }
-//        robot.alignVuforia();
+        robot.alignVuforia();
         robot.toggleIntake();
         robot.wait(wait);
         robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
-//        robot.liftHeight = 1;
-//        robot.updateLift();
+        robot.liftHeight = 1;
+        robot.updateLift();
 
         robot.move(-5, 0, wait);
         robot.rotate(-90); // rotates to face the bridge
@@ -79,16 +79,16 @@ public class RedAuto extends LinearOpMode {
         robot.rotate(0); // faces foundation
         robot.speed = 0.15;
         robot.move(6, 0, wait); // one inch over shoot into foundation
-//        robot.toggleHook();
-//        robot.toggleIntake();
+        robot.toggleHook();
+        robot.toggleIntake();
         robot.speed = 0.5;
         robot.move(-33, 0, wait); // backs into wall
         robot.toggleHook();
         robot.speed = 1;
         robot.wait(0.1);
         robot.move(1, -30, wait);
-//        robot.liftHeight = 0;
-//        robot.updateLift();
+        robot.liftHeight = 0;
+        robot.updateLift();
         robot.move(22, 0, wait);
         if (stoneConfig != 3) { // code for second stone
             robot.move(0, -(58 + 8 * stoneConfig), wait); // supposedly 0 inches short of second skystone
@@ -99,8 +99,8 @@ public class RedAuto extends LinearOpMode {
             robot.toggleIntake();
             robot.wait(wait);
             robot.move(10, 0, wait); // runs into skystone (since the intake protrudes)
-//        robot.liftHeight = 1;
-//        robot.updateLift();
+            robot.liftHeight = 1;
+            robot.updateLift();
 
             robot.move(-5, 0, wait);
             robot.rotate(-90); // rotates to face the bridge

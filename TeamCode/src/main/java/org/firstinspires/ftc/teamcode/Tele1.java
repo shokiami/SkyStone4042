@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Tele1", group="Iterative Opmode")
@@ -85,13 +86,12 @@ public class Tele1 extends OpMode {
         }
 
         //Lift
-        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 4) {
-            robot.liftHeight += 1;
-            robot.updateLift();
-        }
-        if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
-            robot.liftHeight -= 1;
-            robot.updateLift();
+        if (controller2.dpad_up.equals("pressed")) {
+            robot.liftMotor.setPower(0.8);
+        } else if (controller2.dpad_down.equals("pressed")) {
+            robot.liftMotor.setPower(-0.3);
+        } else {
+            robot.liftMotor.setPower(0);
         }
 
         //Intake
@@ -113,11 +113,6 @@ public class Tele1 extends OpMode {
         if (controller1.left_bumper.equals("pressing")) {
             robot.rotate(robot.getGyroAngle() + 180);
         }
-
-        telemetry.addData("liftTicks", "" + robot.liftMotor.getCurrentPosition());
-        telemetry.addData("liftHeight", "" + robot.liftHeight);
-        telemetry.addData("leftTicks", "" + robot.leftDrive.getCurrentPosition());
-        telemetry.addData("rightTicks", "" + robot.rightDrive.getCurrentPosition());
     }
 
     //Code to run ONCE after the driver hits STOP
