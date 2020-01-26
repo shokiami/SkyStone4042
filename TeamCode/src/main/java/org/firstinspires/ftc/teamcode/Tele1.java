@@ -85,15 +85,12 @@ public class Tele1 extends OpMode {
         }
 
         //Lift
-        if (controller2.dpad_up.equals("pressing") && robot.liftHeight < 6) {
-            robot.liftHeight += 1;
-            robot.updateLift();
-        } else if (controller2.dpad_down.equals("pressing") && robot.liftHeight > 0) {
-            robot.liftHeight -= 1;
-            robot.updateLift();
-        }
-        if (robot.touchSensor.isPressed()) {
-            robot.resetLift();
+        if (controller2.dpad_up.equals("pressing")) {
+            robot.liftMotor.setPower(0.1);
+        } else if (controller2.dpad_down.equals("pressing")) {
+            robot.liftMotor.setPower(-0.1);
+        } else {
+            robot.liftMotor.setPower(0);
         }
 
         //Intake

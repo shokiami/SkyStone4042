@@ -21,8 +21,8 @@ class Robot {
     double liftHeight = 0;
     double targetAngle = 0;
 
-    static final double Z_TICKS_PER_INCH = 54.000;
-    static final double X_TICKS_PER_INCH = 59.529;
+    static final double Z_TICKS_PER_INCH = 21.645; //54.000
+    static final double X_TICKS_PER_INCH = 59.529; //
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 415.0;
 
@@ -104,7 +104,7 @@ class Robot {
     void updateBallDrive(boolean targetAngle) {
         double error = this.targetAngle - getGyroAngle();
         double pCoeff = 0.02; //0.02
-        double dCoeff = 0.003; //0.001
+        double dCoeff = 0.003; //0.003
         if (strafeDrive.getPower() > 0.6){
             pCoeff = 0.01;
             dCoeff = 0.002; // 0.002
@@ -173,22 +173,10 @@ class Robot {
 
     void rotate(double angle) {
         targetAngle = angle;
-        while (Math.abs(angle - getGyroAngle()) > 1) {
+        while (Math.abs(angle - getGyroAngle()) > 5) {
             updateBallDrive(true);
         }
         resetBallDrive();
-    }
-
-    void resetLift() {
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while (!touchSensor.isPressed()) {
-            liftMotor.setPower(-0.2);
-        }
-        while (touchSensor.isPressed()) {
-            liftMotor.setPower(0.2);
-        }
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftHeight = 0;
     }
 
     void updateLift() {
