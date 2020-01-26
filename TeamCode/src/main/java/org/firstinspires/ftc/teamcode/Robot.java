@@ -18,9 +18,9 @@ class Robot {
     double hookAngle = 0;
     double valveAngle = 0;
     double speed = 1;
-    double liftHeight = 0;
+//    double liftHeight = 0;
     double targetAngle = 0;
-    int liftZeroPos = 0;
+//    int liftZeroPos = 0;
     boolean liftUp = false;
 
     static final double Z_TICKS_PER_INCH = 54.000;
@@ -105,7 +105,7 @@ class Robot {
 
     void updateBallDrive(boolean targetAngle) {
         double error = this.targetAngle - getGyroAngle();
-        double pCoeff = 0.02; //0.02
+        double pCoeff = 0.03; //0.02
         double dCoeff = 0.003; //0.003
         if (strafeDrive.getPower() > 0.6){
             pCoeff = 0.01;
@@ -127,30 +127,30 @@ class Robot {
         delta.reset();
     }
 
-    void moveOld(double zInches, double xInches, double wait) {
-        resetBallDrive();
-        double targetZ = zInches * Z_TICKS_PER_INCH;
-        double targetX = xInches * X_TICKS_PER_INCH;
-        leftDrive.setTargetPosition((int)targetZ);
-        rightDrive.setTargetPosition((int)targetZ);
-        strafeDrive.setTargetPosition((int)targetX);
-        leftPower = 1;
-        rightPower = 1;
-        strafePower = 1;
-        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (true) {
-            updateBallDrive(true);
-            double dz = targetZ - (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
-            double dx = targetX - strafeDrive.getCurrentPosition();
-            if (Math.sqrt(dz * dz + dx * dx) < 10) {
-                break;
-            }
-        }
-        resetBallDrive();
-        wait(wait);
-    }
+//    void moveOld(double zInches, double xInches, double wait) {
+//        resetBallDrive();
+//        double targetZ = zInches * Z_TICKS_PER_INCH;
+//        double targetX = xInches * X_TICKS_PER_INCH;
+//        leftDrive.setTargetPosition((int)targetZ);
+//        rightDrive.setTargetPosition((int)targetZ);
+//        strafeDrive.setTargetPosition((int)targetX);
+//        leftPower = 1;
+//        rightPower = 1;
+//        strafePower = 1;
+//        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        strafeDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (true) {
+//            updateBallDrive(true);
+//            double dz = targetZ - (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
+//            double dx = targetX - strafeDrive.getCurrentPosition();
+//            if (Math.sqrt(dz * dz + dx * dx) < 10) {
+//                break;
+//            }
+//        }
+//        resetBallDrive();
+//        wait(wait);
+//    }
 
     void move(double zInches, double xInches, double wait) {
         double targetZ = zInches * Z_TICKS_PER_INCH + (leftDrive.getCurrentPosition() + rightDrive.getCurrentPosition()) / 2;
@@ -158,11 +158,11 @@ class Robot {
         while (true) {
             double dz = targetZ - rightDrive.getCurrentPosition();
             double dx = targetX - strafeDrive.getCurrentPosition();
-            leftPower = 0.002 * dz;
-            rightPower = 0.002 * dz;
+            leftPower = 0.0013 * dz;
+            rightPower = 0.0013 * dz;
             strafePower = 0.002 * dx;
             updateBallDrive(true);
-            if (Math.sqrt(dz * dz + dx * dx) < 10) {
+            if (Math.sqrt(dz * dz + dx * dx) < 50) {
                 break;
             }
         }
@@ -183,17 +183,17 @@ class Robot {
         resetBallDrive();
     }
 
-    void updateLift() {
-        int y_ticks;
-        if (liftHeight == 0) {
-            y_ticks = liftZeroPos;
-        } else {
-            y_ticks = liftZeroPos - 150;
-        }
-        liftMotor.setTargetPosition(y_ticks);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(0.7);
-    }
+//    void updateLift() {
+//        int y_ticks;
+//        if (liftHeight == 0) {
+//            y_ticks = liftZeroPos;
+//        } else {
+//            y_ticks = liftZeroPos - 150;
+//        }
+//        liftMotor.setTargetPosition(y_ticks);
+//        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        liftMotor.setPower(0.7);
+//    }
 
     void toggleLift() {
         if (liftUp) {
@@ -201,7 +201,7 @@ class Robot {
         } else {
             liftMotor.setPower(0.8);
         }
-        wait(0.2);
+        wait(0.4);
         liftMotor.setPower(0);
         liftUp = !liftUp;
     }
@@ -268,9 +268,9 @@ class Robot {
         while (isTargetVisible()) {
             double dz = (getVuforiaZ() - 10);
             double dx = (getVuforiaX() - 2);
-            leftPower = 0.05 * dz;
-            rightPower = 0.05 * dz;
-            strafePower = 0.02 * dx;
+            leftPower = 0.001 * dz;
+            rightPower = 0.001 * dz;
+            strafePower = 0.002 * dx;
             updateBallDrive(true);
             telemetry.addData("vuforiaX", "" + dx);
             telemetry.addData("vuforiaZ", "" + dz);

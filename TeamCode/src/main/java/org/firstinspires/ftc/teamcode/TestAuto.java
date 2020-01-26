@@ -52,9 +52,7 @@ public class TestAuto extends LinearOpMode {
         robot.targetAngle = 0;
 
         robot.wait(0.5);
-        robot.move(20, 0, 0, .1);
-        robot.rotate(-90);
-        robot.move(0, 20, -90,.1);
+        robot.move(20, 20, 0, .1);
         robot.toggleLift();
         robot.wait(2.);
         robot.toggleLift();
