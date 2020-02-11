@@ -102,14 +102,14 @@ class Robot {
     void calibrateMinPower() {
         resetBallDrive();
         while(rightDriveEncoder.getCurrentPosition() < 10) {
-            minPowerZ += 0.001;
+            minPowerZ += 0.002;
             leftPower = minPowerZ;
             rightPower = minPowerZ;
             updateBallDrive(false);
         }
         resetBallDrive();
         while(strafeDrive.getCurrentPosition() < 10) {
-            minPowerX += 0.001;
+            minPowerX += 0.002;
             strafePower = minPowerX;
             updateBallDrive(false);
         }
@@ -150,10 +150,9 @@ class Robot {
         telemetry.addData("rightPower", "" + rightDrive.getPower());
         telemetry.addData("strafePower", "" + strafeDrive.getPower());
         telemetry.update();
-        double tuning = Range.clip(p + d, -0.75, 0.75);
-        double slowTuning = Range.clip(tuning, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
-        leftDrive.setPower(speed * leftPower - (targetAngle ? slowTuning : 0) + Math.signum(leftPower) * minPowerZ);
-        rightDrive.setPower(speed * rightPower + (targetAngle ? slowTuning : 0) + Math.signum(rightPower) * minPowerZ);
+        double tuning = Range.clip(p + d, (-1) * (0.3 + 0.45 * speed) , 0.3 + 0.45 * speed);
+        leftDrive.setPower(speed * leftPower - (targetAngle ? tuning : 0) + Math.signum(leftPower) * minPowerZ);
+        rightDrive.setPower(speed * rightPower + (targetAngle ? tuning : 0) + Math.signum(rightPower) * minPowerZ);
         strafeDrive.setPower(speed * strafePower + Math.signum(strafePower) * minPowerX);
         lastError = error;
         delta.reset();
