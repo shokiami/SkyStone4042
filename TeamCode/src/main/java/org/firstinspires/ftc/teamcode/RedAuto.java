@@ -41,8 +41,6 @@ public class RedAuto extends LinearOpMode {
     public void runOpMode() {
         //Code to run ONCE when the driver hits INIT
         robot = new Robot(hardwareMap, telemetry, true);
-        int stoneConfig; // SkyStone rightmost (001 001) = 1; 2nd rightmost (010 010) = 2; 3rd rightmost (100 100) = 3
-
         telemetry.addData("Status", "Initialized");
 
         waitForStart();
@@ -53,39 +51,72 @@ public class RedAuto extends LinearOpMode {
         robot.toggleLift();
         robot.toggleLift();
 
-        //Ok, here we go
-        robot.move(20, 0);
-        if (robot.isTargetVisible()) { // if SkyStone straight ahead
-            stoneConfig = 3;
-        } else { // SkyStone is to the right
-            robot.move(0, 8);
-            if (robot.isTargetVisible()) { // if SkyStone straight ahead
-                stoneConfig = 2;
-            } else { // SkyStone is to the right
-                robot.move(0, 8);
-                stoneConfig = 1;
-            }
-        }
-        robot.toggleIntake();
-        robot.move(7, 0); // runs into skystone (since the intake protrudes)
-        robot.move(-3, 0);
-        robot.rotate(-90); // rotates to face the bridge
-        robot.move(70, 0);
-        robot.toggleLift();
-        robot.move(8 * stoneConfig, 0); // goes next to foundation
-        robot.rotate(0); // faces foundation
-        robot.speed = 0.2;
-        robot.move(8, 0); // one inch over shoot into foundation
-        robot.toggleHook();
-        robot.toggleIntake();
-        robot.speed = 1;
-        robot.move(-30, 0); // backs into wall
-        robot.toggleHook();
-        robot.move(1, -20);
-        robot.toggleLift();
-        robot.move(20, -10);
-        robot.move(0, -23);
+        //Aight, here we go!
 
+        //Locating SkyStone configuration
+        int stoneConfig; //(001 001) = 0; (010 010) = 1; (100 100) = 2
+        robot.waitUntilTargetVisible();
+        if (robot.getVuforiaX() < -4) {
+            stoneConfig = 2;
+        } else if (robot.getVuforiaX() > 4) {
+            stoneConfig = 0;
+        } else {
+            stoneConfig = 1;
+        }
+
+        //Aligning with SkyStone 1
+        robot.move(20, 0);
+        if (stoneConfig == 0) {
+            robot.move(0, 8);
+        }
+        if (stoneConfig == 2) {
+            robot.move(0, -8);
+        }
+
+        //Sucking SkyStone 1
+        robot.toggleIntake();
+        robot.move(5, 0);
+        robot.move(-5, 0);
+
+        //Traversing Map
+        robot.move(0, 78 + 8 * stoneConfig);
+
+        //Dropping off SkyStone 1
+        robot.toggleLift();
+        robot.toggleIntake();
+        robot.move(5, 0);
+        robot.wait(1.);
+        robot.move(-5, 0);
+        robot.toggleLift();
+
+        //Traversing Map
+        robot.move(0, -54 - 8 * stoneConfig);
+
+        //Sucking SkyStone 2
+        robot.toggleIntake();
+        robot.move(5, 0);
+        robot.move(-5, 0);
+
+        //Traversing Map
+        robot.move(0, 54 + 8 * stoneConfig);
+
+        //Dropping off SkyStone 2
+        robot.speed = 0.2;
+        robot.toggleLift();
+        robot.toggleIntake();
+        robot.move(8, 0);
+
+        //Pulling foundation back into build site
+        robot.speed = 1;
+        robot.toggleHook();
+        robot.move(-30, 0);
+        robot.toggleHook();
+
+        //Parking under the bridge
+        robot.move(1, -40);
+        robot.toggleLift();
+
+        //Nice!
     }
 }
 

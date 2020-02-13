@@ -266,6 +266,10 @@ class Robot {
         while (getElapsedTimeSeconds() - start < seconds) {}
     }
 
+    void waitUntilTargetVisible() {
+        while (!isTargetVisible()) {}
+    }
+
     boolean isTargetVisible() {
         vuforia.update();
         return  vuforia.isTargetVisible();
