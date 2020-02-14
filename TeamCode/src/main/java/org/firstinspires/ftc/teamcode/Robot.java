@@ -23,12 +23,12 @@ class Robot {
     boolean liftUp = false;
 
     static final double Z_TICKS_PER_INCH = 54.000;
-    static final double X_TICKS_PER_INCH = 59.529; //
+    static final double X_TICKS_PER_INCH = 59.529;
     static final double TURN_RADIUS = 8.493;
     static final double Y_TICKS_PER_INCH = 50; //415.0
 
-    double minPowerZ = 0;
-    double minPowerX = 0;
+    double minPowerZ = 0.18;
+    double minPowerX = 0.05;
 
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -95,21 +95,20 @@ class Robot {
         this.telemetry = telemetry;
 
         resetBallDrive();
-        //resetLift();
-        calibrateMinPower();
+        //calibrateMinPower();
     }
 
     void calibrateMinPower() {
         resetBallDrive();
         while(rightDriveEncoder.getCurrentPosition() < 10) {
-            minPowerZ += 0.002;
+            minPowerZ += 0.005;
             leftPower = minPowerZ;
             rightPower = minPowerZ;
             updateBallDrive(false);
         }
         resetBallDrive();
         while(strafeDrive.getCurrentPosition() < 10) {
-            minPowerX += 0.002;
+            minPowerX += 0.005;
             strafePower = minPowerX;
             updateBallDrive(false);
         }

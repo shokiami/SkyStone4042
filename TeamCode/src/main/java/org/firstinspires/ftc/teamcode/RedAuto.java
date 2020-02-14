@@ -55,50 +55,43 @@ public class RedAuto extends LinearOpMode {
 
         //Locating SkyStone configuration
         int stoneConfig; //(001 001) = 0; (010 010) = 1; (100 100) = 2
-        robot.waitUntilTargetVisible();
-        if (robot.getVuforiaX() < -4) {
-            stoneConfig = 2;
-        } else if (robot.getVuforiaX() > 4) {
-            stoneConfig = 0;
-        } else {
+        robot.move(18, 0);
+        robot.wait(0.5);
+        if (robot.isTargetVisible()) {
             stoneConfig = 1;
-        }
-
-        //Aligning with SkyStone 1
-        robot.move(20, 0);
-        if (stoneConfig == 0) {
+        } else {
+            stoneConfig = 0;
             robot.move(0, 8);
-        }
-        if (stoneConfig == 2) {
-            robot.move(0, -8);
         }
 
         //Sucking SkyStone 1
         robot.toggleIntake();
-        robot.move(5, 0);
-        robot.move(-5, 0);
+        robot.move(10, 0);
+        robot.move(-10, 0);
 
         //Traversing Map
-        robot.move(0, 78 + 8 * stoneConfig);
+        robot.move(0, 104 + 8 * stoneConfig);
 
         //Dropping off SkyStone 1
         robot.toggleLift();
         robot.toggleIntake();
-        robot.move(5, 0);
+        robot.move(11, 0);
         robot.wait(1.);
-        robot.move(-5, 0);
+        robot.move(-11, 0);
         robot.toggleLift();
 
+        /*
+
         //Traversing Map
-        robot.move(0, -54 - 8 * stoneConfig);
+        robot.move(0, -64 - 8 * stoneConfig);
 
         //Sucking SkyStone 2
         robot.toggleIntake();
-        robot.move(5, 0);
-        robot.move(-5, 0);
+        robot.move(11, 0);
+        robot.move(-11, 0);
 
         //Traversing Map
-        robot.move(0, 54 + 8 * stoneConfig);
+        robot.move(0, 64 + 8 * stoneConfig);
 
         //Dropping off SkyStone 2
         robot.speed = 0.2;
@@ -117,6 +110,8 @@ public class RedAuto extends LinearOpMode {
         robot.toggleLift();
 
         //Nice!
+
+        */
     }
 }
 
