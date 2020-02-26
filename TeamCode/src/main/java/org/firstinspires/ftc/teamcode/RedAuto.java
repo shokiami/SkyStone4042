@@ -48,6 +48,8 @@ public class RedAuto extends LinearOpMode {
         //Code to run ONCE when the driver hits PLAY
         robot.resetElapsedTime();
         robot.toggleIntakeAngle();
+        robot.toggleHook();
+        robot.wait(0.5);
         robot.toggleLift();
         robot.toggleLift();
 
@@ -67,18 +69,30 @@ public class RedAuto extends LinearOpMode {
         //Sucking SkyStone 1
         robot.toggleIntake();
         robot.move(10, 0);
-        robot.move(-10, 0);
+        robot.move(-12, 0);
 
         //Traversing Map
         robot.move(0, 104 + 8 * stoneConfig);
 
         //Dropping off SkyStone 1
-        robot.toggleLift();
+        robot.toggleLift(); // lift up
+        robot.speed = 0.7;
+        robot.move(13, 0);
         robot.toggleIntake();
-        robot.move(11, 0);
-        robot.wait(1.);
-        robot.move(-11, 0);
+        robot.toggleHook(); // hook down
+        robot.wait(0.4);
+
+        //Pulling foundation back into build site
+        robot.speed = 1.0;
+        robot.move(-32, 0);
+        robot.toggleHook(); //hook up
+
+        //Parking under the bridge
+        robot.move(1, -30);
         robot.toggleLift();
+        robot.move(1, -22);
+
+        //Nice!
 
         /*
 
@@ -98,18 +112,6 @@ public class RedAuto extends LinearOpMode {
         robot.toggleLift();
         robot.toggleIntake();
         robot.move(8, 0);
-
-        //Pulling foundation back into build site
-        robot.speed = 1;
-        robot.toggleHook();
-        robot.move(-30, 0);
-        robot.toggleHook();
-
-        //Parking under the bridge
-        robot.move(1, -40);
-        robot.toggleLift();
-
-        //Nice!
 
         */
     }

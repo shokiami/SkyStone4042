@@ -168,7 +168,7 @@ class Robot {
             rightPower = 0.0013 * dz;
             strafePower = 0.001 * dx;
             updateBallDrive(true);
-            if (Math.sqrt(dz * dz + dx * dx) < 20) {
+            if (Math.sqrt(dz * dz + dx * dx) < 25 + (speed == 1 ? 0 : 65)) {
                 break;
             }
         }
